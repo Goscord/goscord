@@ -42,7 +42,6 @@ func (s *Session) Login() error {
 
 	s.conn = conn
 	
-	
 	go func() {
 		for {
 			select {
@@ -98,8 +97,7 @@ func (s *Session) onMessage(msg []byte) {
 		if err := s.Send(identify); err != nil {
 		    panic("Cannot identify")
 		}
-		
-		
+
 		break
 	}
 

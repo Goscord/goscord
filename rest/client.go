@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"errors"
 	"time"
-	"github.com/Seyz123/yalis/ratelimit"
+	"github.com/Seyz123/yalis/rest/ratelimit"
 )
 
 type Client struct {

@@ -9,9 +9,9 @@ type ConnectionProperties struct {
 type Identify struct {
 	Packet
 	Data struct {
-	    Token string `json:"token,omitempty"`
-	    Intents int `json:"intents,omitempty"`
+	    Token string `json:"token"`
 	    Properties *ConnectionProperties `json:"properties,omitempty"`
+	    Intents int `json:"intents,omitempty"`
 	    Compress bool `json:"compress,omitempty"`
 	} `json:"d,omitempty"`
 }

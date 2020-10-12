@@ -6,7 +6,7 @@ type Packet struct {
 	Opcode int `json:"op,omitempty"`
 	Sequence int `json:"s,omitempty"`
 	Event string `json:"t,omitempty"`
-	Data interface{} `json:"d,omitempty"`
+	Data interface{} `json:"d"`
 }
 
 func NewPacket(data []byte) (*Packet, error) {

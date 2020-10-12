@@ -1,12 +1,15 @@
 package packet
 
-import "encoding/json"
+import (
+    "encoding/json"
+    "time"
+)
 
 type Hello struct {
 	*Packet
 	Data struct {
-		HeartbeatInterval int `json:"heartbeat_interval,omitempty"`
-	} `json:"d,omitempty"`
+		HeartbeatInterval time.Duration `json:"heartbeat_interval"`
+	} `json:"d"`
 }
 
 func NewHello(data []byte) (*Hello, error) {
@@ -17,6 +20,8 @@ func NewHello(data []byte) (*Hello, error) {
 	if err != nil {
 		return nil, err
 	}
+	
+	packet.Data.HeartbeatInterval = packet.Data.HeartbeatInterval * time.Millisecond
 
 	return &packet, nil
 }

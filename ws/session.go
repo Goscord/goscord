@@ -37,12 +37,11 @@ func (s *Session) Login() error {
 	if err != nil {
 		return err
 	}
+	
+	conn.SetCloseHandler(s.onClose)
 
 	s.conn = conn
 	
-	s.conn.SetCloseHandler(func(code int, text string) error {
-		return nil
-	})
 	
 	go func() {
 		for {
@@ -58,7 +57,7 @@ func (s *Session) Login() error {
 					return
 				}
 
-				s.OnMessage(msg)
+				s.onMessage(msg)
 			break
 			}
 		}
@@ -67,7 +66,7 @@ func (s *Session) Login() error {
 	return nil
 }
 
-func (s *Session) OnMessage(msg []byte) {
+func (s *Session) onMessage(msg []byte) {
 	pk, err := packet.NewPacket(msg)
 
 	if err != nil {
@@ -109,7 +108,7 @@ func (s *Session) OnMessage(msg []byte) {
 	}
 }
 
-func (s *Session) OnClose(code int, text string) error {
+func (s *Session) onClose(code int, text string) error {
     // ToDo
     
     return nil
@@ -135,7 +134,7 @@ func (s *Session) startHeartbeat() {
         
         select {
             case <-ticker.C:
-                // ToDo
+                // loop
             break
             
             case <-s.close:

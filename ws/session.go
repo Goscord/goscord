@@ -45,8 +45,8 @@ func (s *Session) Login() error {
 	go func() {
 		for {
 			select {
-			case _ = <-s.close:
-				break
+			case <-s.close:
+				return
 			break
 
 			default:
@@ -120,14 +120,12 @@ func (s *Session) startHeartbeat() {
         
         defer ticker.Stop()
         
-        fmt.Println("Sending heartbeat...")
-        
         heartbeat := packet.NewHeartbeat(s.lastSequence)
         
         err := s.Send(heartbeat)
         
         if err != nil {
-            panic(err)
+            // ToDo : Try resume session
         }
         
         select {
@@ -153,6 +151,5 @@ func (s *Session) Close() {
 	s.conn.Close()
 	s.close <- true
 
-	fmt.Println("Closed")
-	// ToDo : Make this cleaner
+	fmt.Println("Connection closed")
 }

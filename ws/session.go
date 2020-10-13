@@ -6,6 +6,7 @@ import (
 	"time"
 	"github.com/Seyz123/yalis/rest"
 	"github.com/Seyz123/yalis/ws/packet"
+	"github.com/Seyz123/yalis/ws/handler"
 	"github.com/gorilla/websocket"
 )
 
@@ -17,6 +18,7 @@ type Session struct {
 	sessionID string
 	heartbeatInterval time.Duration
 	lastSequence int
+	handlers map[string]handler.EventHandler
 	close chan bool
 }
 
@@ -25,8 +27,17 @@ func NewSession(token string) *Session {
 
 	s.token = token
 	s.close = make(chan bool)
+	
+	s.registerHandlers()
 
 	return s
+}
+
+func (s *Session) registerHandlers() {
+    s.handlers = map[string]handler.EventHandler{
+        // ToDo
+        // handler.EventReady: 
+    }
 }
 
 func (s *Session) Login() error {
@@ -38,7 +49,9 @@ func (s *Session) Login() error {
 		return err
 	}
 	
-	conn.SetCloseHandler(s.onClose)
+	conn.SetCloseHandler(func (code int, text string) error {
+	    return nil
+	})
 
 	s.conn = conn
 	
@@ -102,14 +115,14 @@ func (s *Session) onMessage(msg []byte) {
 	}
 
 	if event != "" {
-		fmt.Println("GOT EVENT : " + event)
+		handler, exists := s.handlers[event]
+		
+		if exists {
+		    handler.Handle(msg)
+		} else {
+		    fmt.Println("Unhandled event : " + event)
+		}
 	}
-}
-
-func (s *Session) onClose(code int, text string) error {
-    // ToDo
-    
-    return nil
 }
 
 func (s *Session) startHeartbeat() {

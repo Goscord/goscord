@@ -1,4 +1,4 @@
-package ws
+package yalis
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ import (
 
 type Session struct {
 	sync.Mutex
-	token string
+	client *Client
 	bus *ev.EventBus
 	connMu sync.Mutex
 	conn *websocket.Conn
@@ -25,11 +25,11 @@ type Session struct {
 	close chan bool
 }
 
-func NewSession(token string, bus *ev.EventBus) *Session {
+func NewSession(client *Client) *Session {
 	s := &Session{}
 
-	s.token = token
-	s.bus = bus
+	s.client = client
+	s.bus = client.Bus()
 	s.close = make(chan bool)
 	
 	s.registerHandlers()
@@ -108,7 +108,7 @@ func (s *Session) onMessage(msg []byte) {
 		
 		go s.startHeartbeat()
 		
-		identify := packet.NewIdentify(s.token)
+		identify := packet.NewIdentify(s.client.Token())
 		
 		if err := s.Send(identify); err != nil {
 		    panic("Cannot identify")

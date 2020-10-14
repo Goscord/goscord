@@ -6,7 +6,6 @@ import (
 	"time"
 	"github.com/Seyz123/yalis/rest"
 	"github.com/Seyz123/yalis/ws/packet"
-	"github.com/Seyz123/yalis/ws/handler"
 	"github.com/Seyz123/yalis/ws/event"
 	"github.com/gorilla/websocket"
 	ev "github.com/asaskevich/EventBus"
@@ -21,7 +20,7 @@ type Session struct {
 	sessionID string
 	heartbeatInterval time.Duration
 	lastSequence int
-	handlers map[string]handler.EventHandler
+	handlers map[string]EventHandler
 	close chan bool
 }
 
@@ -38,47 +37,9 @@ func NewSession(token string, bus *ev.EventBus) *Session {
 }
 
 func (s *Session) registerHandlers() {
-    s.handlers = map[string]handler.EventHandler{
-        event.EventReady: handler.NewReady(s.bus),
+    s.handlers = map[string]EventHandler{
+        event.EventReady: &ReadyHandler{},
     }
-}
-
-func (s *Session) Login() error {
-    s.Lock()
-	defer s.Unlock()
-	
-    conn, _, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
-	if err != nil {
-		return err
-	}
-	
-	conn.SetCloseHandler(func (code int, text string) error {
-	    return nil
-	})
-
-	s.conn = conn
-	
-	go func() {
-		for {
-			select {
-			case <-s.close:
-				return
-			break
-
-			default:
-				_, msg, err := s.conn.ReadMessage()
-
-				if err != nil {
-					return
-				}
-
-				s.onMessage(msg)
-			break
-			}
-		}
-	}()
-
-	return nil
 }
 
 func (s *Session) onMessage(msg []byte) {
@@ -121,7 +82,7 @@ func (s *Session) onMessage(msg []byte) {
 		handler, exists := s.handlers[event]
 		
 		if exists {
-		    handler.Handle(msg)
+		    handler.Handle(s, msg)
 		} else {
 		    fmt.Println("Unhandled event : " + event)
 		}
@@ -156,6 +117,44 @@ func (s *Session) startHeartbeat() {
     }
 }
 
+func (s *Session) Login() error {
+    s.Lock()
+	defer s.Unlock()
+	
+    conn, _, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
+	if err != nil {
+		return err
+	}
+	
+	conn.SetCloseHandler(func (code int, text string) error {
+	    return nil
+	})
+
+	s.conn = conn
+	
+	go func() {
+		for {
+			select {
+			case <-s.close:
+				return
+			break
+
+			default:
+				_, msg, err := s.conn.ReadMessage()
+
+				if err != nil {
+					return
+				}
+
+				s.onMessage(msg)
+			break
+			}
+		}
+	}()
+
+	return nil
+}
+
 func (s *Session) Send(v interface{}) error {
     s.connMu.Lock()
     defer s.connMu.Unlock()
@@ -168,4 +167,8 @@ func (s *Session) Close() {
 	s.close <- true
 
 	fmt.Println("Connection closed")
+}
+
+func (s *Session) Bus() *ev.EventBus {
+    return s.bus
 }

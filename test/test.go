@@ -5,10 +5,6 @@ import (
 	"github.com/Seyz123/yalis"
 )
 
-type Message struct {
-	Content string `json:"content,omitempty"`
-}
-
 var client *yalis.Client
 
 func main() {
@@ -22,7 +18,7 @@ func main() {
 		panic(err)
 	}
 
-	<-make(chan bool)
+	select {}
 }
 
 func OnReady() {

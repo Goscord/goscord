@@ -1,12 +1,8 @@
 package event
 
-import (
-    "encoding/json"
-    "github.com/Seyz123/yalis/ws/packet"
-)
+import "encoding/json"
 
 type Ready struct {
-    *packet.Packet
     Data struct {
         Version int `json:"v"`
         // User *User `json:"user"`

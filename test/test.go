@@ -12,7 +12,7 @@ func main() {
 	
 	client = yalis.NewClient("NzM1NjQyNjE2NDc3MjUzNjg0.XxjOkw.DxpP72dLDdLbJ6IqE2OvV-zX7-k")
 	
-	client.On("ready", OnReady)
+	_ = client.On("ready", OnReady)
 
 	if err := client.Login(); err != nil {
 		panic(err)

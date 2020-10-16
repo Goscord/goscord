@@ -47,7 +47,7 @@ func (c *Client) Request(endpoint, method string, data []byte) ([]byte, error) {
 	
 	var body []byte
 	
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err = ioutil.ReadAll(resp.Body)
 
 	if err != nil {
 		return nil, err

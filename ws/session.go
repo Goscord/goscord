@@ -74,8 +74,6 @@ func (s *Session) onMessage(msg []byte) {
 		if err := s.Send(identify); err != nil {
 		    panic("Cannot identify")
 		}
-
-		break
 	}
 
 	if event != "" {
@@ -108,11 +106,9 @@ func (s *Session) startHeartbeat() {
         select {
             case <-ticker.C:
                 // loop
-            break
             
             case <-s.close:
                 return
-            break
         }
     }
 }
@@ -137,7 +133,6 @@ func (s *Session) Login() error {
 			select {
 			case <-s.close:
 				return
-			break
 
 			default:
 				_, msg, err := s.conn.ReadMessage()
@@ -147,7 +142,6 @@ func (s *Session) Login() error {
 				}
 
 				s.onMessage(msg)
-			break
 			}
 		}
 	}()
@@ -163,7 +157,7 @@ func (s *Session) Send(v interface{}) error {
 }
 
 func (s *Session) Close() {
-	s.conn.Close()
+	_ = s.conn.Close()
 	s.close <- true
 
 	fmt.Println("Connection closed")

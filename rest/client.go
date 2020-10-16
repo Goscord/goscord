@@ -44,7 +44,9 @@ func (c *Client) Request(endpoint, method string, data []byte) ([]byte, error) {
 	}
 
 	defer resp.Body.Close()
-
+	
+	var body []byte
+	
 	body, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
@@ -52,7 +54,11 @@ func (c *Client) Request(endpoint, method string, data []byte) ([]byte, error) {
 	}
 
 	var resData map[string]interface{}
-	json.Unmarshal(body, &resData)
+	err = json.Unmarshal(body, &resData)
+	
+	if err != nil {
+	    return nil, err
+	}
 
 	switch resp.StatusCode {
 	case 429:
@@ -67,10 +73,8 @@ func (c *Client) Request(endpoint, method string, data []byte) ([]byte, error) {
 		time.Sleep(ratelimit.RetryAfter)
 		
 		body, err = c.Request(endpoint, method, data)
-		break;
 	case 401:
 		return nil, errors.New("An invalid token was provided")
-	break;
 	}
 
 	return body, nil

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"errors"
 	"github.com/Seyz123/yalis/rest"
 	"github.com/Seyz123/yalis/ws/packet"
 	"github.com/Seyz123/yalis/ws/event"
@@ -42,13 +43,69 @@ func (s *Session) registerHandlers() {
     }
 }
 
-func (s *Session) onMessage(msg []byte) {
-	pk, err := packet.NewPacket(msg)
+func (s *Session) Login() error {
+    conn, _, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
+	if err != nil {
+		return err
+	}
+	
+	conn.SetCloseHandler(func (code int, text string) error {
+	    return nil
+	})
+
+	s.conn = conn
+	
+	_, msg, err := s.conn.ReadMessage()
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
+	pk, err := s.onMessage(msg)
+
+	if err != nil {
+		return err
+	} else if pk.Opcode != 10 {
+	    return errors.New("Expecting op 10")
+	}
+	
+	// ToDo : Handle heartbeat ack
+	
+	s.Lock()
+	defer s.Unlock()
+	
+	sessionID := s.sessionID
+	sequence := s.lastSequence
+	
+	if sequence == 0 && sessionID == "" {
+	    identify := packet.NewIdentify(s.token)
+		
+		if err = s.Send(identify); err != nil {
+		    return err
+		}
+	} else {
+	     resume := packet.NewResume(s.token, sessionID, sequence)
+	     
+	     fmt.Println(resume)
+		
+		if err = s.Send(resume); err != nil {
+		    return err
+		}
+	}
+	
+	go s.startHeartbeat()
+	go s.listen()
+
+	return nil
+}
+
+func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
+    pk, err := packet.NewPacket(msg)
+
+	if err != nil {
+		return nil, err
+	}
+	
 	opcode, event := pk.Opcode, pk.Event
 	
 	s.Lock()
@@ -60,20 +117,13 @@ func (s *Session) onMessage(msg []byte) {
 		hello, err := packet.NewHello(msg)
 
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		
 		s.Lock()
 		s.heartbeatInterval = hello.Data.HeartbeatInterval
 		s.Unlock()
 		
-		go s.startHeartbeat()
-		
-		identify := packet.NewIdentify(s.token)
-		
-		if err := s.Send(identify); err != nil {
-		    panic("Cannot identify")
-		}
 	}
 
 	if event != "" {
@@ -85,6 +135,8 @@ func (s *Session) onMessage(msg []byte) {
 		    fmt.Println("Unhandled event : " + event)
 		}
 	}
+	
+	return pk, nil
 }
 
 func (s *Session) startHeartbeat() {
@@ -100,7 +152,10 @@ func (s *Session) startHeartbeat() {
         err := s.Send(heartbeat)
         
         if err != nil {
-            // ToDo : Try resume session
+            s.Close()
+            s.reconnect()
+            
+            return
         }
         
         select {
@@ -113,40 +168,41 @@ func (s *Session) startHeartbeat() {
     }
 }
 
-func (s *Session) Login() error {
-    s.Lock()
-	defer s.Unlock()
-	
-    conn, _, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
-	if err != nil {
-		return err
-	}
-	
-	conn.SetCloseHandler(func (code int, text string) error {
-	    return nil
-	})
+func (s *Session) listen() {
+    for {
+        _, msg, err := s.conn.ReadMessage()
+        
+        if err != nil {
+            s.Close()
+            s.reconnect()
+            
+            return
+        }
+        
+        _, _ = s.onMessage(msg)
+    }
+}
 
-	s.conn = conn
-	
-	go func() {
-		for {
-			select {
-			case <-s.close:
-				return
-
-			default:
-				_, msg, err := s.conn.ReadMessage()
-
-				if err != nil {
-					return
-				}
-
-				s.onMessage(msg)
-			}
-		}
-	}()
-
-	return nil
+func (s *Session) reconnect() {
+    wait := time.Duration(5)
+    
+    for {
+        fmt.Println("Reconnecting")
+        
+        err := s.Login()
+        
+        if err == nil {
+            fmt.Println("Reconnected")
+            
+            // ToDo : Reconnect to voice connections
+            
+            return
+        }
+        
+        fmt.Println("Retrying to reconnect...")
+        
+        <-time.After(wait * time.Second)
+    }
 }
 
 func (s *Session) Send(v interface{}) error {
@@ -159,8 +215,6 @@ func (s *Session) Send(v interface{}) error {
 func (s *Session) Close() {
 	_ = s.conn.Close()
 	s.close <- true
-
-	fmt.Println("Connection closed")
 }
 
 func (s *Session) Bus() *ev.EventBus {

@@ -2,10 +2,10 @@ package packet
 
 type Heartbeat struct {
 	Packet
-	Data int `json:"d"`
+	Data int64 `json:"d"`
 }
 
-func NewHeartbeat(lastSequence int) (*Heartbeat) {
+func NewHeartbeat(lastSequence int64) (*Heartbeat) {
 	heartbeat := &Heartbeat{}
 	
 	heartbeat.Opcode = OpHeartbeat

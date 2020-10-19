@@ -20,7 +20,7 @@ type Session struct {
 	conn *websocket.Conn
 	sessionID string
 	heartbeatInterval time.Duration
-	lastSequence int
+	lastSequence int64
 	handlers map[string]EventHandler
 	close chan bool
 }
@@ -84,9 +84,9 @@ func (s *Session) Login() error {
 		    return err
 		}
 	} else {
-	     resume := packet.NewResume(s.token, sessionID, sequence)
-	     
-	     fmt.Println(resume)
+	    resume := packet.NewResume(s.token, sessionID, sequence)
+	    
+	    fmt.Println(resume)
 		
 		if err = s.Send(resume); err != nil {
 		    return err
@@ -107,10 +107,6 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 	}
 	
 	opcode, event := pk.Opcode, pk.Event
-	
-	s.Lock()
-	s.lastSequence = pk.Sequence
-	s.Unlock()
 
 	switch opcode {
 	case packet.OpHello:
@@ -123,10 +119,28 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 		s.Lock()
 		s.heartbeatInterval = hello.Data.HeartbeatInterval
 		s.Unlock()
-		
+	
+	case packet.OpInvalidSession:
+	    s.Lock()
+	    defer s.Unlock()
+	    
+	    s.sessionID = ""
+	    s.lastSequence = 0
+	    
+	    s.Close()
+	    s.reconnect()
+	
+	
+	case packet.OpReconnect:
+	    panic("Gateway want a reconnect")
+	    
 	}
 
 	if event != "" {
+	    s.Lock()
+	    s.lastSequence = pk.Sequence
+	    s.Unlock()
+	    
 		handler, exists := s.handlers[event]
 		
 		if exists {

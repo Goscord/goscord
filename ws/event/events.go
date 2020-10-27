@@ -1,5 +1,6 @@
 package event
 
 const (
-    EventReady = "READY"
+	EventReady       = "READY"
+	EventGuildCreate = "GUILD_CREATE"
 )

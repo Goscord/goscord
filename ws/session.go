@@ -40,8 +40,9 @@ func NewSession(token string, bus *ev.EventBus) *Session {
 
 func (s *Session) registerHandlers() {
 	s.handlers = map[string]EventHandler{
-		event.EventReady:       &ReadyHandler{},
-		event.EventGuildCreate: &GuildCreateHandler{},
+		event.EventReady:         &ReadyHandler{},
+		event.EventGuildCreate:   &GuildCreateHandler{},
+		event.EventMessageCreate: &MessageCreateHandler{},
 	}
 }
 

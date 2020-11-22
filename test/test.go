@@ -29,5 +29,5 @@ func OnReady() {
 }
 
 func OnMessage(message *message.Message) {
-	fmt.Println(message)
+	fmt.Println(message.Author)
 }

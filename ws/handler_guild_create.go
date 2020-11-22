@@ -8,7 +8,7 @@ import (
 
 type GuildCreateHandler struct{}
 
-func (h *GuildCreateHandler) Handle(s *Session, data []byte) {
+func (h *GuildCreateHandler) Handle(_ *Session, data []byte) {
 	ev, err := event.NewGuildCreate(data)
 
 	if err != nil {

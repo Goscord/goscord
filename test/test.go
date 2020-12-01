@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/Seyz123/yalis/channel/message/embed"
 
 	"github.com/Seyz123/yalis"
 	"github.com/Seyz123/yalis/channel/message"
@@ -32,8 +33,12 @@ func OnMessage(msg *message.Message) {
 	if !msg.Author.Bot {
 		fmt.Println(msg.Author)
 
-		ms, _ := msg.Reply("Test")
+		e := embed.NewEmbedBuilder()
 
-		fmt.Println("@" + ms.Author.Username + "#" + ms.Author.Discriminator)
+		e.SetTitle("Test")
+		e.SetDescription("Test")
+		e.SetColor(embed.Blurple)
+
+		_, _ = msg.Reply(e.Embed())
 	}
 }

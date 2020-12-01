@@ -1,7 +1,8 @@
-package utils
+package message
 
 import (
 	"encoding/json"
+	"github.com/Seyz123/yalis/channel/message/embed"
 )
 
 func FormatMessage(content interface{}) ([]byte, error) {
@@ -9,10 +10,17 @@ func FormatMessage(content interface{}) ([]byte, error) {
 	case string:
 		content = map[string]string{"content": content.(string)}
 
+	case *embed.Embed:
+		content = &embed.MessageEmbed{Embed: content.(*embed.Embed)}
+
 		// TODO : Add support for attachments
 	}
 
 	b, err := json.Marshal(content)
 
-	return b, err
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/Seyz123/yalis/guild"
 	"github.com/Seyz123/yalis/rest"
 	"github.com/Seyz123/yalis/user"
-	"github.com/Seyz123/yalis/utils"
 )
 
 type Message struct {
@@ -21,7 +20,7 @@ type Message struct {
 }
 
 func (m *Message) Reply(content interface{}) (*Message, error) {
-	b, err := utils.FormatMessage(content)
+	b, err := FormatMessage(content)
 
 	if err != nil {
 		return nil, err

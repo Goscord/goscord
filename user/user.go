@@ -1,6 +1,9 @@
 package user
 
+import "github.com/Seyz123/yalis/rest"
+
 type User struct {
+	Rest *rest.RestClient `json:"-"`
 	Id            string `json:"id"`
 	Username      string `json:"username"`
 	Discriminator string `json:"discriminator"`

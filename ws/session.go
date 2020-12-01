@@ -16,6 +16,7 @@ import (
 type Session struct {
 	sync.Mutex
 	token             string
+	rest *rest.RestClient
 	bus               *ev.EventBus
 	connMu            sync.Mutex
 	conn              *websocket.Conn
@@ -30,6 +31,7 @@ func NewSession(token string, bus *ev.EventBus) *Session {
 	s := &Session{}
 
 	s.token = token
+	s.rest = rest.NewClient(token)
 	s.bus = bus
 	s.close = make(chan bool)
 

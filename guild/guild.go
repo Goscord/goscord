@@ -1,7 +1,10 @@
 package guild
 
+import "github.com/Seyz123/yalis/rest"
+
 // ToDo : Add all fields ;-;
 type Guild struct {
+	Rest *rest.RestClient `json:"-"`
 	Id                string `json:"id"`
 	Name              string `json:"name"`
 	Icon              string `json:"icon,omitempty"`
@@ -9,7 +12,7 @@ type Guild struct {
 	DiscoverySplash   string `json:"discovery_splash,omitempty"`
 	OwnerId           string `json:"owner_id"`
 	Region            string `json:"region"`
-	AfkThannelId      string `json:"afk_channel_id,omitempty"`
+	AfkChannelId      string `json:"afk_channel_id,omitempty"`
 	AfkTimeout        int    `json:"afk_timeout"`
 	WidgetEnabled     bool   `json:"widget_enabled"`
 	WidgetChannelId   string `json:"widget_channel_id,omitempty"`
@@ -21,7 +24,7 @@ type Guild struct {
 	Unavailable bool     `json:"unavailable"`
 	MemberCount int      `json:"member_count"`
 	//VoiceStates []*voice.State `json:"voice_states"`
-	//Members []*Member `json:"members"`
+	Members []*Member `json:"members"`
 	//Channel []*channel.Channel json:"channels"`
 }
 

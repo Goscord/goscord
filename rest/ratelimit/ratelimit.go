@@ -6,9 +6,9 @@ import (
 )
 
 type RateLimit struct {
-	Message string `json:"message,omitempty"`
-	RetryAfter time.Duration `json:"retry_after,omitempty"`
-	Global bool `json:"global,omitempty"`
+	Message string `json:"message"`
+	RetryAfter time.Duration `json:"retry_after"`
+	Global bool `json:"global"`
 }
 
 func NewRateLimit(data []byte) (*RateLimit, error) {

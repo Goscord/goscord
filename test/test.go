@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Seyz123/yalis"
-	"github.com/Seyz123/yalis/guild/message"
+	"github.com/Seyz123/yalis/channel/message"
 )
 
 var client *yalis.Client
@@ -28,6 +28,12 @@ func OnReady() {
 	fmt.Println("Bot online !")
 }
 
-func OnMessage(message *message.Message) {
-	fmt.Println(message.Author)
+func OnMessage(msg *message.Message) {
+	if !msg.Author.Bot {
+		fmt.Println(msg.Author)
+
+		ms, _ := msg.Reply("Test")
+
+		fmt.Println("@" + ms.Author.Username + "#" + ms.Author.Discriminator)
+	}
 }

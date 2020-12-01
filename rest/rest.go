@@ -1,30 +1,30 @@
 package rest
 
 import (
-	"net/http"
-	"strings"
 	"bytes"
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
 	"errors"
-	"time"
+	"fmt"
 	"github.com/Seyz123/yalis/rest/ratelimit"
+	"io/ioutil"
+	"net/http"
+	"strings"
+	"time"
 )
 
-type Client struct {
+type RestClient struct {
 	token string
 	http *http.Client
 }
 
-func NewClient(token string) *Client {
-	return &Client{
+func NewClient(token string) *RestClient {
+	return &RestClient{
 		token: token,
 		http: &http.Client{},
 	}
 }
 
-func (c *Client) Request(endpoint, method string, data []byte) ([]byte, error) {
+func (c *RestClient) Request(endpoint, method string, data []byte) ([]byte, error) {
 	method = strings.ToUpper(method)
 	url := strings.ToLower(BaseUrl + endpoint)
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
@@ -43,7 +43,9 @@ func (c *Client) Request(endpoint, method string, data []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 	
 	var body []byte
 	
@@ -62,15 +64,15 @@ func (c *Client) Request(endpoint, method string, data []byte) ([]byte, error) {
 
 	switch resp.StatusCode {
 	case 429:
-		ratelimit, err := ratelimit.NewRateLimit(body)
+		rateLimit, err := ratelimit.NewRateLimit(body)
 
 		if err != nil {
 			return nil, err
 		}
 
-		// ToDo : Handle ratelimit cleaner lmao
+		// ToDo : Handle rateLimit cleaner lmao
 
-		time.Sleep(ratelimit.RetryAfter)
+		time.Sleep(rateLimit.RetryAfter)
 		
 		body, err = c.Request(endpoint, method, data)
 	case 401:

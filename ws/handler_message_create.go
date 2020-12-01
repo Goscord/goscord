@@ -8,7 +8,7 @@ import (
 type MessageCreateHandler struct{}
 
 func (h *MessageCreateHandler) Handle(s *Session, data []byte) {
-	ev, err := event.NewMessageCreate(data)
+	ev, err := event.NewMessageCreate(s.rest, data)
 
 	if err != nil {
 		fmt.Println(err.Error())

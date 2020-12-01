@@ -1,11 +1,14 @@
 package event
 
-import "encoding/json"
+import (
+    "encoding/json"
+    "github.com/Seyz123/yalis/user"
+)
 
 type Ready struct {
     Data struct {
         Version int `json:"v"`
-        // User *User `json:"user"`
+        User *user.User `json:"user"`
         // Guilds []*Guild `json:"guilds"`
         SessionID string `json:"session_id"`
         Shard []int `json:"shard,omitempty"`

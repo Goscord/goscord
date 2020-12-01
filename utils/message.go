@@ -5,9 +5,9 @@ import (
 )
 
 func FormatMessage(content interface{}) ([]byte, error) {
-	switch content.(type) {
+	switch content := content.(type) {
 	case string:
-		content = map[string]string{"content": content.(string)}
+		content = map[string]string{"content": content}
 
 		// TODO : Add support for attachments
 	}

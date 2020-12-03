@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/Seyz123/yalis/channel/message/embed"
-
 	"github.com/Seyz123/yalis"
 	"github.com/Seyz123/yalis/channel/message"
 )
@@ -26,19 +24,11 @@ func main() {
 }
 
 func OnReady() {
-	fmt.Println("Bot online !")
+	fmt.Println("Logged in as " + client.User().Tag())
 }
 
 func OnMessage(msg *message.Message) {
 	if !msg.Author.Bot {
-		fmt.Println(msg.Author)
-
-		e := embed.NewEmbedBuilder()
-
-		e.SetTitle("Test")
-		e.SetDescription("Test")
-		e.SetColor(embed.Blurple)
-
-		_, _ = msg.Reply(e.Embed())
+		_, _ = msg.Reply("Test")
 	}
 }

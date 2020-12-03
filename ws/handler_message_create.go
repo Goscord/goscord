@@ -1,7 +1,6 @@
 package ws
 
 import (
-	"fmt"
 	"github.com/Seyz123/yalis/ws/event"
 )
 
@@ -11,7 +10,6 @@ func (h *MessageCreateHandler) Handle(s *Session, data []byte) {
 	ev, err := event.NewMessageCreate(s.rest, data)
 
 	if err != nil {
-		fmt.Println(err.Error())
 		return
 	}
 

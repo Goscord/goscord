@@ -12,9 +12,8 @@ func (h *ReadyHandler) Handle(s *Session, data []byte) {
     if err != nil {
         return
     }
-    
-    // Handle properties
-    
+
+    s.user = ev.Data.User
     s.sessionID = ev.Data.SessionID
     
     s.Bus().Publish("ready")

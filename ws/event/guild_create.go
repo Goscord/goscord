@@ -11,7 +11,7 @@ type GuildCreate struct {
 	Data *guild.Guild `json:"d"`
 }
 
-func NewGuildCreate(rest *rest.RestClient, data []byte) (*GuildCreate, error) {
+func NewGuildCreate(rest *rest.Client, data []byte) (*GuildCreate, error) {
 	pk := new(GuildCreate)
 
 	err := json.Unmarshal(data, pk)

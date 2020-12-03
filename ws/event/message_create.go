@@ -11,7 +11,7 @@ type MessageCreate struct {
 	Data *message.Message `json:"d"`
 }
 
-func NewMessageCreate(rest *rest.RestClient, data []byte) (*MessageCreate, error) {
+func NewMessageCreate(rest *rest.Client, data []byte) (*MessageCreate, error) {
 	pk := new(MessageCreate)
 
 	err := json.Unmarshal(data, pk)

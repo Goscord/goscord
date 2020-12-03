@@ -1,9 +1,12 @@
 package user
 
-import "github.com/Seyz123/yalis/rest"
+import (
+	"fmt"
+	"github.com/Seyz123/yalis/rest"
+)
 
 type User struct {
-	Rest *rest.RestClient `json:"-"`
+	Rest *rest.Client    `json:"-"`
 	Id            string `json:"id"`
 	Username      string `json:"username"`
 	Discriminator string `json:"discriminator"`
@@ -17,4 +20,8 @@ type User struct {
 	Flags         int    `json:"flags"`
 	PremiumType   int    `json:"premium_type"`
 	PublicFlags   int    `json:"public_flags"`
+}
+
+func (u *User) Tag() string {
+	return fmt.Sprintf("%s#%s", u.Username, u.Discriminator)
 }

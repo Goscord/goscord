@@ -3,6 +3,7 @@ package ws
 import (
 	"errors"
 	"fmt"
+	"github.com/Seyz123/yalis/user"
 	"sync"
 	"time"
 
@@ -15,8 +16,9 @@ import (
 
 type Session struct {
 	sync.Mutex
+	user *user.User
 	token             string
-	rest *rest.RestClient
+	rest *rest.Client
 	bus               *ev.EventBus
 	connMu            sync.Mutex
 	conn              *websocket.Conn
@@ -237,4 +239,8 @@ func (s *Session) Close() {
 
 func (s *Session) Bus() *ev.EventBus {
 	return s.bus
+}
+
+func (s *Session) User() *user.User {
+	return s.user
 }

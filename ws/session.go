@@ -93,8 +93,6 @@ func (s *Session) Login() error {
 	} else {
 		resume := packet.NewResume(s.token, sessionID, sequence)
 
-		fmt.Println(resume)
-
 		if err = s.Send(resume); err != nil {
 			return err
 		}

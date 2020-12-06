@@ -2,13 +2,12 @@ package event
 
 import (
 	"encoding/json"
+	"github.com/Seyz123/yalis/channel"
 	"github.com/Seyz123/yalis/rest"
-
-	"github.com/Seyz123/yalis/channel/message"
 )
 
 type MessageCreate struct {
-	Data *message.Message `json:"d"`
+	Data *channel.Message `json:"d"`
 }
 
 func NewMessageCreate(rest *rest.Client, data []byte) (*MessageCreate, error) {

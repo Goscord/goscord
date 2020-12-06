@@ -1,10 +1,9 @@
-package message
+package channel
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Seyz123/yalis/channel"
-	"github.com/Seyz123/yalis/channel/message/embed"
+	"github.com/Seyz123/yalis/channel/embed"
 	"github.com/Seyz123/yalis/guild"
 	"github.com/Seyz123/yalis/rest"
 	"github.com/Seyz123/yalis/user"
@@ -24,16 +23,24 @@ type Message struct {
 	Tts             bool          `json:"tts"`
 	MentionEveryone bool          `json:"mention_everyone"`
 	//MentionRoles []*guild.Role `json:"mention_roles"`
-	MentionChannels []*channel.Channel `json:"mention_channels"`
-	Attachments     []*Attachment      `json:"attachments"`
-	Embeds          []*embed.Embed     `json:"embeds"`
+	MentionChannels []*Channel     `json:"mention_channels"`
+	Attachments     []*Attachment  `json:"attachments"`
+	Embeds          []*embed.Embed `json:"embeds"`
 	//Reactions []*message.Reaction `json:"reactions"`
 
 	// ToDo : Add other properties
 }
 
 func (m *Message) Reply(content interface{}) (*Message, error) {
-	b, err := FormatMessage(content)
+	switch content.(type) {
+	case string:
+		content = map[string]string{"content": fmt.Sprintf("<@%s>, %s", m.Author.Id, content.(string))}
+
+	case *embed.Embed:
+		content = &embed.MessageEmbed{Content: fmt.Sprintf("<@%s>, ", m.Author.Id), Embed: content.(*embed.Embed)}
+	}
+
+	b, err := json.Marshal(content)
 
 	if err != nil {
 		return nil, err
@@ -45,13 +52,43 @@ func (m *Message) Reply(content interface{}) (*Message, error) {
 		return nil, err
 	}
 
-	message := new(Message)
+	msg := new(Message)
 
-	err = json.Unmarshal(res, message)
+	err = json.Unmarshal(res, msg)
 
 	if err != nil {
 		return nil, err
 	}
 
-	return message, nil
+	return msg, nil
+}
+
+func (m *Message) Channel() (*Channel, error) {
+	b, err := m.Rest.Request(fmt.Sprintf(rest.EndpointGetChannel, m.ChannelId), "GET", nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	ch, err := NewChannel(m.Rest, b)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return ch, nil
+}
+
+func NewMessage(rest *rest.Client, data []byte) (*Message, error) {
+	msg := new(Message)
+
+	err := json.Unmarshal(data, msg)
+
+	if err != nil {
+		return nil, err
+	}
+
+	msg.Rest = rest
+
+	return msg, nil
 }

@@ -1,9 +1,9 @@
-package ws
+package gateway
 
 import (
 	"fmt"
 
-	"github.com/Seyz123/yalis/ws/event"
+	"github.com/Seyz123/yalis/gateway/event"
 )
 
 type GuildCreateHandler struct{}

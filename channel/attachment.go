@@ -1,4 +1,4 @@
-package message
+package channel
 
 type Attachment struct {
 	Id       string `json:"id"`

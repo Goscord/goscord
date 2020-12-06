@@ -1,4 +1,4 @@
-package ws
+package gateway
 
 import (
 	"errors"
@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Seyz123/yalis/gateway/event"
+	"github.com/Seyz123/yalis/gateway/packet"
 	"github.com/Seyz123/yalis/rest"
-	"github.com/Seyz123/yalis/ws/event"
-	"github.com/Seyz123/yalis/ws/packet"
 	ev "github.com/asaskevich/EventBus"
 	"github.com/gorilla/websocket"
 )
@@ -111,7 +111,7 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 		return nil, err
 	}
 
-	opcode, event := pk.Opcode, pk.Event
+	opcode, e := pk.Opcode, pk.Event
 
 	switch opcode {
 	case packet.OpHello:
@@ -140,17 +140,17 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 
 	}
 
-	if event != "" {
+	if e != "" {
 		s.Lock()
 		s.lastSequence = pk.Sequence
 		s.Unlock()
 
-		handler, exists := s.handlers[event]
+		handler, exists := s.handlers[e]
 
 		if exists {
 			handler.Handle(s, msg)
 		} else {
-			fmt.Println("Unhandled event : " + event)
+			fmt.Println("Unhandled e : " + e)
 		}
 	}
 
@@ -158,13 +158,13 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 }
 
 func (s *Session) startHeartbeat() {
+	s.Lock()
+	ticker := time.NewTicker(s.heartbeatInterval)
+	s.Unlock()
+
+	defer ticker.Stop()
+
 	for {
-		s.Lock()
-		ticker := time.NewTicker(s.heartbeatInterval)
-		s.Unlock()
-
-		defer ticker.Stop()
-
 		heartbeat := packet.NewHeartbeat(s.lastSequence)
 
 		err := s.Send(heartbeat)

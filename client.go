@@ -1,15 +1,15 @@
 package yalis
 
 import (
+	"github.com/Seyz123/yalis/gateway"
 	"github.com/Seyz123/yalis/user"
-	"github.com/Seyz123/yalis/ws"
 	ev "github.com/asaskevich/EventBus"
 )
 
 type Client struct {
 	token string
 	bus *ev.EventBus
-	session *ws.Session
+	session *gateway.Session
 }
 
 func NewClient(token string) *Client {
@@ -17,7 +17,7 @@ func NewClient(token string) *Client {
 	
 	client.token = token
 	client.bus = ev.New().(*ev.EventBus)
-	client.session = ws.NewSession(token, client.Bus())
+	client.session = gateway.NewSession(token, client.Bus())
 	
 	return client
 }
@@ -30,7 +30,7 @@ func (c *Client) Token() string {
 	return c.token
 }
 
-func (c *Client) Session() *ws.Session {
+func (c *Client) Session() *gateway.Session {
 	return c.session
 }
 

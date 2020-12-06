@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/Seyz123/yalis"
-	"github.com/Seyz123/yalis/channel/message"
+	"github.com/Seyz123/yalis/channel"
 )
 
 var client *yalis.Client
@@ -27,8 +27,16 @@ func OnReady() {
 	fmt.Println("Logged in as " + client.User().Tag())
 }
 
-func OnMessage(msg *message.Message) {
+func OnMessage(msg *channel.Message) {
 	if !msg.Author.Bot {
-		_, _ = msg.Reply("Test")
+		_, _ = msg.Reply("coucou mec")
+
+		channel, err := msg.Channel()
+
+		if err != nil {
+			panic(err)
+		}
+
+		channel.Send("ça va mec ?")
 	}
 }

@@ -1,6 +1,7 @@
 package guild
 
 import (
+	"encoding/json"
 	"github.com/Seyz123/yalis/channel"
 	"github.com/Seyz123/yalis/rest"
 )
@@ -30,4 +31,16 @@ type Guild struct {
 	Channels []*channel.Channel `json:"channels"`
 }
 
-// ToDo : Add some guild functions
+func NewGuild(rest *rest.Client, data []byte) (*Guild, error) {
+	guild := new(Guild)
+
+	err := json.Unmarshal(data, guild)
+
+	if err != nil {
+		return nil, err
+	}
+
+	guild.Rest = rest
+
+	return guild, nil
+}

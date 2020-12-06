@@ -1,6 +1,7 @@
 package user
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/Seyz123/yalis/rest"
 )
@@ -20,6 +21,20 @@ type User struct {
 	Flags         int    `json:"flags"`
 	PremiumType   int    `json:"premium_type"`
 	PublicFlags   int    `json:"public_flags"`
+}
+
+func NewUser(rest *rest.Client, data []byte) (*User, error) {
+	u := new(User)
+
+	err := json.Unmarshal(data, u)
+
+	if err != nil {
+		return nil, err
+	}
+
+	u.Rest = rest
+
+	return u, nil
 }
 
 func (u *User) Tag() string {

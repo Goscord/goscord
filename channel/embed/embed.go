@@ -4,18 +4,18 @@ import "time"
 
 type MessageEmbed struct {
 	Content string `json:"content,omitempty"`
-	Embed *Embed `json:"embed"`
+	Embed *Embed   `json:"embed"`
 }
 
 type Embed struct {
-	Title string        `json:"title,omitempty"`
-	Type string         `json:"type,omitempty"`
-	Description string  `json:"description,omitempty"`
-	URL string          `json:"url,omitempty"`
+	Title string         `json:"title,omitempty"`
+	Type string          `json:"type,omitempty"`
+	Description string   `json:"description,omitempty"`
+	URL string           `json:"url,omitempty"`
 	Timestamp *time.Time `json:"timestamp,omitempty"`
-	Color int           `json:"color,omitempty"`
-	Footer *Footer      `json:"footer,omitempty"`
-	Image *Image        `json:"image,omitempty"`
+	Color int            `json:"color,omitempty"`
+	Footer *Footer       `json:"footer,omitempty"`
+	Image *Image         `json:"image,omitempty"`
 	Thumbnail *Thumbnail `json:"thumbnail,omitempty"`
 	// TODO : Video
 	Author *Author  `json:"author,omitempty"`

@@ -1,4 +1,4 @@
-package ws
+package gateway
 
 const (
 	StateIdle = 0

@@ -1,7 +1,7 @@
-package ws
+package gateway
 
 import (
-    "github.com/Seyz123/yalis/ws/event"
+	"github.com/Seyz123/yalis/gateway/event"
 )
 
 type ReadyHandler struct {}

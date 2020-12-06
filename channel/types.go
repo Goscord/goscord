@@ -1,4 +1,14 @@
-package message
+package channel
+
+const (
+	TypeGuildText = iota
+	TypeDm
+	TypeGuildVoice
+	TypeGroupDm
+	TypeGuildCategory
+	TypeGuildNews
+	TypeGuildStore
+)
 
 const (
 	Default = iota

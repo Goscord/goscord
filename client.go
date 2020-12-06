@@ -43,5 +43,5 @@ func (c *Client) User() *user.User {
 }
 
 func (c *Client) On(ev string, fn interface{}) error {
-    return c.bus.SubscribeAsync(ev, fn)
+    return c.bus.SubscribeAsync(ev, fn, false)
 }

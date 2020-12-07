@@ -8,7 +8,7 @@ bindings to the [Discord](https://discord.com/) API.
 ### Installing
 
 ```sh
-go get github.com/Seyz123/yalis
+go get github.com/Goscord/goscord
 ```
 
 ### Usage
@@ -16,7 +16,7 @@ go get github.com/Seyz123/yalis
 Import the package into your project.
 
 ```go
-import "github.com/Seyz123/yalis"
+import "github.com/Goscord/goscord"
 ```
 
 Construct a new Discord client which can be used to access the variety of 

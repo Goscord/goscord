@@ -1,8 +1,8 @@
 package packet
 
 import (
-    "encoding/json"
-    "time"
+	"encoding/json"
+	"time"
 )
 
 type Hello struct {
@@ -20,7 +20,7 @@ func NewHello(data []byte) (*Hello, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	packet.Data.HeartbeatInterval = packet.Data.HeartbeatInterval * time.Millisecond
 
 	return &packet, nil

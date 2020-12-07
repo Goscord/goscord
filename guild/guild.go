@@ -2,7 +2,6 @@ package guild
 
 import (
 	"encoding/json"
-	"github.com/Seyz123/yalis/channel"
 	"github.com/Seyz123/yalis/rest"
 )
 
@@ -28,7 +27,7 @@ type Guild struct {
 	MemberCount int      `json:"member_count"`
 	//VoiceStates []*voice.State `json:"voice_states"`
 	Members  []*Member          `json:"members"`
-	Channels []*channel.Channel `json:"channels"`
+	//Channels []*channel.Channel `json:"channels"`
 }
 
 func NewGuild(rest *rest.Client, data []byte) (*Guild, error) {

@@ -3,10 +3,10 @@ package packet
 import "encoding/json"
 
 type Packet struct {
-	Opcode int `json:"op,omitempty"`
-	Sequence int64 `json:"s,omitempty"`
-	Event string `json:"t,omitempty"`
-	Data interface{} `json:"d"`
+	Opcode   int         `json:"op,omitempty"`
+	Sequence int64       `json:"s,omitempty"`
+	Event    string      `json:"t,omitempty"`
+	Data     interface{} `json:"d"`
 }
 
 func NewPacket(data []byte) (*Packet, error) {

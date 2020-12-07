@@ -1,5 +1,5 @@
 package gateway
 
 type EventHandler interface {
-    Handle(s *Session, data []byte)
+	Handle(s *Session, data []byte)
 }

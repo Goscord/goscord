@@ -7,18 +7,18 @@ import (
 )
 
 type Client struct {
-	token string
-	bus *ev.EventBus
+	token   string
+	bus     *ev.EventBus
 	session *gateway.Session
 }
 
 func NewClient(token string) *Client {
 	client := new(Client)
-	
+
 	client.token = token
 	client.bus = ev.New().(*ev.EventBus)
 	client.session = gateway.NewSession(token, client.Bus())
-	
+
 	return client
 }
 
@@ -35,7 +35,7 @@ func (c *Client) Session() *gateway.Session {
 }
 
 func (c *Client) Bus() *ev.EventBus {
-    return c.bus
+	return c.bus
 }
 
 func (c *Client) User() *user.User {
@@ -43,5 +43,5 @@ func (c *Client) User() *user.User {
 }
 
 func (c *Client) On(ev string, fn interface{}) error {
-    return c.bus.SubscribeAsync(ev, fn, false)
+	return c.bus.SubscribeAsync(ev, fn, false)
 }

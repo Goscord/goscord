@@ -1,14 +1,14 @@
 package ratelimit
 
 import (
-	"time"
 	"encoding/json"
+	"time"
 )
 
 type RateLimit struct {
-	Message string `json:"message"`
+	Message    string        `json:"message"`
 	RetryAfter time.Duration `json:"retry_after"`
-	Global bool `json:"global"`
+	Global     bool          `json:"global"`
 }
 
 func NewRateLimit(data []byte) (*RateLimit, error) {

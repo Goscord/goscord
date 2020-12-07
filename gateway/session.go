@@ -16,9 +16,9 @@ import (
 
 type Session struct {
 	sync.Mutex
-	user *user.User
+	user              *user.User
 	token             string
-	rest *rest.Client
+	rest              *rest.Client
 	bus               *ev.EventBus
 	connMu            sync.Mutex
 	conn              *websocket.Conn

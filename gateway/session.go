@@ -15,8 +15,8 @@ import (
 
 type Session struct {
 	sync.Mutex
+	options           *Options
 	user              *discord.User
-	token             string
 	rest              *rest.Client
 	bus               *ev.EventBus
 	connMu            sync.Mutex
@@ -28,11 +28,11 @@ type Session struct {
 	close             chan bool
 }
 
-func NewSession(token string) *Session {
+func NewSession(options *Options) *Session {
 	s := &Session{}
 
-	s.token = token
-	s.rest = rest.NewClient(token)
+	s.options = options
+	s.rest = rest.NewClient(options.Token)
 	s.bus = ev.New().(*ev.EventBus)
 	s.close = make(chan bool)
 
@@ -84,13 +84,13 @@ func (s *Session) Login() error {
 	sequence := s.lastSequence
 
 	if sequence == 0 && sessionID == "" {
-		identify := packet.NewIdentify(s.token)
+		identify := packet.NewIdentify(s.options.Token)
 
 		if err = s.Send(identify); err != nil {
 			return err
 		}
 	} else {
-		resume := packet.NewResume(s.token, sessionID, sequence)
+		resume := packet.NewResume(s.options.Token, sessionID, sequence)
 
 		if err = s.Send(resume); err != nil {
 			return err
@@ -135,8 +135,8 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 		s.reconnect()
 
 	case packet.OpReconnect:
-		panic("Gateway want a reconnect")
-
+		s.Close()
+		s.reconnect()
 	}
 
 	if e != "" {

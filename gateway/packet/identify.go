@@ -24,14 +24,14 @@ func newConnectionProperties(os, browser, device string) *ConnectionProperties {
 	}
 }
 
-func NewIdentify(token string) *Identify { // ToDo : Compression
+func NewIdentify(token string) *Identify {
 	identify := &Identify{}
 
 	identify.Opcode = OpIdentify
 	identify.Data.Token = token
 	identify.Data.Properties = newConnectionProperties("android", "test", "test")
-	//identify.Data.Compress = false
-	//identify.Data.Intents = 0
+	identify.Data.Compress = false
+	identify.Data.Intents = 0
 
 	return identify
 }

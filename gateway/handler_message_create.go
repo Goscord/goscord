@@ -1,7 +1,7 @@
 package gateway
 
 import (
-	"github.com/Seyz123/yalis/gateway/event"
+	"github.com/Goscord/goscord/gateway/event"
 )
 
 type MessageCreateHandler struct{}

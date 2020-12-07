@@ -1,4 +1,4 @@
-module github.com/Seyz123/yalis
+module github.com/Goscord/goscord
 
 go 1.14
 

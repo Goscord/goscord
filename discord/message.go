@@ -1,27 +1,26 @@
-package channel
+package discord
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Seyz123/yalis/channel/embed"
-	"github.com/Seyz123/yalis/guild"
-	"github.com/Seyz123/yalis/rest"
-	"github.com/Seyz123/yalis/user"
+	"github.com/Goscord/goscord/discord/embed"
+	"github.com/Goscord/goscord/rest"
+	"github.com/Goscord/goscord/user"
 	"time"
 )
 
 type Message struct {
-	Rest            *rest.Client  `json:"-"`
-	Id              string        `json:"id"`
-	ChannelId       string        `json:"channel_id"`
-	GuildId         string        `json:"guild_id,omitempty"`
-	Author          *user.User    `json:"author"`
-	Member          *guild.Member `json:"member"`
-	Content         string        `json:"content"`
-	Timestamp       *time.Time    `json:"timestamp"`
-	EditedTimestamp *time.Time    `json:"edited_timestamp"`
-	Tts             bool          `json:"tts"`
-	MentionEveryone bool          `json:"mention_everyone"`
+	Rest            *rest.Client `json:"-"`
+	Id              string       `json:"id"`
+	ChannelId       string       `json:"channel_id"`
+	GuildId         string       `json:"guild_id,omitempty"`
+	Author          *user.User   `json:"author"`
+	Member          *Member      `json:"member"`
+	Content         string       `json:"content"`
+	Timestamp       *time.Time   `json:"timestamp"`
+	EditedTimestamp *time.Time   `json:"edited_timestamp"`
+	Tts             bool         `json:"tts"`
+	MentionEveryone bool         `json:"mention_everyone"`
 	//MentionRoles []*guild.Role `json:"mention_roles"`
 	MentionChannels []*Channel     `json:"mention_channels"`
 	Attachments     []*Attachment  `json:"attachments"`

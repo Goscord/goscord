@@ -1,9 +1,9 @@
-package guild
+package discord
 
 import (
 	"encoding/json"
-	"github.com/Seyz123/yalis/rest"
-	"github.com/Seyz123/yalis/user"
+	"github.com/Goscord/goscord/rest"
+	"github.com/Goscord/goscord/user"
 	"time"
 )
 

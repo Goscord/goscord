@@ -2,8 +2,7 @@ package gateway
 
 import (
 	"fmt"
-
-	"github.com/Seyz123/yalis/gateway/event"
+	"github.com/Goscord/goscord/gateway/event"
 )
 
 type GuildCreateHandler struct{}

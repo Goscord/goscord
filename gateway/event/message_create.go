@@ -2,12 +2,12 @@ package event
 
 import (
 	"encoding/json"
-	"github.com/Seyz123/yalis/channel"
-	"github.com/Seyz123/yalis/rest"
+	"github.com/Goscord/goscord/discord"
+	"github.com/Goscord/goscord/rest"
 )
 
 type MessageCreate struct {
-	Data *channel.Message `json:"d"`
+	Data *discord.Message `json:"d"`
 }
 
 func NewMessageCreate(rest *rest.Client, data []byte) (*MessageCreate, error) {

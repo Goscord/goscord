@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Seyz123/yalis/rest/ratelimit"
+	"github.com/Goscord/goscord/rest/ratelimit"
 	"io/ioutil"
 	"net/http"
 	"strings"

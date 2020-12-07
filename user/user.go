@@ -3,7 +3,7 @@ package user
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/Seyz123/yalis/rest"
+	"github.com/Goscord/goscord/rest"
 )
 
 type User struct {

@@ -1,4 +1,4 @@
-package channel
+package discord
 
 const (
 	TypeGuildText = iota

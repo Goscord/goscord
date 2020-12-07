@@ -1,4 +1,4 @@
-package channel
+package discord
 
 import (
 	"encoding/base64"

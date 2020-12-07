@@ -2,16 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/Seyz123/yalis"
-	"github.com/Seyz123/yalis/channel"
+	"github.com/Goscord/goscord"
+	"github.com/Goscord/goscord/discord"
+	"github.com/Goscord/goscord/gateway"
 )
 
-var client *yalis.Client
+var client *gateway.Session
 
 func main() {
 	fmt.Println("Testing...")
 
-	client = yalis.NewClient("NzM1NjQyNjE2NDc3MjUzNjg0.XxjOkw.DxpP72dLDdLbJ6IqE2OvV-zX7-k")
+	client = goscord.New("NzM1NjQyNjE2NDc3MjUzNjg0.XxjOkw.DxpP72dLDdLbJ6IqE2OvV-zX7-k")
 
 	_ = client.On("ready", OnReady)
 	_ = client.On("message", OnMessage)
@@ -27,16 +28,16 @@ func OnReady() {
 	fmt.Println("Logged in as " + client.User().Tag())
 }
 
-func OnMessage(msg *channel.Message) {
+func OnMessage(msg *discord.Message) {
 	if !msg.Author.Bot {
 		_, _ = msg.Reply("coucou mec")
 
-		channel, err := msg.Channel()
+		c, err := msg.Channel()
 
 		if err != nil {
 			panic(err)
 		}
 
-		channel.Send("ça va mec ?")
+		_, _ = c.Send("ça va mec ?")
 	}
 }

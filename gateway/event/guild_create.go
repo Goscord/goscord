@@ -2,13 +2,12 @@ package event
 
 import (
 	"encoding/json"
-	"github.com/Seyz123/yalis/rest"
-
-	"github.com/Seyz123/yalis/guild"
+	"github.com/Goscord/goscord/discord"
+	"github.com/Goscord/goscord/rest"
 )
 
 type GuildCreate struct {
-	Data *guild.Guild `json:"d"`
+	Data *discord.Guild `json:"d"`
 }
 
 func NewGuildCreate(rest *rest.Client, data []byte) (*GuildCreate, error) {

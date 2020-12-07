@@ -3,15 +3,14 @@ package gateway
 import (
 	"errors"
 	"fmt"
-	"github.com/Seyz123/yalis/user"
-	"sync"
-	"time"
-
-	"github.com/Seyz123/yalis/gateway/event"
-	"github.com/Seyz123/yalis/gateway/packet"
-	"github.com/Seyz123/yalis/rest"
+	"github.com/Goscord/goscord/gateway/event"
+	"github.com/Goscord/goscord/gateway/packet"
+	"github.com/Goscord/goscord/rest"
+	"github.com/Goscord/goscord/user"
 	ev "github.com/asaskevich/EventBus"
 	"github.com/gorilla/websocket"
+	"sync"
+	"time"
 )
 
 type Session struct {
@@ -29,12 +28,12 @@ type Session struct {
 	close             chan bool
 }
 
-func NewSession(token string, bus *ev.EventBus) *Session {
+func NewSession(token string) *Session {
 	s := &Session{}
 
 	s.token = token
 	s.rest = rest.NewClient(token)
-	s.bus = bus
+	s.bus = ev.New().(*ev.EventBus)
 	s.close = make(chan bool)
 
 	s.registerHandlers()
@@ -241,4 +240,8 @@ func (s *Session) Bus() *ev.EventBus {
 
 func (s *Session) User() *user.User {
 	return s.user
+}
+
+func (s *Session) On(ev string, fn interface{}) error {
+	return s.bus.SubscribeAsync(ev, fn, false)
 }

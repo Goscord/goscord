@@ -1,4 +1,4 @@
-package channel
+package discord
 
 type Attachment struct {
 	Id       string `json:"id"`

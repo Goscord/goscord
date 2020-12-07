@@ -2,7 +2,7 @@ package event
 
 import (
 	"encoding/json"
-	"github.com/Seyz123/yalis/user"
+	"github.com/Goscord/goscord/user"
 )
 
 type Ready struct {

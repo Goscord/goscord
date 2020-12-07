@@ -1,8 +1,8 @@
-package guild
+package discord
 
 import (
 	"encoding/json"
-	"github.com/Seyz123/yalis/rest"
+	"github.com/Goscord/goscord/rest"
 )
 
 type Guild struct {
@@ -26,8 +26,8 @@ type Guild struct {
 	Unavailable bool     `json:"unavailable"`
 	MemberCount int      `json:"member_count"`
 	//VoiceStates []*voice.State `json:"voice_states"`
-	Members  []*Member          `json:"members"`
-	//Channels []*channel.Channel `json:"channels"`
+	Members  []*Member `json:"members"`
+	Channels []*Channel `json:"channels"`
 }
 
 func NewGuild(rest *rest.Client, data []byte) (*Guild, error) {

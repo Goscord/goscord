@@ -2,13 +2,13 @@ package event
 
 import (
 	"encoding/json"
-	"github.com/Goscord/goscord/user"
+	"github.com/Goscord/goscord/discord"
 )
 
 type Ready struct {
 	Data struct {
-		Version int        `json:"v"`
-		User    *user.User `json:"user"`
+		Version int           `json:"v"`
+		User    *discord.User `json:"user"`
 		// Guilds []*Guild `json:"guilds"`
 		SessionID string `json:"session_id"`
 		Shard     []int  `json:"shard,omitempty"`

@@ -3,10 +3,10 @@ package gateway
 import (
 	"errors"
 	"fmt"
+	"github.com/Goscord/goscord/discord"
 	"github.com/Goscord/goscord/gateway/event"
 	"github.com/Goscord/goscord/gateway/packet"
 	"github.com/Goscord/goscord/rest"
-	"github.com/Goscord/goscord/user"
 	ev "github.com/asaskevich/EventBus"
 	"github.com/gorilla/websocket"
 	"sync"
@@ -15,7 +15,7 @@ import (
 
 type Session struct {
 	sync.Mutex
-	user              *user.User
+	user              *discord.User
 	token             string
 	rest              *rest.Client
 	bus               *ev.EventBus
@@ -238,7 +238,7 @@ func (s *Session) Bus() *ev.EventBus {
 	return s.bus
 }
 
-func (s *Session) User() *user.User {
+func (s *Session) User() *discord.User {
 	return s.user
 }
 

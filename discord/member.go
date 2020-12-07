@@ -3,13 +3,12 @@ package discord
 import (
 	"encoding/json"
 	"github.com/Goscord/goscord/rest"
-	"github.com/Goscord/goscord/user"
 	"time"
 )
 
 type Member struct {
 	Rest         *rest.Client `json:"-"`
-	User         *user.User   `json:"user"`
+	User         *User        `json:"user"`
 	Nick         string       `json:"nick,omitempty"`
 	Roles        []string     `json:"roles"`
 	JoinedAt     time.Time    `json:"joined_at"`

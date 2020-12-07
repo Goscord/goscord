@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/Goscord/goscord/discord/embed"
 	"github.com/Goscord/goscord/rest"
-	"github.com/Goscord/goscord/user"
 	"time"
 )
 
@@ -14,7 +13,7 @@ type Message struct {
 	Id              string       `json:"id"`
 	ChannelId       string       `json:"channel_id"`
 	GuildId         string       `json:"guild_id,omitempty"`
-	Author          *user.User   `json:"author"`
+	Author          *User        `json:"author"`
 	Member          *Member      `json:"member"`
 	Content         string       `json:"content"`
 	Timestamp       *time.Time   `json:"timestamp"`

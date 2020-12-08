@@ -26,7 +26,7 @@ type Guild struct {
 	Unavailable bool     `json:"unavailable"`
 	MemberCount int      `json:"member_count"`
 	//VoiceStates []*voice.State `json:"voice_states"`
-	Members  []*Member `json:"members"`
+	Members  []*Member  `json:"members"`
 	Channels []*Channel `json:"channels"`
 }
 

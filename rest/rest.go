@@ -36,7 +36,7 @@ func (c *Client) Request(endpoint, method string, data []byte) ([]byte, error) {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "DiscordBot (https://github.com/Seyz123/yalis, 1.0.0)")
+	req.Header.Set("User-Agent", "DiscordBot (https://github.com/Goscord/goscord, 1.0.0)")
 	req.Header.Set("Authorization", fmt.Sprintf("Bot %s", c.token))
 
 	resp, err := c.http.Do(req)

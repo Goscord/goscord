@@ -15,6 +15,7 @@ import (
 
 type Session struct {
 	sync.Mutex
+	*ev.EventBus
 	options           *Options
 	user              *discord.User
 	rest              *rest.Client
@@ -84,7 +85,7 @@ func (s *Session) Login() error {
 	sequence := s.lastSequence
 
 	if sequence == 0 && sessionID == "" {
-		identify := packet.NewIdentify(s.options.Token)
+		identify := packet.NewIdentify(s.options.Token, s.options.Intents)
 
 		if err = s.Send(identify); err != nil {
 			return err
@@ -149,7 +150,7 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 		if exists {
 			handler.Handle(s, msg)
 		} else {
-			fmt.Println("Unhandled e : " + e)
+			fmt.Println("Unhandled event : " + e)
 		}
 	}
 

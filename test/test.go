@@ -12,7 +12,9 @@ var client *gateway.Session
 func main() {
 	fmt.Println("Testing...")
 
-	client = goscord.New(&gateway.Options{Token: "NzM1NjQyNjE2NDc3MjUzNjg0.XxjOkw.DxpP72dLDdLbJ6IqE2OvV-zX7-k"})
+	client = goscord.New(&gateway.Options{
+		Token: "NzM1NjQyNjE2NDc3MjUzNjg0.XxjOkw.DxpP72dLDdLbJ6IqE2OvV-zX7-k",
+	})
 
 	_ = client.On("ready", OnReady)
 	_ = client.On("message", OnMessage)

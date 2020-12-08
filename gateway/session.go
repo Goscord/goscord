@@ -15,7 +15,6 @@ import (
 
 type Session struct {
 	sync.Mutex
-	*ev.EventBus
 	options           *Options
 	user              *discord.User
 	rest              *rest.Client

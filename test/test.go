@@ -13,7 +13,7 @@ func main() {
 	fmt.Println("Testing...")
 
 	client = goscord.New(&gateway.Options{
-		Token: "NzM1NjQyNjE2NDc3MjUzNjg0.XxjOkw.DxpP72dLDdLbJ6IqE2OvV-zX7-k",
+		Token: "",
 	})
 
 	_ = client.On("ready", OnReady)
@@ -28,6 +28,8 @@ func main() {
 
 func OnReady() {
 	fmt.Println("Logged in as " + client.User().Tag())
+	_ = client.SetActivity(&discord.Activity{Name: "Spotify", Type: 2})
+	_ = client.SetStatus("dnd")
 }
 
 func OnMessage(msg *discord.Message) {

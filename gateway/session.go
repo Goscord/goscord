@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/Goscord/goscord/discord"
@@ -15,23 +16,25 @@ import (
 
 type Session struct {
 	sync.Mutex
-	options           *Options
-	user              *discord.User
-	rest              *rest.Client
-	bus               *ev.EventBus
-	connMu            sync.Mutex
-	conn              *websocket.Conn
+	options *Options
+	status  *packet.UpdateStatus
+	user   *discord.User
+	rest   *rest.Client
+	bus    *ev.EventBus
+	connMu sync.Mutex
+	conn   *websocket.Conn
 	sessionID         string
 	heartbeatInterval time.Duration
 	lastSequence      int64
-	handlers          map[string]EventHandler
-	close             chan bool
+	handlers map[string]EventHandler
+	close    chan bool
 }
 
 func NewSession(options *Options) *Session {
 	s := &Session{}
 
 	s.options = options
+	s.status = packet.NewUpdateStatus(nil, "")
 	s.rest = rest.NewClient(options.Token)
 	s.bus = ev.New().(*ev.EventBus)
 	s.close = make(chan bool)
@@ -222,11 +225,48 @@ func (s *Session) reconnect() {
 	}
 }
 
+func (s *Session) GetMessage(channelId, id string) (*discord.Message, error) {
+	data, err := s.rest.Request(fmt.Sprintf(rest.EndpointGetMessage, channelId, id), "GET", nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var msg discord.Message
+	err = json.Unmarshal(data, &msg)
+
+	if err != nil {
+		return nil, err
+	}
+
+	msg.Rest = s.rest
+
+	return &msg, nil
+}
+
 func (s *Session) Send(v interface{}) error {
 	s.connMu.Lock()
 	defer s.connMu.Unlock()
 
 	return s.conn.WriteJSON(v)
+}
+
+func (s *Session) SetActivity(activity *discord.Activity) error {
+	s.status.Data.Game = activity
+
+	return s.Send(s.status)
+}
+
+func (s *Session) SetStatus(status string) error {
+	s.status.Data.Status = status
+
+	return s.Send(s.status)
+}
+
+func (s *Session) UpdatePresence(status *packet.UpdateStatus) error {
+	s.status = status
+
+	return s.Send(status)
 }
 
 func (s *Session) Close() {

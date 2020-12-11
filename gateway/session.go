@@ -16,18 +16,18 @@ import (
 
 type Session struct {
 	sync.Mutex
-	options *Options
-	status  *packet.UpdateStatus
-	user   *discord.User
-	rest   *rest.Client
-	bus    *ev.EventBus
-	connMu sync.Mutex
-	conn   *websocket.Conn
+	options           *Options
+	status            *packet.UpdateStatus
+	user              *discord.User
+	rest              *rest.Client
+	bus               *ev.EventBus
+	connMu            sync.Mutex
+	conn              *websocket.Conn
 	sessionID         string
 	heartbeatInterval time.Duration
 	lastSequence      int64
-	handlers map[string]EventHandler
-	close    chan bool
+	handlers          map[string]EventHandler
+	close             chan bool
 }
 
 func NewSession(options *Options) *Session {

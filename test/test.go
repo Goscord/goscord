@@ -28,6 +28,7 @@ func main() {
 
 func OnReady() {
 	fmt.Println("Logged in as " + client.User().Tag())
+	
 	_ = client.SetActivity(&discord.Activity{Name: "Spotify", Type: 2})
 	_ = client.SetStatus("dnd")
 }

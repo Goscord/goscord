@@ -21,6 +21,7 @@ type Session struct {
 	user              *discord.User
 	rest              *rest.Client
 	bus               *ev.EventBus
+	state             *State
 	connMu            sync.Mutex
 	conn              *websocket.Conn
 	sessionID         string
@@ -37,6 +38,7 @@ func NewSession(options *Options) *Session {
 	s.status = packet.NewUpdateStatus(nil, "")
 	s.rest = rest.NewClient(options.Token)
 	s.bus = ev.New().(*ev.EventBus)
+	s.state = NewState()
 	s.close = make(chan bool)
 
 	s.registerHandlers()
@@ -48,6 +50,7 @@ func (s *Session) registerHandlers() {
 	s.handlers = map[string]EventHandler{
 		event.EventReady:         &ReadyHandler{},
 		event.EventGuildCreate:   &GuildCreateHandler{},
+		event.EventGuildDelete:   &GuildDeleteHandler{},
 		event.EventMessageCreate: &MessageCreateHandler{},
 	}
 }

@@ -16,5 +16,9 @@ func (h *ReadyHandler) Handle(s *Session, data []byte) {
 	s.user = ev.Data.User
 	s.sessionID = ev.Data.SessionID
 
+	for _, guild := range ev.Data.Guilds {
+		s.state.AddGuild(guild)
+	}
+
 	s.Bus().Publish("ready")
 }

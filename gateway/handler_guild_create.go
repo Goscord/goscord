@@ -1,7 +1,6 @@
 package gateway
 
 import (
-	"fmt"
 	"github.com/Goscord/goscord/gateway/event"
 )
 
@@ -14,6 +13,8 @@ func (h *GuildCreateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	fmt.Println("Got guild create")
-	fmt.Println(ev.Data)
+	if _, ok := s.state.guilds[ev.Data.Id]; !ok {
+		s.state.AddGuild(ev.Data)
+		s.bus.Publish("guildCreate", ev.Data)
+	}
 }

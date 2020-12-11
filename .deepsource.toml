@@ -5,5 +5,5 @@ name = "go"
 enabled = true
 
   [analyzers.meta]
-  import_paths = ["github.com/Seyz123/yalis"]
+  import_paths = ["github.com/Goscord/goscord"]
   dependencies_vendored = true

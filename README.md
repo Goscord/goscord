@@ -37,5 +37,9 @@ See documentation for more detailed information.
 
 **Coming soon**
 
+## Discord Support Server
+
+[Click here](https://discord.gg/zxwDnR5Uum)
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

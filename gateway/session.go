@@ -51,6 +51,7 @@ func (s *Session) registerHandlers() {
 		event.EventReady:         &ReadyHandler{},
 		event.EventGuildCreate:   &GuildCreateHandler{},
 		event.EventGuildDelete:   &GuildDeleteHandler{},
+		event.EventGuildUpdate:   &GuildUpdateHandler{},
 		event.EventMessageCreate: &MessageCreateHandler{},
 	}
 }

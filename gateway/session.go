@@ -1,7 +1,6 @@
 package gateway
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/Goscord/goscord/discord"
@@ -254,23 +253,6 @@ func (s *Session) reconnect() {
 
 		<-time.After(5 * time.Second)
 	}
-}
-
-func (s *Session) GetMessage(channelId, id string) (*discord.Message, error) {
-	data, err := s.rest.Request(fmt.Sprintf(rest.EndpointGetMessage, channelId, id), "GET", nil)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var msg discord.Message
-	err = json.Unmarshal(data, &msg)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &msg, nil
 }
 
 func (s *Session) Send(v interface{}) error {

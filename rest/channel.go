@@ -15,6 +15,23 @@ func NewChannelHandler(rest *Client) *ChannelHandler {
 	return &ChannelHandler{rest: rest}
 }
 
+func (ch *ChannelHandler) GetMessage(channelId, id string) (*discord.Message, error) {
+	data, err := ch.rest.Request(fmt.Sprintf(EndpointGetMessage, channelId, id), "GET", nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var msg discord.Message
+	err = json.Unmarshal(data, &msg)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &msg, nil
+}
+
 func (ch *ChannelHandler) Send(channelId string, content interface{}) (*discord.Message, error) {
 	switch content.(type) {
 	case string:

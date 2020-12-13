@@ -119,5 +119,7 @@ func (s *State) Channel(id string) (*discord.Channel, error) {
 		return channel, nil
 	}
 
+	// TODO : Get channel from the rest api
+
 	return nil, errors.New("Channel not found")
 }

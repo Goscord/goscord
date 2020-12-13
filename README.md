@@ -31,7 +31,7 @@ See documentation for more detailed information.
 
 ## Documentation
 
-**Coming soon**
+[Click here](https://goscord.dev/documentation)
 
 ## Examples
 

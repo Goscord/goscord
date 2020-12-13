@@ -13,8 +13,6 @@ func (h *GuildCreateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	// TODO : Set Rest to emojis, roles and channels
-
 	if _, ok := s.state.guilds[ev.Data.Id]; !ok {
 		s.state.AddGuild(ev.Data)
 		s.bus.Publish("guildCreate", ev.Data)

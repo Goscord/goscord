@@ -19,7 +19,5 @@ func NewGuildDelete(rest *rest.Client, data []byte) (*GuildDelete, error) {
 		return nil, err
 	}
 
-	pk.Data.Rest = rest
-
 	return pk, nil
 }

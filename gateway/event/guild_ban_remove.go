@@ -22,7 +22,5 @@ func NewGuildBanRemove(rest *rest.Client, data []byte) (*GuildBanRemove, error) 
 		return nil, err
 	}
 
-	pk.Data.User.Rest = rest
-
 	return pk, nil
 }

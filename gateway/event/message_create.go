@@ -19,7 +19,5 @@ func NewMessageCreate(rest *rest.Client, data []byte) (*MessageCreate, error) {
 		return nil, err
 	}
 
-	pk.Data.Rest = rest
-
 	return pk, nil
 }

@@ -19,7 +19,5 @@ func NewGuildCreate(rest *rest.Client, data []byte) (*GuildCreate, error) {
 		return nil, err
 	}
 
-	pk.Data.Rest = rest
-
 	return pk, nil
 }

@@ -19,7 +19,5 @@ func NewGuildUpdate(rest *rest.Client, data []byte) (*GuildUpdate, error) {
 		return nil, err
 	}
 
-	pk.Data.Rest = rest
-
 	return pk, nil
 }

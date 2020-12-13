@@ -11,14 +11,14 @@ type State struct {
 
 	guilds   map[string]*discord.Guild
 	channels map[string]*discord.Channel
-	members map[string][]*discord.Member
+	members  map[string][]*discord.Member
 }
 
 func NewState() *State {
 	return &State{
 		guilds:   map[string]*discord.Guild{},
 		channels: map[string]*discord.Channel{},
-		members: map[string][]*discord.Member{},
+		members:  map[string][]*discord.Member{},
 	}
 }
 

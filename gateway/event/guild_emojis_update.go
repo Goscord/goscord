@@ -6,15 +6,15 @@ import (
 	"github.com/Goscord/goscord/rest"
 )
 
-type GuildBanAdd struct {
+type GuildEmojisUpdate struct {
 	Data struct {
-		GuildId string        `json:"guild_id"`
-		User    *discord.User `json:"user"`
+		GuildId string           `json:"guild_id"`
+		Emojis  []*discord.Emoji `json:"emojis"`
 	} `json:"d"`
 }
 
-func NewGuildBanAdd(rest *rest.Client, data []byte) (*GuildBanAdd, error) {
-	pk := new(GuildBanAdd)
+func NewGuildEmojisUpdate(rest *rest.Client, data []byte) (*GuildEmojisUpdate, error) {
+	pk := new(GuildEmojisUpdate)
 
 	err := json.Unmarshal(data, pk)
 

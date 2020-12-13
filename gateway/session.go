@@ -27,8 +27,18 @@ type Session struct {
 	sessionID         string
 	heartbeatInterval time.Duration
 	lastSequence      int64
-	handlers          map[string]EventHandler
-	close             chan bool
+
+	Channel  *rest.ChannelHandler
+	Emoji    *rest.EmojiHandler
+	Guild    *rest.GuildHandler
+	Invite   *rest.InviteHandler
+	Template *rest.TemplateHandler
+	User     *rest.UserHandler
+	Voice    *rest.VoiceHandler
+	Webhook  *rest.WebhookHandler
+
+	handlers map[string]EventHandler
+	close    chan bool
 }
 
 func NewSession(options *Options) *Session {
@@ -40,6 +50,15 @@ func NewSession(options *Options) *Session {
 	s.bus = ev.New().(*ev.EventBus)
 	s.state = NewState()
 	s.close = make(chan bool)
+
+	s.Channel = rest.NewChannelHandler(s.rest)
+	s.Emoji = rest.NewEmojiHandler(s.rest)
+	s.Guild = rest.NewGuildHandler(s.rest)
+	s.Invite = rest.NewInviteHandler(s.rest)
+	s.Template = rest.NewTemplateHandler(s.rest)
+	s.User = rest.NewUserHandler(s.rest)
+	s.Voice = rest.NewVoiceHandler(s.rest)
+	s.Webhook = rest.NewWebhookHandler(s.rest)
 
 	s.registerHandlers()
 
@@ -249,8 +268,6 @@ func (s *Session) GetMessage(channelId, id string) (*discord.Message, error) {
 		return nil, err
 	}
 
-	msg.Rest = s.rest
-
 	return &msg, nil
 }
 
@@ -288,7 +305,7 @@ func (s *Session) Bus() *ev.EventBus {
 	return s.bus
 }
 
-func (s *Session) User() *discord.User {
+func (s *Session) Me() *discord.User {
 	return s.user
 }
 

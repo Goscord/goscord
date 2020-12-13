@@ -79,6 +79,7 @@ func (s *Session) registerHandlers() {
 
 func (s *Session) Login() error {
 	conn, _, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
+
 	if err != nil {
 		return err
 	}
@@ -179,7 +180,7 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 		handler, exists := s.handlers[e]
 
 		if exists {
-			handler.Handle(s, msg)
+			go handler.Handle(s, msg)
 		} else {
 			fmt.Println("Unhandled event : " + e)
 		}
@@ -233,8 +234,6 @@ func (s *Session) listen() {
 }
 
 func (s *Session) reconnect() {
-	wait := time.Duration(5)
-
 	for {
 		fmt.Println("Reconnecting")
 
@@ -250,7 +249,7 @@ func (s *Session) reconnect() {
 
 		fmt.Println("Retrying to reconnect...")
 
-		<-time.After(wait * time.Second)
+		<-time.After(5 * time.Second)
 	}
 }
 

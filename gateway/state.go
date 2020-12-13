@@ -34,12 +34,24 @@ func (s *State) AddGuild(guild *discord.Guild) {
 		return
 	}
 
+	if guild.Channels != nil {
+		for _, channel := range guild.Channels {
+			s.AddChannel(channel)
+		}
+	}
+
 	s.Guilds[guild.Id] = guild
 }
 
 func (s *State) UpdateGuild(guild *discord.Guild) {
 	s.Lock()
 	defer s.Unlock()
+
+	if guild.Channels != nil {
+		for _, channel := range guild.Channels {
+			s.AddChannel(channel)
+		}
+	}
 
 	s.Guilds[guild.Id] = guild
 }
@@ -49,6 +61,12 @@ func (s *State) RemoveGuild(guild *discord.Guild) {
 	defer s.Unlock()
 
 	if g, ok := s.Guilds[guild.Id]; ok {
+		if guild.Channels != nil {
+			for _, channel := range guild.Channels {
+				s.RemoveChannel(channel)
+			}
+		}
+
 		delete(s.Guilds, g.Id)
 	}
 }

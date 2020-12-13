@@ -11,20 +11,22 @@ type State struct {
 
 	guilds   map[string]*discord.Guild
 	channels map[string]*discord.Channel
+	members map[string][]*discord.Member
 }
 
 func NewState() *State {
 	return &State{
-		guilds: map[string]*discord.Guild{},
+		guilds:   map[string]*discord.Guild{},
 		channels: map[string]*discord.Channel{},
+		members: map[string][]*discord.Member{},
 	}
 }
 
 func (s *State) AddGuild(guild *discord.Guild) {
-	s.RLock()
-	defer s.RUnlock()
+	s.Lock()
+	defer s.Unlock()
 
-	// TODO : Channels & members
+	// TODO : Members
 
 	if _, ok := s.guilds[guild.Id]; ok {
 		s.UpdateGuild(guild)
@@ -35,44 +37,19 @@ func (s *State) AddGuild(guild *discord.Guild) {
 	s.guilds[guild.Id] = guild
 }
 
-func (s *State) UpdateGuild(g *discord.Guild) {
-	if guild, ok := s.guilds[g.Id]; ok {
-		if guild.MemberCount == 0 {
-			guild.MemberCount = g.MemberCount
-		}
+func (s *State) UpdateGuild(guild *discord.Guild) {
+	s.Lock()
+	defer s.Unlock()
 
-		if guild.Members == nil {
-			guild.Members = g.Members
-		}
-
-		if guild.Channels == nil {
-			guild.Channels = g.Channels
-		}
-
-		/*
-		if guild.Roles == nil {
-			guild.Roles = g.Roles
-		}
-
-		if guild.Emojis == nil {
-			guild.Emojis = g.Emojis
-		}
-
-		if guild.VoiceStates == nil {
-			guild.VoiceStates = g.VoiceStates
-		}
-		*/
-
-		*guild = *g
-	}
+	s.guilds[guild.Id] = guild
 }
 
 func (s *State) RemoveGuild(guild *discord.Guild) {
-	if guild, ok := s.guilds[guild.Id]; ok {
-		s.RLock()
-		defer s.RUnlock()
+	s.Lock()
+	defer s.Unlock()
 
-		delete(s.guilds, guild.Id)
+	if g, ok := s.guilds[guild.Id]; ok {
+		delete(s.guilds, g.Id)
 	}
 }
 
@@ -85,4 +62,44 @@ func (s *State) Guild(id string) (*discord.Guild, error) {
 	}
 
 	return nil, errors.New("Guild not found")
+}
+
+func (s *State) AddChannel(channel *discord.Channel) {
+	s.Lock()
+	defer s.Unlock()
+
+	if _, ok := s.channels[channel.Id]; ok {
+		s.UpdateChannel(channel)
+
+		return
+	}
+
+	s.channels[channel.Id] = channel
+}
+
+func (s *State) UpdateChannel(channel *discord.Channel) {
+	s.Lock()
+	defer s.Unlock()
+
+	s.channels[channel.Id] = channel
+}
+
+func (s *State) RemoveChannel(id string) {
+	s.Lock()
+	defer s.Unlock()
+
+	if c, ok := s.channels[id]; ok {
+		delete(s.channels, c.Id)
+	}
+}
+
+func (s *State) Channel(id string) (*discord.Channel, error) {
+	s.RLock()
+	defer s.RUnlock()
+
+	if channel, ok := s.channels[id]; ok {
+		return channel, nil
+	}
+
+	return nil, errors.New("Channel not found")
 }

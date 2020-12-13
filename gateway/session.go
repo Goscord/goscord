@@ -48,11 +48,13 @@ func NewSession(options *Options) *Session {
 
 func (s *Session) registerHandlers() {
 	s.handlers = map[string]EventHandler{
-		event.EventReady:         &ReadyHandler{},
-		event.EventGuildCreate:   &GuildCreateHandler{},
-		event.EventGuildDelete:   &GuildDeleteHandler{},
-		event.EventGuildUpdate:   &GuildUpdateHandler{},
-		event.EventMessageCreate: &MessageCreateHandler{},
+		event.EventReady:          &ReadyHandler{},
+		event.EventGuildCreate:    &GuildCreateHandler{},
+		event.EventGuildDelete:    &GuildDeleteHandler{},
+		event.EventGuildUpdate:    &GuildUpdateHandler{},
+		event.EventGuildBanAdd:    &GuildBanAddHandler{},
+		event.EventGuildBanRemove: &GuildBanRemoveHandler{},
+		event.EventMessageCreate:  &MessageCreateHandler{},
 	}
 }
 
@@ -63,6 +65,10 @@ func (s *Session) Login() error {
 	}
 
 	conn.SetCloseHandler(func(code int, text string) error {
+		if code == 4004 {
+			panic(errors.New("Authentication failed"))
+		}
+
 		return nil
 	})
 
@@ -284,6 +290,10 @@ func (s *Session) Bus() *ev.EventBus {
 
 func (s *Session) User() *discord.User {
 	return s.user
+}
+
+func (s *Session) State() *State {
+	return s.state
 }
 
 func (s *Session) On(ev string, fn interface{}) error {

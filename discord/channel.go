@@ -5,10 +5,10 @@ import (
 )
 
 type Channel struct {
-	Id       string       `json:"id"`
-	Type     int          `json:"type"`
-	GuildId  string       `json:"guild_id"`
-	Position int          `json:"position"`
+	Id       string `json:"id"`
+	Type     int    `json:"type"`
+	GuildId  string `json:"guild_id"`
+	Position int    `json:"position"`
 	//PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites"`
 	Name             string     `json:"name"`
 	Topic            string     `json:"topic"`

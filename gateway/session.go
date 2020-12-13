@@ -69,11 +69,14 @@ func (s *Session) registerHandlers() {
 	s.handlers = map[string]EventHandler{
 		event.EventReady:          &ReadyHandler{},
 		event.EventGuildCreate:    &GuildCreateHandler{},
-		event.EventGuildDelete:    &GuildDeleteHandler{},
 		event.EventGuildUpdate:    &GuildUpdateHandler{},
+		event.EventGuildDelete:    &GuildDeleteHandler{},
 		event.EventGuildBanAdd:    &GuildBanAddHandler{},
 		event.EventGuildBanRemove: &GuildBanRemoveHandler{},
 		event.EventMessageCreate:  &MessageCreateHandler{},
+		event.EventChannelCreate:  &ChannelCreateHandler{},
+		event.EventChannelUpdate:  &ChannelUpdateHandler{},
+		event.EventChannelDelete:  &ChannelDeleteHandler{},
 	}
 }
 

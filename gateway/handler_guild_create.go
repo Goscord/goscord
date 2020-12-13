@@ -13,7 +13,7 @@ func (h *GuildCreateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	if _, ok := s.state.guilds[ev.Data.Id]; !ok {
+	if _, ok := s.state.Guilds[ev.Data.Id]; !ok {
 		s.state.AddGuild(ev.Data)
 		s.bus.Publish("guildCreate", ev.Data)
 	} else {

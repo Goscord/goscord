@@ -18,10 +18,10 @@ type Client struct {
 }
 
 func NewClient(token string) *Client {
-	client := new(http.Client)
-	client.Timeout = 5 * time.Second
-
-	return &Client{token: token, http: client}
+	return &Client{
+		token: token,
+		http: &http.Client{},
+	}
 }
 
 func (c *Client) Request(endpoint, method string, data []byte) ([]byte, error) {

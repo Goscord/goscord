@@ -124,6 +124,8 @@ func (s *State) Channel(id string) (*discord.Channel, error) {
 	channel, _ := s.session.Channel.GetChannel(id)
 
 	if channel != nil {
+		s.AddChannel(channel)
+
 		return channel, nil
 	}
 

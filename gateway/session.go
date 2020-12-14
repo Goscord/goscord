@@ -47,7 +47,7 @@ func NewSession(options *Options) *Session {
 	s.status = packet.NewUpdateStatus(nil, "")
 	s.rest = rest.NewClient(options.Token)
 	s.bus = ev.New().(*ev.EventBus)
-	s.state = NewState()
+	s.state = NewState(s)
 	s.close = make(chan bool)
 
 	s.Channel = rest.NewChannelHandler(s.rest)

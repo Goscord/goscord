@@ -9,13 +9,15 @@ import (
 type State struct {
 	sync.RWMutex
 
+	session  *Session
 	Guilds   map[string]*discord.Guild
 	Channels map[string]*discord.Channel
 	Members  map[string][]*discord.Member
 }
 
-func NewState() *State {
+func NewState(session *Session) *State {
 	return &State{
+		session:  session,
 		Guilds:   map[string]*discord.Guild{},
 		Channels: map[string]*discord.Channel{},
 		Members:  map[string][]*discord.Member{},
@@ -119,7 +121,11 @@ func (s *State) Channel(id string) (*discord.Channel, error) {
 		return channel, nil
 	}
 
-	// TODO : Get channel from the rest api
+	channel, _ := s.session.Channel.GetChannel(id)
+
+	if channel != nil {
+		return channel, nil
+	}
 
 	return nil, errors.New("Channel not found")
 }

@@ -86,12 +86,6 @@ func (s *Session) Login() error {
 		return err
 	}
 
-	err = conn.SetReadDeadline(time.Now().Add(5 * time.Second))
-
-	if err != nil {
-		return err
-	}
-
 	conn.SetCloseHandler(func(code int, text string) error {
 		if code == 4004 {
 			panic(errors.New("Authentication failed"))

@@ -7,9 +7,8 @@ import (
 )
 
 type State struct {
-	sync.RWMutex
-
 	session  *Session
+	mut      *sync.RWMutex
 	Guilds   map[string]*discord.Guild
 	Channels map[string]*discord.Channel
 	Members  map[string][]*discord.Member
@@ -18,6 +17,7 @@ type State struct {
 func NewState(session *Session) *State {
 	return &State{
 		session:  session,
+		mut:       new(sync.RWMutex),
 		Guilds:   map[string]*discord.Guild{},
 		Channels: map[string]*discord.Channel{},
 		Members:  map[string][]*discord.Member{},
@@ -25,9 +25,6 @@ func NewState(session *Session) *State {
 }
 
 func (s *State) AddGuild(guild *discord.Guild) {
-	s.Lock()
-	defer s.Unlock()
-
 	// TODO : Members
 
 	if _, ok := s.Guilds[guild.Id]; ok {
@@ -42,26 +39,24 @@ func (s *State) AddGuild(guild *discord.Guild) {
 		}
 	}
 
+	s.mut.Lock()
 	s.Guilds[guild.Id] = guild
+	s.mut.Unlock()
 }
 
 func (s *State) UpdateGuild(guild *discord.Guild) {
-	s.Lock()
-	defer s.Unlock()
-
 	if guild.Channels != nil {
 		for _, channel := range guild.Channels {
 			s.AddChannel(channel)
 		}
 	}
 
+	s.mut.Lock()
 	s.Guilds[guild.Id] = guild
+	s.mut.Unlock()
 }
 
 func (s *State) RemoveGuild(guild *discord.Guild) {
-	s.Lock()
-	defer s.Unlock()
-
 	if g, ok := s.Guilds[guild.Id]; ok {
 		if guild.Channels != nil {
 			for _, channel := range guild.Channels {
@@ -69,13 +64,15 @@ func (s *State) RemoveGuild(guild *discord.Guild) {
 			}
 		}
 
+		s.mut.Lock()
 		delete(s.Guilds, g.Id)
+		s.mut.Unlock()
 	}
 }
 
 func (s *State) Guild(id string) (*discord.Guild, error) {
-	s.RLock()
-	defer s.RUnlock()
+	s.mut.RLock()
+	defer s.mut.RUnlock()
 
 	if guild, ok := s.Guilds[id]; ok {
 		return guild, nil
@@ -85,28 +82,26 @@ func (s *State) Guild(id string) (*discord.Guild, error) {
 }
 
 func (s *State) AddChannel(channel *discord.Channel) {
-	s.Lock()
-	defer s.Unlock()
-
 	if _, ok := s.Channels[channel.Id]; ok {
 		s.UpdateChannel(channel)
 
 		return
 	}
 
+	s.mut.Lock()
 	s.Channels[channel.Id] = channel
+	s.mut.Unlock()
 }
 
 func (s *State) UpdateChannel(channel *discord.Channel) {
-	s.Lock()
-	defer s.Unlock()
-
+	s.mut.Lock()
 	s.Channels[channel.Id] = channel
+	s.mut.Unlock()
 }
 
 func (s *State) RemoveChannel(channel *discord.Channel) {
-	s.Lock()
-	defer s.Unlock()
+	s.mut.Lock()
+	defer s.mut.Unlock()
 
 	if c, ok := s.Channels[channel.Id]; ok {
 		delete(s.Channels, c.Id)
@@ -114,12 +109,13 @@ func (s *State) RemoveChannel(channel *discord.Channel) {
 }
 
 func (s *State) Channel(id string) (*discord.Channel, error) {
-	s.RLock()
-	defer s.RUnlock()
+	s.mut.RLock()
 
 	if channel, ok := s.Channels[id]; ok {
 		return channel, nil
 	}
+
+	s.mut.RUnlock()
 
 	channel, _ := s.session.Channel.GetChannel(id)
 

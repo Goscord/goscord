@@ -14,14 +14,10 @@ import (
 
 type Client struct {
 	token string
-	http  *http.Client
 }
 
 func NewClient(token string) *Client {
-	return &Client{
-		token: token,
-		http:  &http.Client{},
-	}
+	return &Client{token: token}
 }
 
 func (c *Client) Request(endpoint, method string, data []byte) ([]byte, error) {
@@ -39,15 +35,14 @@ func (c *Client) Request(endpoint, method string, data []byte) ([]byte, error) {
 	req.Header.Set("User-Agent", "DiscordBot (https://github.com/Goscord/goscord, 1.0.0)")
 	req.Header.Set("Authorization", fmt.Sprintf("Bot %s", c.token))
 
-	resp, err := c.http.Do(req)
+	client :=  &http.Client{}
+	resp, err := client.Do(req)
 
 	if err != nil {
 		return nil, err
 	}
 
-	defer func() {
-		_ = resp.Body.Close()
-	}()
+	defer resp.Body.Close()
 
 	var body []byte
 

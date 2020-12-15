@@ -66,16 +66,18 @@ func NewSession(options *Options) *Session {
 
 func (s *Session) registerHandlers() {
 	s.handlers = map[string]EventHandler{
-		event.EventReady:          &ReadyHandler{},
-		event.EventGuildCreate:    &GuildCreateHandler{},
-		event.EventGuildUpdate:    &GuildUpdateHandler{},
-		event.EventGuildDelete:    &GuildDeleteHandler{},
-		event.EventGuildBanAdd:    &GuildBanAddHandler{},
-		event.EventGuildBanRemove: &GuildBanRemoveHandler{},
-		event.EventMessageCreate:  &MessageCreateHandler{},
-		event.EventChannelCreate:  &ChannelCreateHandler{},
-		event.EventChannelUpdate:  &ChannelUpdateHandler{},
-		event.EventChannelDelete:  &ChannelDeleteHandler{},
+		event.EventReady:             &ReadyHandler{},
+		event.EventResumed:           &ResumedHandler{},
+		event.EventGuildCreate:       &GuildCreateHandler{},
+		event.EventGuildUpdate:       &GuildUpdateHandler{},
+		event.EventGuildDelete:       &GuildDeleteHandler{},
+		event.EventGuildBanAdd:       &GuildBanAddHandler{},
+		event.EventGuildBanRemove:    &GuildBanRemoveHandler{},
+		event.EventGuildEmojisUpdate: &GuildEmojisUpdateHandler{},
+		event.EventMessageCreate:     &MessageCreateHandler{},
+		event.EventChannelCreate:     &ChannelCreateHandler{},
+		event.EventChannelUpdate:     &ChannelUpdateHandler{},
+		event.EventChannelDelete:     &ChannelDeleteHandler{},
 	}
 }
 

@@ -17,7 +17,7 @@ type State struct {
 func NewState(session *Session) *State {
 	return &State{
 		session:  session,
-		mut:       new(sync.RWMutex),
+		mut:      new(sync.RWMutex),
 		Guilds:   map[string]*discord.Guild{},
 		Channels: map[string]*discord.Channel{},
 		Members:  map[string][]*discord.Member{},

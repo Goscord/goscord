@@ -2,6 +2,7 @@ package discord
 
 import (
 	"fmt"
+	"strings"
 )
 
 type User struct {
@@ -22,4 +23,12 @@ type User struct {
 
 func (u *User) Tag() string {
 	return fmt.Sprintf("%s#%s", u.Username, u.Discriminator)
+}
+
+func (u *User) AvatarURL() string {
+	if strings.HasPrefix(u.Avatar, "a_") {
+		return fmt.Sprintf("https://cdn.discordapp.com/avatars/%s/%s.gif", u.Id, u.Avatar)
+	}
+
+	return fmt.Sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", u.Id, u.Avatar)
 }

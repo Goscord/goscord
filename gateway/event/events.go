@@ -2,6 +2,7 @@ package event
 
 const (
 	EventReady          = "READY"
+	EventResumed        = "RESUMED"
 	EventGuildCreate    = "GUILD_CREATE"
 	EventGuildUpdate    = "GUILD_UPDATE"
 	EventGuildDelete    = "GUILD_DELETE"

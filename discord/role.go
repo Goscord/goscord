@@ -9,5 +9,5 @@ type Role struct {
 	Permissions string   `json:"permissions"`
 	Managed     bool     `json:"managed"`
 	Mentionable bool     `json:"mentionable"`
-	Tags        *RoleTag `json:"tags"`
+	Tags        *RoleTag `json:"tags,omitempty"`
 }

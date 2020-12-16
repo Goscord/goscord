@@ -238,6 +238,8 @@ func (s *Session) listen() {
 }
 
 func (s *Session) reconnect() {
+	wait := time.Duration(5)
+
 	for {
 		fmt.Println("Reconnecting")
 
@@ -253,7 +255,9 @@ func (s *Session) reconnect() {
 
 		fmt.Println("Retrying to reconnect...")
 
-		<-time.After(5 * time.Second)
+		<-time.After(wait)
+
+		wait *= 2
 	}
 }
 

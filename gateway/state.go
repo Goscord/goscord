@@ -27,24 +27,6 @@ func NewState(session *Session) *State {
 func (s *State) AddGuild(guild *discord.Guild) {
 	// TODO : Members
 
-	if _, err := s.Guild(guild.Id); err == nil {
-		s.UpdateGuild(guild)
-
-		return
-	}
-
-	if guild.Channels != nil {
-		for _, channel := range guild.Channels {
-			s.AddChannel(channel)
-		}
-	}
-
-	s.mut.Lock()
-	s.Guilds[guild.Id] = guild
-	s.mut.Unlock()
-}
-
-func (s *State) UpdateGuild(guild *discord.Guild) {
 	if guild.Channels != nil {
 		for _, channel := range guild.Channels {
 			s.AddChannel(channel)
@@ -82,18 +64,6 @@ func (s *State) Guild(id string) (*discord.Guild, error) {
 }
 
 func (s *State) AddChannel(channel *discord.Channel) {
-	if _, err := s.Channel(channel.Id); err == nil {
-		s.UpdateChannel(channel)
-
-		return
-	}
-
-	s.mut.Lock()
-	s.Channels[channel.Id] = channel
-	s.mut.Unlock()
-}
-
-func (s *State) UpdateChannel(channel *discord.Channel) {
 	s.mut.Lock()
 	s.Channels[channel.Id] = channel
 	s.mut.Unlock()
@@ -111,11 +81,11 @@ func (s *State) Channel(id string) (*discord.Channel, error) {
 	s.mut.RLock()
 
 	if channel, ok := s.Channels[id]; ok {
-                s.mut.RUnlock()
+	    s.mut.RUnlock()
 		return channel, nil
 	}
-
-        s.mut.RUnlock()
+	
+	s.mut.RUnlock()
 
 	channel, _ := s.session.Channel.GetChannel(id)
 

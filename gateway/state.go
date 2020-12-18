@@ -109,11 +109,13 @@ func (s *State) RemoveChannel(channel *discord.Channel) {
 
 func (s *State) Channel(id string) (*discord.Channel, error) {
 	s.mut.RLock()
-	defer s.mut.RUnlock()
 
 	if channel, ok := s.Channels[id]; ok {
+                s.mut.RUnlock()
 		return channel, nil
 	}
+
+        s.mut.RUnlock()
 
 	channel, _ := s.session.Channel.GetChannel(id)
 

@@ -12,11 +12,7 @@ func (h *ChannelCreateHandler) Handle(s *Session, data []byte) {
 	if err != nil {
 		return
 	}
-
-	if _, ok := s.state.Channels[ev.Data.Id]; !ok {
-		s.state.AddChannel(ev.Data)
-		s.bus.Publish("channelCreate", ev.Data)
-	} else {
-		s.state.UpdateChannel(ev.Data)
-	}
+	
+	s.state.AddChannel(ev.Data)
+	s.bus.Publish("channelCreate", ev.Data)
 }

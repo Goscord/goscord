@@ -17,7 +17,7 @@ type State struct {
 func NewState(session *Session) *State {
 	return &State{
 		session:  session,
-		mut:      new(sync.RWMutex),
+		mut: &sync.RWMutex{},
 		Guilds:   map[string]*discord.Guild{},
 		Channels: map[string]*discord.Channel{},
 		Members:  map[string][]*discord.Member{},
@@ -109,12 +109,11 @@ func (s *State) RemoveChannel(channel *discord.Channel) {
 
 func (s *State) Channel(id string) (*discord.Channel, error) {
 	s.mut.RLock()
+	defer s.mut.RUnlock()
 
 	if channel, ok := s.Channels[id]; ok {
 		return channel, nil
 	}
-
-	s.mut.RUnlock()
 
 	channel, _ := s.session.Channel.GetChannel(id)
 

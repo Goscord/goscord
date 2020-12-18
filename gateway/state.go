@@ -27,7 +27,7 @@ func NewState(session *Session) *State {
 func (s *State) AddGuild(guild *discord.Guild) {
 	// TODO : Members
 
-	if _, ok := s.Guilds[guild.Id]; ok {
+	if _, err := s.Guild(guild.Id); err == nil {
 		s.UpdateGuild(guild)
 
 		return
@@ -57,7 +57,7 @@ func (s *State) UpdateGuild(guild *discord.Guild) {
 }
 
 func (s *State) RemoveGuild(guild *discord.Guild) {
-	if g, ok := s.Guilds[guild.Id]; ok {
+	if g, err := s.Guild(guild.Id); err == nil {
 		if guild.Channels != nil {
 			for _, channel := range guild.Channels {
 				s.RemoveChannel(channel)
@@ -82,7 +82,7 @@ func (s *State) Guild(id string) (*discord.Guild, error) {
 }
 
 func (s *State) AddChannel(channel *discord.Channel) {
-	if _, ok := s.Channels[channel.Id]; ok {
+	if _, err := s.Channel(channel.Id); err == nil {
 		s.UpdateChannel(channel)
 
 		return
@@ -100,11 +100,10 @@ func (s *State) UpdateChannel(channel *discord.Channel) {
 }
 
 func (s *State) RemoveChannel(channel *discord.Channel) {
-	s.mut.Lock()
-	defer s.mut.Unlock()
-
-	if c, ok := s.Channels[channel.Id]; ok {
+	if c, err := s.Channel(channel.Id); err == nil {
+		s.mut.Lock()
 		delete(s.Channels, c.Id)
+		s.mut.Unlock()
 	}
 }
 

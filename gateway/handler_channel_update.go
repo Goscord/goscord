@@ -11,7 +11,7 @@ func (h *ChannelUpdateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.state.UpdateChannel(ev.Data)
+	s.state.AddChannel(ev.Data)
 
 	s.bus.Publish("channelUpdate", ev.Data)
 }

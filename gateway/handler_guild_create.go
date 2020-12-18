@@ -17,6 +17,6 @@ func (h *GuildCreateHandler) Handle(s *Session, data []byte) {
 		s.state.AddGuild(ev.Data)
 		s.bus.Publish("guildCreate", ev.Data)
 	} else {
-		s.state.UpdateGuild(ev.Data)
+		s.state.AddGuild(ev.Data)
 	}
 }

@@ -14,7 +14,7 @@ import (
 )
 
 type Session struct {
-	sync.Mutex
+	sync.RWMutex
 	options           *Options
 	status            *packet.UpdateStatus
 	user              *discord.User
@@ -25,6 +25,7 @@ type Session struct {
 	conn              *websocket.Conn
 	sessionID         string
 	heartbeatInterval time.Duration
+	lastHeartbeatAck  time.Time
 	lastSequence      int64
 
 	Channel  *rest.ChannelHandler
@@ -112,10 +113,9 @@ func (s *Session) Login() error {
 		return errors.New("Expecting op 10")
 	}
 
-	// ToDo : Handle heartbeat ack
-
 	s.Lock()
-	defer s.Unlock()
+	s.lastHeartbeatAck = time.Now().UTC()
+	s.Unlock()
 
 	sessionID := s.sessionID
 	sequence := s.lastSequence
@@ -163,10 +163,9 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 
 	case packet.OpInvalidSession:
 		s.Lock()
-		defer s.Unlock()
-
 		s.sessionID = ""
 		s.lastSequence = 0
+		s.Unlock()
 
 		s.Close()
 		s.reconnect()
@@ -174,6 +173,11 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 	case packet.OpReconnect:
 		s.Close()
 		s.reconnect()
+
+	case packet.OpHeartbeatAck:
+		s.Lock()
+		s.lastHeartbeatAck = time.Now().UTC()
+		s.Unlock()
 	}
 
 	if e != "" {
@@ -194,21 +198,26 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 }
 
 func (s *Session) startHeartbeat() {
-	s.Lock()
-	ticker := time.NewTicker(s.heartbeatInterval)
-	s.Unlock()
+	s.RLock()
+	heartbeatInterval := s.heartbeatInterval
+	s.RUnlock()
 
+	ticker := time.NewTicker(s.heartbeatInterval)
 	defer ticker.Stop()
 
 	for {
-		heartbeat := packet.NewHeartbeat(s.lastSequence)
+		s.RLock()
+		lastSequence := s.lastSequence
+		lastHeartbeatAck := s.lastHeartbeatAck
+		s.RUnlock()
+
+		heartbeat := packet.NewHeartbeat(lastSequence)
 
 		err := s.Send(heartbeat)
 
-		if err != nil {
+		if err != nil || time.Now().UTC().Sub(lastHeartbeatAck) > (heartbeatInterval*5*time.Millisecond) {
 			s.Close()
 			s.reconnect()
-
 			return
 		}
 

@@ -26,6 +26,7 @@ type Session struct {
 	sessionID         string
 	heartbeatInterval time.Duration
 	lastHeartbeatAck  time.Time
+	lastHeartbeatSent time.Time
 	lastSequence      int64
 
 	Channel  *rest.ChannelHandler
@@ -215,6 +216,10 @@ func (s *Session) startHeartbeat() {
 
 		err := s.Send(heartbeat)
 
+		s.Lock()
+		s.lastHeartbeatSent = time.Now().UTC()
+		s.Unlock()
+
 		if err != nil || time.Now().UTC().Sub(lastHeartbeatAck) > (heartbeatInterval*5*time.Millisecond) {
 			s.Close()
 			s.reconnect()
@@ -293,6 +298,10 @@ func (s *Session) UpdatePresence(status *packet.UpdateStatus) error {
 	s.status = status
 
 	return s.Send(status)
+}
+
+func (s *Session) Latency() time.Duration {
+	return s.lastHeartbeatAck.Sub(s.lastHeartbeatSent)
 }
 
 func (s *Session) Close() {

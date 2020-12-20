@@ -5,5 +5,6 @@ const (
 	GatewayUrl            = "wss://gateway.discord.gg/?v=7&encoding=json"
 	EndpointGetMessage    = "/channels/%s/messages/%s"
 	EndpointCreateMessage = "/channels/%s/messages"
+	EndpointEditMessage   = "/channels/%s/messages/%s"
 	EndpointGetChannel    = "/channels/%s"
 )

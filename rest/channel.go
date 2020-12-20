@@ -54,6 +54,9 @@ func (ch *ChannelHandler) Send(channelId string, content interface{}) (*discord.
 	case string:
 		content = map[string]string{"content": content.(string)}
 
+	case *embed.Builder:
+		content = &embed.MessageEmbed{Content: content.(*embed.Builder).Content(), Embed: content.(*embed.Builder).Embed()}
+
 	case *embed.Embed:
 		content = &embed.MessageEmbed{Embed: content.(*embed.Embed)}
 	}
@@ -85,6 +88,9 @@ func (ch *ChannelHandler) Edit(channelId, messageId string, content interface{})
 	switch content.(type) {
 	case string:
 		content = map[string]string{"content": content.(string)}
+
+	case *embed.Builder:
+		content = &embed.MessageEmbed{Content: content.(*embed.Builder).Content(), Embed: content.(*embed.Builder).Embed()}
 
 	case *embed.Embed:
 		content = &embed.MessageEmbed{Embed: content.(*embed.Embed)}

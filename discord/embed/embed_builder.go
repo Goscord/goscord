@@ -3,6 +3,7 @@ package embed
 import "time"
 
 type Builder struct {
+	content string
 	embed *Embed
 }
 
@@ -12,6 +13,11 @@ func NewEmbedBuilder() *Builder {
 	b.embed = &Embed{}
 	b.embed.Type = "rich"
 
+	return b
+}
+
+func (b *Builder) SetContent(content string) *Builder {
+	b.content = content
 	return b
 }
 
@@ -64,6 +70,11 @@ func (b *Builder) AddField(name, value string, inline bool) *Builder {
 	b.embed.Fields = append(b.embed.Fields, &Field{Name: name, Value: value, Inline: inline})
 	return b
 }
+
+func (b *Builder) Content() string {
+	return b.content
+}
+
 
 func (b *Builder) Embed() *Embed {
 	return b.embed

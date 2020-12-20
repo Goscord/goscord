@@ -272,6 +272,10 @@ func (s *Session) reconnect() {
 		<-time.After(wait)
 
 		wait *= 2
+
+		if wait > 600 {
+			wait = 600
+		}
 	}
 }
 

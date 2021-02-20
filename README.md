@@ -3,6 +3,8 @@
 Goscord is a [Go](https://golang.org/) package that provides high level 
 bindings to the [Discord](https://discord.com/) API.
 
+This project remains a hobby so it is not maintained continuously.
+
 ## Getting Started
 
 ### Installing

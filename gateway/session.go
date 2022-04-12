@@ -163,6 +163,7 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 		s.Unlock()
 
 	case packet.OpInvalidSession:
+		fmt.Println("Invalid session")
 		s.Lock()
 		s.sessionID = ""
 		s.lastSequence = 0
@@ -172,6 +173,7 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 		s.reconnect()
 
 	case packet.OpReconnect:
+		fmt.Println("Reconnecting")
 		s.Close()
 		s.reconnect()
 

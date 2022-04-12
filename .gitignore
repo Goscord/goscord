@@ -13,3 +13,4 @@
 
 # GoLand IDE files :
 .idea/
+test/test.go

@@ -92,7 +92,7 @@ func (s *Session) Login() error {
 
 	conn.SetCloseHandler(func(code int, text string) error {
 		if code == 4004 {
-			panic(errors.New("Authentication failed"))
+			panic(errors.New("authentication failed"))
 		}
 
 		return nil
@@ -111,7 +111,7 @@ func (s *Session) Login() error {
 	if err != nil {
 		return err
 	} else if pk.Opcode != 10 {
-		return errors.New("Expecting op 10")
+		return errors.New("expecting op 10")
 	}
 
 	s.Lock()
@@ -163,7 +163,6 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 		s.Unlock()
 
 	case packet.OpInvalidSession:
-		fmt.Println("Invalid session")
 		s.Lock()
 		s.sessionID = ""
 		s.lastSequence = 0
@@ -173,7 +172,6 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 		s.reconnect()
 
 	case packet.OpReconnect:
-		fmt.Println("Reconnecting")
 		s.Close()
 		s.reconnect()
 
@@ -246,7 +244,7 @@ func (s *Session) listen() {
 			s.Close()
 			s.reconnect()
 
-			return
+			break
 		}
 
 		_, _ = s.onMessage(msg)
@@ -266,7 +264,7 @@ func (s *Session) reconnect() {
 
 			// ToDo : Reconnect to voice connections
 
-			return
+			break
 		}
 
 		fmt.Println("Retrying to reconnect...")

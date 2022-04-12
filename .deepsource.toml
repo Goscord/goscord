@@ -5,5 +5,4 @@ name = "go"
 enabled = true
 
   [analyzers.meta]
-  import_paths = ["github.com/Goscord/goscord"]
-  dependencies_vendored = true
+  import_root = "github.com/Goscord/goscord"

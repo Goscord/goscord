@@ -13,5 +13,5 @@ func (h *MessageCreateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.Bus().Publish("message", ev.Data)
+	s.Bus().Publish("messageCreate", ev.Data)
 }

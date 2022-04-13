@@ -80,6 +80,7 @@ func (s *Session) registerHandlers() {
 		event.EventChannelCreate:     &ChannelCreateHandler{},
 		event.EventChannelUpdate:     &ChannelUpdateHandler{},
 		event.EventChannelDelete:     &ChannelDeleteHandler{},
+		event.EventPresenceUpdate:    &PresenceUpdateHandler{},
 	}
 }
 

@@ -18,7 +18,7 @@ func main() {
 	})
 
 	_ = client.On("ready", OnReady)
-	_ = client.On("message", OnMessage)
+	_ = client.On("messageCreate", OnMessageCreate)
 
 	if err := client.Login(); err != nil {
 		panic(err)
@@ -32,7 +32,7 @@ func OnReady() {
 	_ = client.SetStatus("idle")
 }
 
-func OnMessage(msg *discord.Message) {
+func OnMessageCreate(msg *discord.Message) {
 	if strings.ToLower(msg.Content) == "ping" {
 		_, _ = client.Channel.Send(msg.ChannelId, "Pong!")
 	}

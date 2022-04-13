@@ -24,6 +24,8 @@ func NewState(session *Session) *State {
 	}
 }
 
+// GUILDS
+
 func (s *State) AddGuild(guild *discord.Guild) {
 	// TODO : Members
 
@@ -63,6 +65,8 @@ func (s *State) Guild(id string) (*discord.Guild, error) {
 	return nil, errors.New("Guild not found")
 }
 
+// CHANNELS
+
 func (s *State) AddChannel(channel *discord.Channel) {
 	s.mut.Lock()
 	s.Channels[channel.Id] = channel
@@ -96,4 +100,54 @@ func (s *State) Channel(id string) (*discord.Channel, error) {
 	}
 
 	return nil, errors.New("Channel not found")
+}
+
+// MEMBERS
+
+func (s *State) AddMember(guildID string, member *discord.Member) error {
+	s.mut.Lock()
+	defer s.mut.Unlock()
+
+	if _, ok := s.Members[guildID]; !ok {
+		s.Members[guildID] = []*discord.Member{}
+	}
+
+	s.Members[guildID] = append(s.Members[guildID], member)
+
+	return nil
+}
+
+func (s *State) RemoveMember(guildID string, member *discord.Member) error {
+	s.mut.Lock()
+	defer s.mut.Unlock()
+
+	if _, ok := s.Members[guildID]; !ok {
+		return errors.New("Guild not found")
+	}
+
+	for i, m := range s.Members[guildID] {
+		if m.User.Id == member.User.Id {
+			s.Members[guildID] = append(s.Members[guildID][:i], s.Members[guildID][i+1:]...)
+			return nil
+		}
+	}
+
+	return errors.New("Member not found")
+}
+
+func (s *State) Member(guildID string, userID string) (*discord.Member, error) {
+	s.mut.RLock()
+	defer s.mut.RUnlock()
+
+	if _, ok := s.Members[guildID]; !ok {
+		return nil, errors.New("Guild not found")
+	}
+
+	for _, m := range s.Members[guildID] {
+		if m.User.Id == userID {
+			return m, nil
+		}
+	}
+
+	return nil, errors.New("Member not found")
 }

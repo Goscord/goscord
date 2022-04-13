@@ -10,8 +10,10 @@ const (
 	EventGuildBanRemove    = "GUILD_BAN_REMOVE"
 	EventGuildEmojisUpdate = "GUILD_EMOJIS_UPDATE"
 	EventMessageCreate     = "MESSAGE_CREATE"
+	EventMessageUpdate     = "MESSAGE_UPDATE"
 	EventMessageDelete     = "MESSAGE_DELETE"
 	EventChannelCreate     = "CHANNEL_CREATE"
 	EventChannelUpdate     = "CHANNEL_UPDATE"
 	EventChannelDelete     = "CHANNEL_DELETE"
+	EventPresenceUpdate    = "PRESENCE_UPDATE"
 )

@@ -11,7 +11,7 @@ type State struct {
 	mut      *sync.RWMutex
 	Guilds   map[string]*discord.Guild
 	Channels map[string]*discord.Channel
-	Members  map[string][]*discord.Member
+	Members  map[string]map[string]*discord.Member
 }
 
 func NewState(session *Session) *State {
@@ -20,7 +20,7 @@ func NewState(session *Session) *State {
 		mut:      &sync.RWMutex{},
 		Guilds:   map[string]*discord.Guild{},
 		Channels: map[string]*discord.Channel{},
-		Members:  map[string][]*discord.Member{},
+		Members:  map[string]map[string]*discord.Member{},
 	}
 }
 
@@ -104,49 +104,51 @@ func (s *State) Channel(id string) (*discord.Channel, error) {
 
 // MEMBERS
 
-func (s *State) AddMember(guildID string, member *discord.Member) error {
-	s.mut.Lock()
-	defer s.mut.Unlock()
-
-	if _, ok := s.Members[guildID]; !ok {
-		s.Members[guildID] = []*discord.Member{}
+func (s *State) AddMember(guildID string, member *discord.Member) {
+	if _, err := s.Guild(guildID); err != nil {
+		return
 	}
 
-	s.Members[guildID] = append(s.Members[guildID], member)
-
-	return nil
+	s.mut.Lock()
+	if _, ok := s.Members[guildID]; !ok {
+		s.Members[guildID] = map[string]*discord.Member{}
+	}
+	s.Members[guildID][member.User.Id] = member
+	s.mut.Unlock()
 }
 
-func (s *State) RemoveMember(guildID string, member *discord.Member) error {
+func (s *State) RemoveMember(guildID string, member *discord.Member) {
+	if _, err := s.Guild(guildID); err != nil {
+		return
+	}
+
 	s.mut.Lock()
-	defer s.mut.Unlock()
-
-	if _, ok := s.Members[guildID]; !ok {
-		return errors.New("Guild not found")
+	if _, ok := s.Members[guildID]; ok {
+		delete(s.Members[guildID], member.User.Id)
 	}
-
-	for i, m := range s.Members[guildID] {
-		if m.User.Id == member.User.Id {
-			s.Members[guildID] = append(s.Members[guildID][:i], s.Members[guildID][i+1:]...)
-			return nil
-		}
-	}
-
-	return errors.New("Member not found")
+	s.mut.Unlock()
 }
 
 func (s *State) Member(guildID string, userID string) (*discord.Member, error) {
-	s.mut.RLock()
-	defer s.mut.RUnlock()
-
-	if _, ok := s.Members[guildID]; !ok {
-		return nil, errors.New("Guild not found")
+	if _, err := s.Guild(guildID); err != nil {
+		return nil, err
 	}
 
-	for _, m := range s.Members[guildID] {
-		if m.User.Id == userID {
-			return m, nil
+	s.mut.RLock()
+	if _, ok := s.Members[guildID]; ok {
+		if member, ok := s.Members[guildID][userID]; ok {
+			s.mut.RUnlock()
+			return member, nil
 		}
+	}
+	s.mut.RUnlock()
+
+	member, _ := s.session.Guild.GetMember(guildID, userID)
+
+	if member != nil {
+		s.AddMember(guildID, member)
+
+		return member, nil
 	}
 
 	return nil, errors.New("Member not found")

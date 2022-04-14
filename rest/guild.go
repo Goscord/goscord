@@ -15,7 +15,7 @@ func NewGuildHandler(rest *Client) *GuildHandler {
 }
 
 func (gh *GuildHandler) GetMember(guildID, userID string) (*discord.Member, error) {
-	data, err := gh.rest.Request(fmt.Sprintf(EndpointGetGuildMember, userID), "GET", nil)
+	data, err := gh.rest.Request(fmt.Sprintf(EndpointGetGuildMember, guildID, userID), "GET", nil)
 
 	if err != nil {
 		return nil, err

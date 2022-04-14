@@ -256,19 +256,13 @@ func (s *Session) reconnect() {
 	wait := time.Duration(5)
 
 	for {
-		fmt.Println("Reconnecting")
-
 		err := s.Login()
 
 		if err == nil {
-			fmt.Println("Reconnected")
-
 			// ToDo : Reconnect to voice connections
 
 			break
 		}
-
-		fmt.Println("Retrying to reconnect...")
 
 		<-time.After(wait)
 

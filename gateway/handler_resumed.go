@@ -2,6 +2,6 @@ package gateway
 
 type ResumedHandler struct{}
 
-func (h *ResumedHandler) Handle(s *Session, _ []byte) {
+func (_ *ResumedHandler) Handle(s *Session, _ []byte) {
 	s.bus.Publish("resumed")
 }

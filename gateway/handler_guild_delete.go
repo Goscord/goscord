@@ -6,7 +6,7 @@ import (
 
 type GuildDeleteHandler struct{}
 
-func (h *GuildDeleteHandler) Handle(s *Session, data []byte) {
+func (_ *GuildDeleteHandler) Handle(s *Session, data []byte) {
 	ev, err := event.NewGuildDelete(s.rest, data)
 
 	if err != nil {

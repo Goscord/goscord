@@ -6,7 +6,7 @@ import (
 
 type ChannelDeleteHandler struct{}
 
-func (h *ChannelDeleteHandler) Handle(s *Session, data []byte) {
+func (_ *ChannelDeleteHandler) Handle(s *Session, data []byte) {
 	ev, err := event.NewChannelDelete(s.rest, data)
 
 	if err != nil {

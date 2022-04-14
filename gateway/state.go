@@ -62,7 +62,7 @@ func (s *State) Guild(id string) (*discord.Guild, error) {
 		return guild, nil
 	}
 
-	return nil, errors.New("Guild not found")
+	return nil, errors.New("guild not found")
 }
 
 // CHANNELS
@@ -99,7 +99,7 @@ func (s *State) Channel(id string) (*discord.Channel, error) {
 		return channel, nil
 	}
 
-	return nil, errors.New("Channel not found")
+	return nil, errors.New("channel not found")
 }
 
 // MEMBERS
@@ -110,9 +110,11 @@ func (s *State) AddMember(guildID string, member *discord.Member) {
 	}
 
 	s.mut.Lock()
+
 	if _, ok := s.Members[guildID]; !ok {
 		s.Members[guildID] = map[string]*discord.Member{}
 	}
+
 	s.Members[guildID][member.User.Id] = member
 	s.mut.Unlock()
 }
@@ -151,5 +153,5 @@ func (s *State) Member(guildID string, userID string) (*discord.Member, error) {
 		return member, nil
 	}
 
-	return nil, errors.New("Member not found")
+	return nil, errors.New("member not found")
 }

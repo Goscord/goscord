@@ -6,7 +6,7 @@ import (
 
 type ChannelCreateHandler struct{}
 
-func (h *ChannelCreateHandler) Handle(s *Session, data []byte) {
+func (_ *ChannelCreateHandler) Handle(s *Session, data []byte) {
 	ev, err := event.NewChannelCreate(s.rest, data)
 
 	if err != nil {
@@ -14,5 +14,6 @@ func (h *ChannelCreateHandler) Handle(s *Session, data []byte) {
 	}
 
 	s.state.AddChannel(ev.Data)
+
 	s.bus.Publish("channelCreate", ev.Data)
 }

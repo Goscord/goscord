@@ -6,7 +6,7 @@ import (
 
 type MessageCreateHandler struct{}
 
-func (h *MessageCreateHandler) Handle(s *Session, data []byte) {
+func (_ *MessageCreateHandler) Handle(s *Session, data []byte) {
 	ev, err := event.NewMessageCreate(s.rest, data)
 
 	if err != nil {

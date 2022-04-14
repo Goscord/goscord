@@ -4,7 +4,7 @@ import "github.com/Goscord/goscord/gateway/event"
 
 type GuildBanAddHandler struct{}
 
-func (h *GuildBanAddHandler) Handle(s *Session, data []byte) {
+func (_ *GuildBanAddHandler) Handle(s *Session, data []byte) {
 	ev, err := event.NewGuildBanAdd(s.rest, data)
 
 	if err != nil {

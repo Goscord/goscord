@@ -6,7 +6,7 @@ import (
 
 type ReadyHandler struct{}
 
-func (h *ReadyHandler) Handle(s *Session, data []byte) {
+func (_ *ReadyHandler) Handle(s *Session, data []byte) {
 	ev, err := event.NewReady(data)
 
 	if err != nil {

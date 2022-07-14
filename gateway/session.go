@@ -248,12 +248,13 @@ func (s *Session) listen() {
 				s.Close()
 				s.reconnect()
 
-				break
+				return
 			}
 
 			_, _ = s.onMessage(msg)
 
 		case <-s.close:
+			fmt.Println("listen <- close")
 			return
 		}
 	}
@@ -263,11 +264,14 @@ func (s *Session) reconnect() {
 	wait := time.Duration(5)
 
 	for {
+		fmt.Println("Reconnecting")
+
 		err := s.Login()
 
 		if err == nil {
 			// ToDo : Reconnect to voice connections
 
+			fmt.Println("Reconnected")
 			break
 		}
 
@@ -311,8 +315,8 @@ func (s *Session) Latency() time.Duration {
 }
 
 func (s *Session) Close() {
-	_ = s.conn.Close()
 	s.close <- true
+	_ = s.conn.Close()
 }
 
 func (s *Session) Bus() *ev.EventBus {

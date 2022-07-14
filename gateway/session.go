@@ -3,14 +3,15 @@ package gateway
 import (
 	"errors"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/Goscord/goscord/discord"
 	"github.com/Goscord/goscord/gateway/event"
 	"github.com/Goscord/goscord/gateway/packet"
 	"github.com/Goscord/goscord/rest"
 	ev "github.com/asaskevich/EventBus"
 	"github.com/gorilla/websocket"
-	"sync"
-	"time"
 )
 
 type Session struct {
@@ -224,7 +225,7 @@ func (s *Session) startHeartbeat() {
 		if err != nil || time.Now().UTC().Sub(lastHeartbeatAck) > (heartbeatInterval*5*time.Millisecond) {
 			s.Close()
 			s.reconnect()
-			return
+			break
 		}
 
 		select {
@@ -239,16 +240,22 @@ func (s *Session) startHeartbeat() {
 
 func (s *Session) listen() {
 	for {
-		_, msg, err := s.conn.ReadMessage()
+		select {
+		default:
+			_, msg, err := s.conn.ReadMessage()
 
-		if err != nil {
-			s.Close()
-			s.reconnect()
+			if err != nil {
+				s.Close()
+				s.reconnect()
 
-			break
+				break
+			}
+
+			_, _ = s.onMessage(msg)
+
+		case <-s.close:
+			return
 		}
-
-		_, _ = s.onMessage(msg)
 	}
 }
 

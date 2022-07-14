@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/Goscord/goscord"
 	"github.com/Goscord/goscord/discord"
 	"github.com/Goscord/goscord/gateway"
-	"strings"
 )
 
 var client *gateway.Session

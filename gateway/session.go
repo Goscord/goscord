@@ -102,7 +102,9 @@ func (s *Session) Login() error {
 
 	s.conn = conn
 
+	s.connMu.Lock()
 	_, msg, err := s.conn.ReadMessage()
+	s.connMu.Unlock()
 
 	if err != nil {
 		return err
@@ -242,7 +244,9 @@ func (s *Session) listen() {
 	for {
 		select {
 		default:
+			s.connMu.Lock()
 			_, msg, err := s.conn.ReadMessage()
+			s.connMu.Unlock()
 
 			if err != nil {
 				s.Close()

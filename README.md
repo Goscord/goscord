@@ -10,7 +10,7 @@ This project remains a hobby so it is not maintained continuously.
 ### Installing
 
 ```sh
-go get github.com/Goscord/goscord
+go get -u github.com/Goscord/goscord
 ```
 
 ### Usage

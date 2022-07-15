@@ -203,18 +203,18 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 }
 
 func (s *Session) startHeartbeat() {
-	s.RLock()
+	s.Lock()
 	heartbeatInterval := s.heartbeatInterval
-	s.RUnlock()
+	s.Unlock()
 
 	ticker := time.NewTicker(s.heartbeatInterval)
 	defer ticker.Stop()
 
 	for {
-		s.RLock()
+		s.Lock()
 		lastSequence := s.lastSequence
 		lastHeartbeatAck := s.lastHeartbeatAck
-		s.RUnlock()
+		s.Unlock()
 
 		heartbeat := packet.NewHeartbeat(lastSequence)
 
@@ -277,7 +277,7 @@ func (s *Session) reconnect() {
 
 			fmt.Println("Reconnected")
 			break
-		}
+		} else { fmt.Println(err) }
 
 		<-time.After(wait)
 

@@ -100,7 +100,9 @@ func (s *Session) Login() error {
 		return nil
 	})
 
+        s.connMu.Lock()
 	s.conn = conn
+        s.connMu.Unlock()
 
 	s.connMu.Lock()
 	_, msg, err := s.conn.ReadMessage()

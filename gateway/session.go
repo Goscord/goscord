@@ -120,10 +120,9 @@ func (s *Session) Login() error {
 
 	s.Lock()
 	s.lastHeartbeatAck = time.Now().UTC()
-	s.Unlock()
-
 	sessionID := s.sessionID
 	sequence := s.lastSequence
+        s.Unlock()
 
 	if sequence == 0 && sessionID == "" {
 		identify := packet.NewIdentify(s.options.Token, s.options.Intents)
@@ -188,9 +187,8 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 	if e != "" {
 		s.Lock()
 		s.lastSequence = pk.Sequence
-		s.Unlock()
-
 		handler, exists := s.handlers[e]
+                s.Unlock()
 
 		if exists {
 			go handler.Handle(s, msg)
@@ -315,6 +313,9 @@ func (s *Session) UpdatePresence(status *packet.UpdateStatus) error {
 }
 
 func (s *Session) Latency() time.Duration {
+        s.Lock()
+        defer s.Unlock()
+
 	return s.lastHeartbeatAck.Sub(s.lastHeartbeatSent)
 }
 

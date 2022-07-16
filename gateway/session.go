@@ -207,7 +207,7 @@ func (s *Session) startHeartbeat() {
 	heartbeatInterval := s.heartbeatInterval
 	s.Unlock()
 
-	ticker := time.NewTicker(s.heartbeatInterval)
+	ticker := time.NewTicker(heartbeatInterval)
 	defer ticker.Stop()
 
 	for {

@@ -15,7 +15,7 @@ import (
 )
 
 type Session struct {
-	sync.RWMutex
+	sync.Mutex
 	options           *Options
 	status            *packet.UpdateStatus
 	user              *discord.User
@@ -100,9 +100,9 @@ func (s *Session) Login() error {
 		return nil
 	})
 
-        s.connMu.Lock()
+    s.connMu.Lock()
 	s.conn = conn
-        s.connMu.Unlock()
+    s.connMu.Unlock()
 
 	s.connMu.Lock()
 	_, msg, err := s.conn.ReadMessage()
@@ -124,16 +124,17 @@ func (s *Session) Login() error {
 	s.lastHeartbeatAck = time.Now().UTC()
 	sessionID := s.sessionID
 	sequence := s.lastSequence
-        s.Unlock()
+	token := s.options.Token
+    s.Unlock()
 
 	if sequence == 0 && sessionID == "" {
-		identify := packet.NewIdentify(s.options.Token, s.options.Intents)
+		identify := packet.NewIdentify(token), s.options.Intents)
 
 		if err = s.Send(identify); err != nil {
 			return err
 		}
 	} else {
-		resume := packet.NewResume(s.options.Token, sessionID, sequence)
+		resume := packet.NewResume(token, sessionID, sequence)
 
 		if err = s.Send(resume); err != nil {
 			return err
@@ -190,7 +191,7 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 		s.Lock()
 		s.lastSequence = pk.Sequence
 		handler, exists := s.handlers[e]
-                s.Unlock()
+        s.Unlock()
 
 		if exists {
 			go handler.Handle(s, msg)
@@ -276,7 +277,8 @@ func (s *Session) reconnect() {
 			// ToDo : Reconnect to voice connections
 
 			fmt.Println("Reconnected")
-			break
+
+			return
 		} else { fmt.Println(err) }
 
 		<-time.After(wait)
@@ -297,26 +299,32 @@ func (s *Session) Send(v interface{}) error {
 }
 
 func (s *Session) SetActivity(activity *discord.Activity) error {
+	s.Lock()
 	s.status.Data.Game = activity
+	s.Unlock()
 
 	return s.Send(s.status)
 }
 
 func (s *Session) SetStatus(status string) error {
+	s.Lock()
 	s.status.Data.Status = status
+	s.Unlock()
 
 	return s.Send(s.status)
 }
 
 func (s *Session) UpdatePresence(status *packet.UpdateStatus) error {
+	s.Lock()
 	s.status = status
+	s.Unlock()
 
 	return s.Send(status)
 }
 
 func (s *Session) Latency() time.Duration {
-        s.Lock()
-        defer s.Unlock()
+	s.Lock()
+	defer s.Unlock()
 
 	return s.lastHeartbeatAck.Sub(s.lastHeartbeatSent)
 }
@@ -327,17 +335,29 @@ func (s *Session) Close() {
 }
 
 func (s *Session) Bus() *ev.EventBus {
+	s.Lock()
+	defer s.Unlock()
+	
 	return s.bus
 }
 
 func (s *Session) Me() *discord.User {
+	s.Lock()
+	defer s.Unlock()
+
 	return s.user
 }
 
 func (s *Session) State() *State {
+	s.Lock()
+	defer s.Unlock()
+	
 	return s.state
 }
 
 func (s *Session) On(ev string, fn interface{}) error {
+	s.Lock()
+	defer s.Unlock()
+
 	return s.bus.SubscribeAsync(ev, fn, false)
 }

@@ -128,7 +128,7 @@ func (s *Session) Login() error {
     s.Unlock()
 
 	if sequence == 0 && sessionID == "" {
-		identify := packet.NewIdentify(token), s.options.Intents)
+		identify := packet.NewIdentify(token, s.options.Intents)
 
 		if err = s.Send(identify); err != nil {
 			return err

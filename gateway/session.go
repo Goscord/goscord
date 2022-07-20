@@ -300,24 +300,27 @@ func (s *Session) Send(v interface{}) error {
 
 func (s *Session) SetActivity(activity *discord.Activity) error {
 	s.Lock()
+	defer s.Unlock()
+	
 	s.status.Data.Game = activity
-	s.Unlock()
 
 	return s.Send(s.status)
 }
 
 func (s *Session) SetStatus(status string) error {
 	s.Lock()
+	defer s.Unlock()
+	
 	s.status.Data.Status = status
-	s.Unlock()
 
 	return s.Send(s.status)
 }
 
 func (s *Session) UpdatePresence(status *packet.UpdateStatus) error {
 	s.Lock()
+	defer s.Unlock()
+	
 	s.status = status
-	s.Unlock()
 
 	return s.Send(status)
 }

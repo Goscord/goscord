@@ -86,7 +86,8 @@ func (s *Session) registerHandlers() {
 }
 
 func (s *Session) Login() error {
-	conn, _, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
+	s.connMu.Lock()
+	s.conn, _, err = websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
 
 	if err != nil {
 		return err
@@ -99,10 +100,8 @@ func (s *Session) Login() error {
 
 		return nil
 	})
-
-    s.connMu.Lock()
-	s.conn = conn
-    s.connMu.Unlock()
+	
+	s.connMu.Unlock()
 
 	s.connMu.Lock()
 	_, msg, err := s.conn.ReadMessage()
@@ -125,10 +124,11 @@ func (s *Session) Login() error {
 	sessionID := s.sessionID
 	sequence := s.lastSequence
 	token := s.options.Token
-    s.Unlock()
+	intents := s.options.Intents
+	s.Unlock()
 
 	if sequence == 0 && sessionID == "" {
-		identify := packet.NewIdentify(token, s.options.Intents)
+		identify := packet.NewIdentify(token, intents)
 
 		if err = s.Send(identify); err != nil {
 			return err
@@ -228,7 +228,8 @@ func (s *Session) startHeartbeat() {
 		if err != nil || time.Now().UTC().Sub(lastHeartbeatAck) > (heartbeatInterval*5*time.Millisecond) {
 			s.Close()
 			s.reconnect()
-			break
+			
+			return
 		}
 
 		select {

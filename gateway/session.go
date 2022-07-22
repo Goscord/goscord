@@ -87,13 +87,13 @@ func (s *Session) registerHandlers() {
 
 func (s *Session) Login() error {
 	s.connMu.Lock()
-	s.conn, _, err = websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
+	s.conn, _, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
 
 	if err != nil {
 		return err
 	}
 
-	conn.SetCloseHandler(func(code int, text string) error {
+	s.conn.SetCloseHandler(func(code int, text string) error {
 		if code == 4004 {
 			panic(errors.New("authentication failed"))
 		}

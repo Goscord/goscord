@@ -86,7 +86,6 @@ func (s *Session) registerHandlers() {
 }
 
 func (s *Session) Login() error {
-	s.connMu.Lock()
 	conn, _, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
 
 	if err != nil {
@@ -101,10 +100,9 @@ func (s *Session) Login() error {
 		return nil
 	})
 	
-	s.conn = conn
-	s.connMu.Unlock()
-
 	s.connMu.Lock()
+	s.conn = conn
+
 	_, msg, err := s.conn.ReadMessage()
 	s.connMu.Unlock()
 

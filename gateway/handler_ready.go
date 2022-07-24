@@ -13,8 +13,10 @@ func (_ *ReadyHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
+	s.Lock()
 	s.user = ev.Data.User
 	s.sessionID = ev.Data.SessionID
+	s.Unlock()
 
 	for _, guild := range ev.Data.Guilds {
 		s.state.AddGuild(guild)

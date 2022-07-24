@@ -100,9 +100,11 @@ func (s *Session) Login() error {
 		return nil
 	})
 	
-	s.connMu.Lock()
+	s.Lock()
 	s.conn = conn
+	s.Unlock()
 
+	s.connMu.Lock()
 	_, msg, err := s.conn.ReadMessage()
 	s.connMu.Unlock()
 
@@ -333,8 +335,10 @@ func (s *Session) Latency() time.Duration {
 }
 
 func (s *Session) Close() {
+	s.connMu.Lock()
 	s.close <- true
 	_ = s.conn.Close()
+	s.connMu.Unlock()
 }
 
 func (s *Session) Bus() *ev.EventBus {

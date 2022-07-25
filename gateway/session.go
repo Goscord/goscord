@@ -336,9 +336,12 @@ func (s *Session) Latency() time.Duration {
 
 func (s *Session) Close() {
 	s.connMu.Lock()
-	s.close <- true
-	_ = s.conn.Close()
+	s.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(closeCode, ""))
+	
+	close(s.close)
 	s.connMu.Unlock()
+	
+	_ = s.conn.Close()
 }
 
 func (s *Session) Bus() *ev.EventBus {

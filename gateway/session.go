@@ -130,7 +130,7 @@ func (s *Session) Login() error {
 	sequence := s.lastSequence
 	token := s.options.Token
 	intents := s.options.Intents
-	cclose = s.close
+	cclose := s.close
 	s.Unlock()
 
 	if sequence == 0 && sessionID == "" {

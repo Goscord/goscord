@@ -89,6 +89,7 @@ func (s *Session) registerHandlers() {
 func (s *Session) Login() error {
 	header := http.Header{}
 	header.Add("accept-encoding", "zlib")
+
 	conn, _, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, header)
 
 	if err != nil {
@@ -129,6 +130,7 @@ func (s *Session) Login() error {
 	sequence := s.lastSequence
 	token := s.options.Token
 	intents := s.options.Intents
+	close = s.close
 	s.Unlock()
 
 	if sequence == 0 && sessionID == "" {
@@ -145,8 +147,8 @@ func (s *Session) Login() error {
 		}
 	}
 
-	go s.startHeartbeat()
-	go s.listen()
+	go s.startHeartbeat(close)
+	go s.listen(close)
 
 	return nil
 }
@@ -207,7 +209,7 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 	return pk, nil
 }
 
-func (s *Session) startHeartbeat() {
+func (s *Session) startHeartbeat(closed <-chan bool) {
 	s.Lock()
 	heartbeatInterval := s.heartbeatInterval
 	s.Unlock()
@@ -236,13 +238,13 @@ func (s *Session) startHeartbeat() {
 		case <-ticker.C:
 			// loop
 
-		case <-s.close:
+		case <-closed:
 			return
 		}
 	}
 }
 
-func (s *Session) listen() {
+func (s *Session) listen(closed <-chan bool) {
 	for {
 		select {
 		default:
@@ -259,8 +261,7 @@ func (s *Session) listen() {
 
 			_, _ = s.onMessage(msg)
 
-		case <-s.close:
-			fmt.Println("listen <- close")
+		case <-closed:
 			return
 		}
 	}
@@ -334,7 +335,7 @@ func (s *Session) Latency() time.Duration {
 }
 
 func (s *Session) Close() {
-	close(s.close)
+	s.close <- true
 	_ = s.conn.Close()
 }
 

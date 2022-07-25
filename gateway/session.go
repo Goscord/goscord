@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
-	"http"
+	"net/http"
 
 	"github.com/Goscord/goscord/discord"
 	"github.com/Goscord/goscord/gateway/event"

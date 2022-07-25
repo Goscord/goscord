@@ -130,7 +130,7 @@ func (s *Session) Login() error {
 	sequence := s.lastSequence
 	token := s.options.Token
 	intents := s.options.Intents
-	close = s.close
+	cclose = s.close
 	s.Unlock()
 
 	if sequence == 0 && sessionID == "" {
@@ -147,8 +147,8 @@ func (s *Session) Login() error {
 		}
 	}
 
-	go s.startHeartbeat(close)
-	go s.listen(close)
+	go s.startHeartbeat(cclose)
+	go s.listen(cclose)
 
 	return nil
 }

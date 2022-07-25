@@ -335,12 +335,7 @@ func (s *Session) Latency() time.Duration {
 }
 
 func (s *Session) Close() {
-	s.connMu.Lock()
-	s.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseServiceRestart, ""))
-
 	close(s.close)
-	s.connMu.Unlock()
-	
 	_ = s.conn.Close()
 }
 

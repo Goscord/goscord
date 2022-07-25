@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"http"
 
 	"github.com/Goscord/goscord/discord"
 	"github.com/Goscord/goscord/gateway/event"
@@ -86,7 +87,9 @@ func (s *Session) registerHandlers() {
 }
 
 func (s *Session) Login() error {
-	conn, _, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
+	header := http.Header{}
+	header.Add("accept-encoding", "zlib")
+	conn, _, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, header)
 
 	if err != nil {
 		return err
@@ -209,24 +212,20 @@ func (s *Session) startHeartbeat() {
 	heartbeatInterval := s.heartbeatInterval
 	s.Unlock()
 
-	ticker := time.NewTicker(heartbeatInterval)
+	ticker := time.NewTicker(heartbeatInterval * time.Millisecond)
 	defer ticker.Stop()
 
 	for {
 		s.Lock()
 		lastSequence := s.lastSequence
 		lastHeartbeatAck := s.lastHeartbeatAck
-		s.Unlock()
-
-		heartbeat := packet.NewHeartbeat(lastSequence)
-
-		err := s.Send(heartbeat)
-
-		s.Lock()
 		s.lastHeartbeatSent = time.Now().UTC()
 		s.Unlock()
 
-		if err != nil || time.Now().UTC().Sub(lastHeartbeatAck) > (heartbeatInterval*5*time.Millisecond) {
+		heartbeat := packet.NewHeartbeat(lastSequence)
+		err := s.Send(heartbeat)
+
+		if err != nil || time.Now().UTC().Sub(lastHeartbeatAck) > (heartbeatInterval * 5 * time.Millisecond) {
 			s.Close()
 			s.reconnect()
 			

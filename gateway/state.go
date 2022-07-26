@@ -2,13 +2,14 @@ package gateway
 
 import (
 	"errors"
-	"github.com/Goscord/goscord/discord"
 	"sync"
+
+	"github.com/Goscord/goscord/discord"
 )
 
 type State struct {
+	sync.RWMutex
 	session  *Session
-	mut      *sync.RWMutex
 	Guilds   map[string]*discord.Guild
 	Channels map[string]*discord.Channel
 	Members  map[string]map[string]*discord.Member
@@ -17,7 +18,6 @@ type State struct {
 func NewState(session *Session) *State {
 	return &State{
 		session:  session,
-		mut:      &sync.RWMutex{},
 		Guilds:   map[string]*discord.Guild{},
 		Channels: map[string]*discord.Channel{},
 		Members:  map[string]map[string]*discord.Member{},
@@ -35,9 +35,9 @@ func (s *State) AddGuild(guild *discord.Guild) {
 		}
 	}
 
-	s.mut.Lock()
+	s.Lock()
 	s.Guilds[guild.Id] = guild
-	s.mut.Unlock()
+	s.Unlock()
 }
 
 func (s *State) RemoveGuild(guild *discord.Guild) {
@@ -48,15 +48,15 @@ func (s *State) RemoveGuild(guild *discord.Guild) {
 			}
 		}
 
-		s.mut.Lock()
+		s.Lock()
 		delete(s.Guilds, g.Id)
-		s.mut.Unlock()
+		s.Unlock()
 	}
 }
 
 func (s *State) Guild(id string) (*discord.Guild, error) {
-	s.mut.RLock()
-	defer s.mut.RUnlock()
+	s.RLock()
+	defer s.RUnlock()
 
 	if guild, ok := s.Guilds[id]; ok {
 		return guild, nil
@@ -68,28 +68,28 @@ func (s *State) Guild(id string) (*discord.Guild, error) {
 // CHANNELS
 
 func (s *State) AddChannel(channel *discord.Channel) {
-	s.mut.Lock()
+	s.Lock()
 	s.Channels[channel.Id] = channel
-	s.mut.Unlock()
+	s.Unlock()
 }
 
 func (s *State) RemoveChannel(channel *discord.Channel) {
 	if c, err := s.Channel(channel.Id); err == nil {
-		s.mut.Lock()
+		s.Lock()
 		delete(s.Channels, c.Id)
-		s.mut.Unlock()
+		s.Unlock()
 	}
 }
 
 func (s *State) Channel(id string) (*discord.Channel, error) {
-	s.mut.RLock()
+	s.RLock()
 
 	if channel, ok := s.Channels[id]; ok {
-		s.mut.RUnlock()
+		s.RUnlock()
 		return channel, nil
 	}
 
-	s.mut.RUnlock()
+	s.RUnlock()
 
 	channel, _ := s.session.Channel.GetChannel(id)
 
@@ -109,14 +109,14 @@ func (s *State) AddMember(guildID string, member *discord.Member) {
 		return
 	}
 
-	s.mut.Lock()
+	s.Lock()
 
 	if _, ok := s.Members[guildID]; !ok {
 		s.Members[guildID] = map[string]*discord.Member{}
 	}
 
 	s.Members[guildID][member.User.Id] = member
-	s.mut.Unlock()
+	s.Unlock()
 }
 
 func (s *State) RemoveMember(guildID string, member *discord.Member) {
@@ -124,11 +124,11 @@ func (s *State) RemoveMember(guildID string, member *discord.Member) {
 		return
 	}
 
-	s.mut.Lock()
+	s.Lock()
 	if _, ok := s.Members[guildID]; ok {
 		delete(s.Members[guildID], member.User.Id)
 	}
-	s.mut.Unlock()
+	s.Unlock()
 }
 
 func (s *State) Member(guildID string, userID string) (*discord.Member, error) {
@@ -136,14 +136,14 @@ func (s *State) Member(guildID string, userID string) (*discord.Member, error) {
 		return nil, err
 	}
 
-	s.mut.RLock()
+	s.RLock()
 	if _, ok := s.Members[guildID]; ok {
 		if member, ok := s.Members[guildID][userID]; ok {
-			s.mut.RUnlock()
+			s.RUnlock()
 			return member, nil
 		}
 	}
-	s.mut.RUnlock()
+	s.RUnlock()
 
 	member, _ := s.session.Guild.GetMember(guildID, userID)
 

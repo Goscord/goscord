@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
@@ -47,7 +46,7 @@ func (c *Client) Request(endpoint, method string, data io.Reader, contentType st
 
 	var body []byte
 
-	body, err = ioutil.ReadAll(resp.Body)
+	body, err = io.ReadAll(resp.Body)
 
 	if err != nil {
 		return nil, err

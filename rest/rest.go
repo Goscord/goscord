@@ -73,7 +73,7 @@ func (c *Client) Request(endpoint, method string, data io.Reader, contentType st
 
 		body, err = c.Request(endpoint, method, data, contentType)
 	case 401:
-		return nil, errors.New("An invalid token was provided")
+		return nil, errors.New("an invalid token was provided")
 	}
 
 	return body, nil

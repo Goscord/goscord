@@ -9,6 +9,7 @@ import (
 
 type State struct {
 	sync.RWMutex
+
 	session  *Session
 	Guilds   map[string]*discord.Guild
 	Channels map[string]*discord.Channel
@@ -119,14 +120,14 @@ func (s *State) AddMember(guildID string, member *discord.Member) {
 	s.Unlock()
 }
 
-func (s *State) RemoveMember(guildID string, member *discord.Member) {
+func (s *State) RemoveMember(guildID string, member string) {
 	if _, err := s.Guild(guildID); err != nil {
 		return
 	}
 
 	s.Lock()
 	if _, ok := s.Members[guildID]; ok {
-		delete(s.Members[guildID], member.User.Id)
+		delete(s.Members[guildID], member)
 	}
 	s.Unlock()
 }

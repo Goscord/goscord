@@ -83,6 +83,7 @@ func (s *Session) registerHandlers() {
 		event.EventChannelUpdate:     &ChannelUpdateHandler{},
 		event.EventChannelDelete:     &ChannelDeleteHandler{},
 		event.EventPresenceUpdate:    &PresenceUpdateHandler{},
+		event.EventGuildMemberAdd:    &GuildMemberAddHandler{},
 	}
 }
 
@@ -103,7 +104,7 @@ func (s *Session) Login() error {
 
 		return nil
 	})
-	
+
 	s.Lock()
 	s.conn = conn
 	s.Unlock()
@@ -197,7 +198,7 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 		s.Lock()
 		s.lastSequence = pk.Sequence
 		handler, exists := s.handlers[e]
-        s.Unlock()
+		s.Unlock()
 
 		if exists {
 			go handler.Handle(s, msg)
@@ -227,10 +228,10 @@ func (s *Session) startHeartbeat(closed <-chan bool) {
 		heartbeat := packet.NewHeartbeat(lastSequence)
 		err := s.Send(heartbeat)
 
-		if err != nil || time.Now().UTC().Sub(lastHeartbeatAck) > (heartbeatInterval * 5 * time.Millisecond) {
+		if err != nil || time.Now().UTC().Sub(lastHeartbeatAck) > (heartbeatInterval*5*time.Millisecond) {
 			s.Close()
 			s.reconnect()
-			
+
 			return
 		}
 
@@ -281,7 +282,7 @@ func (s *Session) reconnect() {
 			fmt.Println("Reconnected")
 
 			return
-		} else { fmt.Println(err) }
+		}
 
 		<-time.After(wait)
 
@@ -303,7 +304,7 @@ func (s *Session) Send(v interface{}) error {
 func (s *Session) SetActivity(activity *discord.Activity) error {
 	s.Lock()
 	defer s.Unlock()
-	
+
 	s.status.Data.Game = activity
 
 	return s.Send(s.status)
@@ -312,7 +313,7 @@ func (s *Session) SetActivity(activity *discord.Activity) error {
 func (s *Session) SetStatus(status string) error {
 	s.Lock()
 	defer s.Unlock()
-	
+
 	s.status.Data.Status = status
 
 	return s.Send(s.status)
@@ -321,7 +322,7 @@ func (s *Session) SetStatus(status string) error {
 func (s *Session) UpdatePresence(status *packet.UpdateStatus) error {
 	s.Lock()
 	defer s.Unlock()
-	
+
 	s.status = status
 
 	return s.Send(status)
@@ -342,14 +343,14 @@ func (s *Session) Close() {
 	s.connMu.Unlock()
 
 	time.Sleep(1 * time.Second)
-	
+
 	_ = s.conn.Close()
 }
 
 func (s *Session) Bus() *ev.EventBus {
 	s.Lock()
 	defer s.Unlock()
-	
+
 	return s.bus
 }
 
@@ -363,7 +364,7 @@ func (s *Session) Me() *discord.User {
 func (s *Session) State() *State {
 	s.Lock()
 	defer s.Unlock()
-	
+
 	return s.state
 }
 

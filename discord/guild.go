@@ -22,4 +22,8 @@ type Guild struct {
 	//VoiceStates []*voice.State `json:"voice_states"`
 	Members  []*Member  `json:"members"`
 	Channels []*Channel `json:"channels"`
+	Threads  []*Channel `json:"threads"`
+	//Presences []*
+	StageInstances []*Channel `json:"stage_instances"`
+	//GuildScheduledEvents []*GuildScheduledEvent`json:"guild_scheduled_events"`
 }

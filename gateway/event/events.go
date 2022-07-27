@@ -16,4 +16,7 @@ const (
 	EventChannelUpdate     = "CHANNEL_UPDATE"
 	EventChannelDelete     = "CHANNEL_DELETE"
 	EventPresenceUpdate    = "PRESENCE_UPDATE"
+	EventGuildMemberAdd    = "GUILD_MEMBER_ADD"
+	EventGuildMemberRemove = "GUILD_MEMBER_REMOVE"
+	EventGuildMemberUpdate = "GUILD_MEMBER_UPDATE"
 )

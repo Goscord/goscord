@@ -2,6 +2,7 @@ package event
 
 import (
 	"encoding/json"
+
 	"github.com/Goscord/goscord/discord"
 	"github.com/Goscord/goscord/rest"
 )
@@ -12,8 +13,14 @@ type PresenceUpdate struct {
 		GuildId      string              `json:"guild_id"`
 		Status       string              `json:"status"`
 		Activities   []*discord.Activity `json:"activities"`
-		ClientStatus string              `json:"client_status"`
+		ClientStatus *ClientStatus       `json:"client_status"`
 	} `json:"d"`
+}
+
+type ClientStatus struct {
+	Desktop string `json:"deskop"` // windows, linux, mac
+	Mobile  string `json:"mobile"` // ios, android
+	Web     string `json:"web"`    // browser, bot_account
 }
 
 func NewPresenceUpdate(_ *rest.Client, data []byte) (*PresenceUpdate, error) {

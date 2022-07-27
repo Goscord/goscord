@@ -13,10 +13,9 @@ func (_ *GuildCreateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	if _, ok := s.state.Guilds[ev.Data.Id]; !ok {
-		s.state.AddGuild(ev.Data)
+	if _, err := s.state.Guild(ev.Data.Id); err != nil {
 		s.bus.Publish("guildCreate", ev.Data)
-	} else {
-		s.state.AddGuild(ev.Data)
 	}
+
+	s.state.AddGuild(ev.Data)
 }

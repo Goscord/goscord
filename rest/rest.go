@@ -1,15 +1,16 @@
 package rest
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Goscord/goscord/rest/ratelimit"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/Goscord/goscord/rest/ratelimit"
 )
 
 type Client struct {
@@ -20,18 +21,18 @@ func NewClient(token string) *Client {
 	return &Client{token: token}
 }
 
-func (c *Client) Request(endpoint, method string, data []byte) ([]byte, error) {
+func (c *Client) Request(endpoint, method string, data io.Reader, contentType string) ([]byte, error) {
 	var req *http.Request
 
 	method = strings.ToUpper(method)
 	url := strings.ToLower(BaseUrl + endpoint)
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
+	req, err := http.NewRequest(method, url, data)
 
 	if err != nil {
 		return nil, err
 	}
 
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("User-Agent", "DiscordBot (https://github.com/Goscord/goscord, 1.0.0)")
 	req.Header.Set("Authorization", fmt.Sprintf("Bot %s", c.token))
 
@@ -71,7 +72,7 @@ func (c *Client) Request(endpoint, method string, data []byte) ([]byte, error) {
 
 		time.Sleep(rateLimit.RetryAfter)
 
-		body, err = c.Request(endpoint, method, data)
+		body, err = c.Request(endpoint, method, data, contentType)
 	case 401:
 		return nil, errors.New("An invalid token was provided")
 	}

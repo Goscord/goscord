@@ -3,9 +3,9 @@ package gateway
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"sync"
 	"time"
-	"net/http"
 
 	"github.com/Goscord/goscord/discord"
 	"github.com/Goscord/goscord/gateway/event"

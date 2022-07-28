@@ -91,12 +91,15 @@ func (s *Session) Login() error {
 	header := http.Header{}
 	header.Add("accept-encoding", "zlib")
 
+	s.connMu.Lock()
 	conn, _, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, header)
+	s.connMu.Unlock()
 
 	if err != nil {
 		return err
 	}
 
+	s.connMu.Lock()
 	conn.SetCloseHandler(func(code int, text string) error {
 		if code == 4004 {
 			panic(errors.New("authentication failed"))
@@ -104,6 +107,7 @@ func (s *Session) Login() error {
 
 		return nil
 	})
+	s.connMu.Unlock()
 
 	s.Lock()
 	s.conn = conn

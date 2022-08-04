@@ -348,7 +348,9 @@ func (s *Session) Close() {
 
 	time.Sleep(1 * time.Second)
 
+	s.connMu.Lock()
 	_ = s.conn.Close()
+	s.connMu.Unlock()
 }
 
 func (s *Session) Bus() *ev.EventBus {

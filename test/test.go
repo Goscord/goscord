@@ -52,9 +52,9 @@ func OnMessageCreate(msg *discord.Message) {
 		if err != nil {
 			panic(err)
 		}
-		
+
 		defer dogeImg.Close()
-		
+
 		_, _ = client.Channel.Send(msg.ChannelId, dogeImg)
 	}
 }

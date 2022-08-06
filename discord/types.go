@@ -1,16 +1,6 @@
 package discord
 
 const (
-	TypeGuildText = iota
-	TypeDm
-	TypeGuildVoice
-	TypeGroupDm
-	TypeGuildCategory
-	TypeGuildNews
-	TypeGuildStore
-)
-
-const (
 	Default = iota
 	RecipientAdd
 	RecipientRemove

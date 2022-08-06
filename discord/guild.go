@@ -1,8 +1,75 @@
 package discord
 
 import (
+	"encoding/json"
 	"time"
 )
+
+type BitwisePermissionFlag int
+
+const (
+	BitwisePermissionFlagCreateInstantInvite BitwisePermissionFlag = 1 << iota
+	BitwisePermissionFlagKickMembers
+	BitwisePermissionFlagBanMembers
+	BitwisePermissionFlagAdministrator
+	BitwisePermissionFlagManageChannels
+	BitwisePermissionFlagManageGuild
+	BitwisePermissionFlagAddReactions
+	BitwisePermissionFlagViewAuditLog
+	BitwisePermissionFlagPrioritySpeaker
+	BitwisePermissionFlagStream
+	BitwisePermissionFlagViewChannel
+	BitwisePermissionFlagSendMessages
+	BitwisePermissionFlagSendTTSMessages
+	BitwisePermissionFlagManageMessages
+	BitwisePermissionFlagEmbedLinks
+	BitwisePermissionFlagAttachFiles
+	BitwisePermissionFlagReadMessageHistory
+	BitwisePermissionFlagMentionEveryone
+	BitwisePermissionFlagUseExternalEmojis
+	BitwisePermissionFlagViewGuildInsights
+	BitwisePermissionFlagConnect
+	BitwisePermissionFlagSpeak
+	BitwisePermissionFlagMuteMembers
+	BitwisePermissionFlagDeafenMembers
+	BitwisePermissionFlagMoveMembers
+	BitwisePermissionFlagUseVAD
+	BitwisePermissionFlagChangeNickname
+	BitwisePermissionFlagManageNicknames
+	BitwisePermissionFlagManageRoles
+	BitwisePermissionFlagManageWebhooks
+	BitwisePermissionFlagManageEmojisAndStickers
+	BitwisePermissionFlagManageUseApplicationCommands
+	BitwisePermissionFlagManageRequestToSpeak
+	BitwisePermissionFlagManageManageEvents
+	BitwisePermissionFlagManageManageThreads
+	BitwisePermissionFlagManageCreatePublicThreads
+	BitwisePermissionFlagManageCreatePrivateThreads
+	BitwisePermissionFlagManageUseExternalStickers
+	BitwisePermissionFlagManageSendMessagesInThreads
+	BitwisePermissionFlagManageUseEmbeddedActivities
+	BitwisePermissionFlagManageModerateMembers
+)
+
+type RoleTag struct {
+	BotId             string          `json:"bot_id,omitempty"`
+	IntegrationId     string          `json:"integration_id,omitempty"`
+	PremiumSubscriber json.RawMessage `json:"premium_subscriber,omitempty"` // null, whether this is the guild's premium subscriber role
+}
+
+type Role struct {
+	Id           string                `json:"id"`
+	Name         string                `json:"name"`
+	Color        int                   `json:"color"`
+	Hoist        bool                  `json:"hoist"`
+	Icon         string                `json:"icon,omitempty"`
+	UnicodeEmoji string                `json:"unicode_emoji,omitempty"`
+	Position     int                   `json:"position"`
+	Permissions  BitwisePermissionFlag `json:"permissions"`
+	Managed      bool                  `json:"managed"`
+	Mentionable  bool                  `json:"mentionable"`
+	Tags         *RoleTag              `json:"tags,omitempty"`
+}
 
 type MessageNotificationLevel int
 

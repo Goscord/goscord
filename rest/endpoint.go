@@ -4,6 +4,16 @@ const (
 	BaseUrl    = "https://discord.com/api/v7"
 	GatewayUrl = "wss://gateway.discord.gg/?v=7&encoding=json"
 
+	// Audit Log
+	EndpointGetGuildsAuditLog = "/guilds/%s/audit-logs"
+
+	// Auto Moderation
+	EndpointListAutoModerationRulesForGuild = "/guilds/%s/auto-moderation/rules"
+	EndpointGetAutoModerationRule           = "/guilds/%s/auto-moderation/rules/%s"
+	EndpointCreateAutoModerationRule        = "/guilds/%s/auto-moderation/rules"
+	EndpointModifyAutoModerationRule        = "/guilds/%s/auto-moderation/rules/%s"
+	EndpointDeleteAutoModerationRule        = "/guilds/%s/auto-moderation/rules/%s"
+
 	// Channel
 	EndpointGetChannel                       = "/channels/%s"
 	EndpointModifyChannel                    = "/channels/%s"
@@ -43,6 +53,13 @@ const (
 	EndpointListPublicArchivedThreads        = "/channels/%s/threads/archived/public"
 	EndpointListPrivateArchivedThreads       = "/channels/%s/threads/archived/private"
 	EndpointListJoinedPrivateArchivedThreads = "/channels/%s/users/@me/threads/archived/private"
+
+	// Emoji
+	EndpointListGuildEmojis  = "/guilds/%s/emojis"
+	EndpointGetGuildEmoji    = "/guilds/%s/emojis/%s"
+	EndpointCreateGuildEmoji = "/guilds/%s/emojis"
+	EndpointModifyGuildEmoji = "/guilds/%s/emojis/%s"
+	EndpointDeleteGuildEmoji = "/guilds/%s/emojis/%s"
 
 	// Guild
 	EndpointGetGuildMember = "/guilds/%s/members/%s"

@@ -2,8 +2,6 @@ package discord
 
 import (
 	"time"
-
-	"github.com/Goscord/goscord/gateway/event"
 )
 
 type MessageNotificationLevel int
@@ -177,6 +175,20 @@ type WelcomeScreenChannel struct {
 	EmojiName   string `json:"emoji_name"`
 }
 
+type PresenceUpdate struct {
+	User         *User         `json:"user"`
+	GuildId      string        `json:"guild_id"`
+	Status       string        `json:"status"`
+	Activities   []*Activity   `json:"activities"`
+	ClientStatus *ClientStatus `json:"client_status"`
+}
+
+type ClientStatus struct {
+	Desktop string `json:"deskop,omitempty"` // windows, linux, mac
+	Mobile  string `json:"mobile,omitempty"` // ios, android
+	Web     string `json:"web,omitempty"`    // browser, bot_account
+}
+
 type Guild struct {
 	Id                          string                     `json:"id"`
 	Name                        string                     `json:"name"`
@@ -221,15 +233,15 @@ type Guild struct {
 	PremiumProgressBarEnabled   bool                       `json:"premium_progress_bar_enabled"`
 
 	// Event specific fields
-	JoinedAt       time.Time               `json:"joined_at"`
-	Large          bool                    `json:"large"`
-	Unavailable    bool                    `json:"unavailable,omitempty"`
-	MemberCount    int                     `json:"member_count"`
-	VoiceStates    []*VoiceState           `json:"voice_states"`
-	Members        []*GuildMember          `json:"members"`
-	Channels       []*Channel              `json:"channels"`
-	Threads        []*Channel              `json:"threads"`
-	Presences      []*event.PresenceUpdate `json:"presences"`
-	StageInstances []*Channel              `json:"stage_instances"` // ToDo : Change to StageInstance
+	JoinedAt       time.Time         `json:"joined_at"`
+	Large          bool              `json:"large"`
+	Unavailable    bool              `json:"unavailable,omitempty"`
+	MemberCount    int               `json:"member_count"`
+	VoiceStates    []*VoiceState     `json:"voice_states"`
+	Members        []*GuildMember    `json:"members"`
+	Channels       []*Channel        `json:"channels"`
+	Threads        []*Channel        `json:"threads"`
+	Presences      []*PresenceUpdate `json:"presences"`
+	StageInstances []*Channel        `json:"stage_instances"` // ToDo : Change to StageInstance
 	//GuildScheduledEvents []*GuildScheduledEvent  `json:"guild_scheduled_events"`
 }

@@ -18,9 +18,9 @@ type PresenceUpdate struct {
 }
 
 type ClientStatus struct {
-	Desktop string `json:"deskop"` // windows, linux, mac
-	Mobile  string `json:"mobile"` // ios, android
-	Web     string `json:"web"`    // browser, bot_account
+	Desktop string `json:"deskop,omitempty"` // windows, linux, mac
+	Mobile  string `json:"mobile,omitempty"` // ios, android
+	Web     string `json:"web,omitempty"`    // browser, bot_account
 }
 
 func NewPresenceUpdate(_ *rest.Client, data []byte) (*PresenceUpdate, error) {

@@ -1,7 +1,7 @@
 package gateway
 
 const (
-	IntentGuilds uint32 = 1 << iota
+	IntentGuilds int = 1 << iota
 	IntentGuildMembers
 	IntentGuildBans
 	IntentGuildEmojis

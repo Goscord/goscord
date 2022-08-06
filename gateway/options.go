@@ -2,6 +2,6 @@ package gateway
 
 type Options struct {
 	Token   string
-	Intents uint32
+	Intents int
 	//NumShards int
 }

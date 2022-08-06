@@ -17,7 +17,8 @@ func main() {
 	fmt.Println("Testing...")
 
 	client = goscord.New(&gateway.Options{
-		Token: "",
+		Token:   "",
+		Intents: 3243775,
 	})
 
 	_ = client.On("ready", OnReady)

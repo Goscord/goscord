@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type BitwisePermissionFlag int
+type BitwisePermissionFlag int64
 
 const (
 	BitwisePermissionFlagCreateInstantInvite BitwisePermissionFlag = 1 << iota
@@ -65,7 +65,7 @@ type Role struct {
 	Icon         string                `json:"icon,omitempty"`
 	UnicodeEmoji string                `json:"unicode_emoji,omitempty"`
 	Position     int                   `json:"position"`
-	Permissions  BitwisePermissionFlag `json:"permissions"`
+	Permissions  BitwisePermissionFlag `json:"permissions,string"`
 	Managed      bool                  `json:"managed"`
 	Mentionable  bool                  `json:"mentionable"`
 	Tags         *RoleTag              `json:"tags,omitempty"`
@@ -265,7 +265,7 @@ type Guild struct {
 	DiscoverySplash             string                     `json:"discovery_splash"`
 	Owner                       bool                       `json:"owner,omitempty"`
 	OwnerId                     string                     `json:"owner_id"`
-	Permissions                 string                     `json:"permissions,omitempty"`
+	Permissions                 BitwisePermissionFlag      `json:"permissions,string,omitempty"`
 	Region                      string                     `json:"region,omitempty"`
 	AfkChannelId                string                     `json:"afk_channel_id"`
 	AfkTimeout                  int                        `json:"afk_timeout"`
@@ -299,7 +299,7 @@ type Guild struct {
 	Stickers                    []*Sticker                 `json:"stickers,omitempty"`
 	PremiumProgressBarEnabled   bool                       `json:"premium_progress_bar_enabled"`
 
-	// Event specific fields
+	// GUILD_CREATE event specific fields
 	JoinedAt       time.Time         `json:"joined_at"`
 	Large          bool              `json:"large"`
 	Unavailable    bool              `json:"unavailable,omitempty"`

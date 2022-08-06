@@ -3,7 +3,6 @@ package gateway
 import (
 	"errors"
 	"fmt"
-	"net/http"
 	"sync"
 	"time"
 
@@ -88,11 +87,8 @@ func (s *Session) registerHandlers() {
 }
 
 func (s *Session) Login() error {
-	header := http.Header{}
-	header.Add("accept-encoding", "zlib")
-
 	s.connMu.Lock()
-	conn, _, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, header)
+	conn, _, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
 	s.connMu.Unlock()
 
 	if err != nil {
@@ -203,6 +199,8 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 		s.lastSequence = pk.Sequence
 		handler, exists := s.handlers[e]
 		s.Unlock()
+
+		fmt.Println(e)
 
 		if exists {
 			go handler.Handle(s, msg)

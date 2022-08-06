@@ -1,8 +1,8 @@
 package rest
 
 const (
-	BaseUrl    = "https://discord.com/api/v7"
-	GatewayUrl = "wss://gateway.discord.gg/?v=7&encoding=json"
+	BaseUrl    = "https://discord.com/api/v9"
+	GatewayUrl = "wss://gateway.discord.gg/?v=9&encoding=json"
 
 	// Audit Log
 	EndpointGetGuildsAuditLog = "/guilds/%s/audit-logs"

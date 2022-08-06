@@ -1,6 +1,10 @@
 package discord
 
-import "time"
+import (
+	"time"
+
+	"github.com/Goscord/goscord/gateway/event"
+)
 
 type MessageNotificationLevel int
 
@@ -217,13 +221,15 @@ type Guild struct {
 	PremiumProgressBarEnabled   bool                       `json:"premium_progress_bar_enabled"`
 
 	// Event specific fields
-	Unavailable bool `json:"unavailable"`
-	MemberCount int  `json:"member_count"`
-	//VoiceStates []*VoiceState `json:"voice_states"`
-	Members  []*GuildMember `json:"members"`
-	Channels []*Channel     `json:"channels"`
-	Threads  []*Channel     `json:"threads"`
-	//Presences []*
-	StageInstances []*Channel `json:"stage_instances"`
-	//GuildScheduledEvents []*GuildScheduledEvent`json:"guild_scheduled_events"`
+	JoinedAt       time.Time               `json:"joined_at"`
+	Large          bool                    `json:"large"`
+	Unavailable    bool                    `json:"unavailable,omitempty"`
+	MemberCount    int                     `json:"member_count"`
+	VoiceStates    []*VoiceState           `json:"voice_states"`
+	Members        []*GuildMember          `json:"members"`
+	Channels       []*Channel              `json:"channels"`
+	Threads        []*Channel              `json:"threads"`
+	Presences      []*event.PresenceUpdate `json:"presences"`
+	StageInstances []*Channel              `json:"stage_instances"` // ToDo : Change to StageInstance
+	//GuildScheduledEvents []*GuildScheduledEvent  `json:"guild_scheduled_events"`
 }

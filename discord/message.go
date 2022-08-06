@@ -39,6 +39,36 @@ const (
 	AllowedMentionsEveryone     AllowedMentionsType = "everyone"
 )
 
+type MessageType int
+
+const (
+	Default MessageType = iota
+	RecipientAdd
+	RecipientRemove
+	Call
+	ChannelNameChange
+	ChannelIconChange
+	ChannelPinnedMessage
+	UserJoin
+	GuildBoost
+	GuildBoostTier1
+	GuildBoostTier2
+	GuildBoostTier3
+	ChannelFollowAdd
+	GuildDiscoveryAdd
+	GuildDiscoveryDisqualified
+	GuildDiscoveryRequalified
+	GuildDiscoveryGracePeriodInitialWarning
+	GuildDiscoveryGracePeriodFinalWarning
+	ThreadCreated
+	Reply
+	ChatInputCommand
+	ThreadStarterMessage
+	GuildInviteReminder
+	ContextMenuCommand
+	AutoModerationAction
+)
+
 type MessageActivity struct {
 	Type    string `json:"type"`
 	PartyId string `json:"party_id"`

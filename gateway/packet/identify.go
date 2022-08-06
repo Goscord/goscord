@@ -20,7 +20,7 @@ type Identify struct {
 
 func newConnectionProperties(os, browser, device string) *ConnectionProperties {
 	return &ConnectionProperties{
-		Os:      os,
+		Os:      os, // windows, linux, mac, ios, android
 		Browser: browser,
 		Device:  device,
 	}

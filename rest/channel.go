@@ -39,7 +39,7 @@ func (ch *ChannelHandler) GetChannel(channelId string) (*discord.Channel, error)
 }
 
 func (ch *ChannelHandler) GetMessage(channelId, id string) (*discord.Message, error) {
-	data, err := ch.rest.Request(fmt.Sprintf(EndpointGetMessage, channelId, id), "GET", nil, "application/json")
+	data, err := ch.rest.Request(fmt.Sprintf(EndpointGetChannelMessage, channelId, id), "GET", nil, "application/json")
 
 	if err != nil {
 		return nil, err

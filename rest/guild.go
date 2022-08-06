@@ -15,14 +15,14 @@ func NewGuildHandler(rest *Client) *GuildHandler {
 	return &GuildHandler{rest: rest}
 }
 
-func (gh *GuildHandler) GetMember(guildID, userID string) (*discord.Member, error) {
+func (gh *GuildHandler) GetMember(guildID, userID string) (*discord.GuildMember, error) {
 	data, err := gh.rest.Request(fmt.Sprintf(EndpointGetGuildMember, guildID, userID), "GET", nil, "application/json")
 
 	if err != nil {
 		return nil, err
 	}
 
-	var member discord.Member
+	var member discord.GuildMember
 	err = json.Unmarshal(data, &member)
 
 	if err != nil {

@@ -124,17 +124,6 @@ type MessageReference struct {
 	FailIfNotExist bool   `json:"fail_if_not_exist,omitempty"`
 }
 
-type Emoji struct {
-	Id            string   `json:"id"`
-	Name          string   `json:"name"`
-	Roles         []string `json:"roles,omitempty"`
-	User          *User    `json:"user,omitempty"`
-	RequireColons bool     `json:"require_colons,omitempty"`
-	Managed       bool     `json:"managed,omitempty"`
-	Animated      bool     `json:"animated,omitempty"`
-	Available     bool     `json:"available,omitempty"`
-}
-
 type Reaction struct {
 	Count int    `json:"count"`
 	Me    bool   `json:"me"`
@@ -189,7 +178,7 @@ type Message struct {
 	ChannelId       string           `json:"channel_id"`
 	GuildId         string           `json:"guild_id,omitempty"`
 	Author          *User            `json:"author"`
-	Member          *Member          `json:"member"`
+	Member          *GuildMember     `json:"member"`
 	Content         string           `json:"content"`
 	Timestamp       time.Time        `json:"timestamp"`
 	EditedTimestamp time.Time        `json:"edited_timestamp"`

@@ -13,7 +13,7 @@ type State struct {
 	session  *Session
 	Guilds   map[string]*discord.Guild
 	Channels map[string]*discord.Channel
-	Members  map[string]map[string]*discord.Member
+	Members  map[string]map[string]*discord.GuildMember
 }
 
 func NewState(session *Session) *State {
@@ -21,7 +21,7 @@ func NewState(session *Session) *State {
 		session:  session,
 		Guilds:   map[string]*discord.Guild{},
 		Channels: map[string]*discord.Channel{},
-		Members:  map[string]map[string]*discord.Member{},
+		Members:  map[string]map[string]*discord.GuildMember{},
 	}
 }
 
@@ -105,7 +105,7 @@ func (s *State) Channel(id string) (*discord.Channel, error) {
 
 // MEMBERS
 
-func (s *State) AddMember(guildID string, member *discord.Member) {
+func (s *State) AddMember(guildID string, member *discord.GuildMember) {
 	if _, err := s.Guild(guildID); err != nil {
 		return
 	}
@@ -113,7 +113,7 @@ func (s *State) AddMember(guildID string, member *discord.Member) {
 	s.Lock()
 
 	if _, ok := s.Members[guildID]; !ok {
-		s.Members[guildID] = map[string]*discord.Member{}
+		s.Members[guildID] = map[string]*discord.GuildMember{}
 	}
 
 	s.Members[guildID][member.User.Id] = member
@@ -132,7 +132,7 @@ func (s *State) RemoveMember(guildID string, member string) {
 	s.Unlock()
 }
 
-func (s *State) Member(guildID string, userID string) (*discord.Member, error) {
+func (s *State) Member(guildID string, userID string) (*discord.GuildMember, error) {
 	if _, err := s.Guild(guildID); err != nil {
 		return nil, err
 	}

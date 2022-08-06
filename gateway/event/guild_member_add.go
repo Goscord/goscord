@@ -8,7 +8,7 @@ import (
 )
 
 type GuildMemberAdd struct {
-	Data *discord.Member `json:"d"`
+	Data *discord.GuildMember `json:"d"`
 }
 
 func NewGuildMemberAdd(rest *rest.Client, data []byte) (*GuildMemberAdd, error) {

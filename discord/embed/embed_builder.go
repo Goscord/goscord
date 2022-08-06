@@ -4,14 +4,14 @@ import "time"
 
 type Builder struct {
 	content string
-	embed *Embed
+	embed   *Embed
 }
 
 func NewEmbedBuilder() *Builder {
 	b := &Builder{}
 
 	b.embed = &Embed{}
-	b.embed.Type = "rich"
+	b.embed.Type = EmbedTypeRich
 
 	return b
 }
@@ -47,34 +47,33 @@ func (b *Builder) SetColor(color int) *Builder {
 }
 
 func (b *Builder) SetFooter(text string, icon string) *Builder {
-	b.embed.Footer = &Footer{Text: text, IconURL: icon}
+	b.embed.Footer = &EmbedFooter{Text: text, IconURL: icon}
 	return b
 }
 
 func (b *Builder) SetThumbnail(url string) *Builder {
-	b.embed.Thumbnail = &Thumbnail{URL: url}
+	b.embed.Thumbnail = &EmbedThumbnail{URL: url}
 	return b
 }
 
 func (b *Builder) SetImage(url string) *Builder {
-	b.embed.Image = &Image{URL: url}
+	b.embed.Image = &EmbedImage{URL: url}
 	return b
 }
 
 func (b *Builder) SetAuthor(name string, icon string) *Builder {
-	b.embed.Author = &Author{Name: name, IconURL: icon}
+	b.embed.Author = &EmbedAuthor{Name: name, IconURL: icon}
 	return b
 }
 
 func (b *Builder) AddField(name, value string, inline bool) *Builder {
-	b.embed.Fields = append(b.embed.Fields, &Field{Name: name, Value: value, Inline: inline})
+	b.embed.Fields = append(b.embed.Fields, &EmbedField{Name: name, Value: value, Inline: inline})
 	return b
 }
 
 func (b *Builder) Content() string {
 	return b.content
 }
-
 
 func (b *Builder) Embed() *Embed {
 	return b.embed

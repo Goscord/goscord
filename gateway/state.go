@@ -172,7 +172,7 @@ func (s *State) Channels() map[string]*discord.Channel {
 }
 
 func (s *State) Members() map[string]map[string]*discord.GuildMember {
-	s.RLock()
+	s.Lock()
 	defer s.Unlock()
 
 	return s.members

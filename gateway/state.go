@@ -2,6 +2,7 @@ package gateway
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/Goscord/goscord/discord"
@@ -199,6 +200,8 @@ func (s *State) RemoveChannel(channel *discord.Channel) {
 func (s *State) Channel(id string) (*discord.Channel, error) {
 	s.RLock()
 	defer s.RUnlock()
+
+	fmt.Println(len(s.channels))
 
 	if c, ok := s.channels[id]; ok {
 		return c, nil

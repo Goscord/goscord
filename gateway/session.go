@@ -317,7 +317,7 @@ func (s *Session) SetActivity(activity *discord.Activity) error {
 	return s.Send(s.status)
 }
 
-func (s *Session) SetStatus(status string) error {
+func (s *Session) SetStatus(status discord.StatusType) error {
 	s.Lock()
 	defer s.Unlock()
 

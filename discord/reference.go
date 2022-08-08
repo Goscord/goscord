@@ -38,10 +38,10 @@ const (
 type StatusType string
 
 const (
-	StatusOnline       StatusType = "online"
-	StatusIdle         StatusType = "idle"
-	StatusDoNotDisturb StatusType = "dnd"
-	StatusOffline      StatusType = "offline"
+	StatusTypeOnline       StatusType = "online"
+	StatusTypeIdle         StatusType = "idle"
+	StatusTypeDoNotDisturb StatusType = "dnd"
+	StatusTypeOffline      StatusType = "offline"
 )
 
 type ActivityType int

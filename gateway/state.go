@@ -8,7 +8,7 @@ import (
 )
 
 type State struct {
-	sync.RWMutex
+	sync.Mutex
 
 	session  *Session
 	guilds   map[string]*discord.Guild
@@ -56,8 +56,8 @@ func (s *State) RemoveGuild(guild *discord.Guild) {
 }
 
 func (s *State) Guild(id string) (*discord.Guild, error) {
-	s.RLock()
-	defer s.RUnlock()
+	s.Lock()
+	defer s.Unlock()
 
 	if guild, ok := s.guilds[id]; ok {
 		return guild, nil
@@ -83,14 +83,14 @@ func (s *State) RemoveChannel(channel *discord.Channel) {
 }
 
 func (s *State) Channel(id string) (*discord.Channel, error) {
-	s.RLock()
+	s.Lock()
 
 	if channel, ok := s.channels[id]; ok {
-		s.RUnlock()
+		s.Unlock()
 		return channel, nil
 	}
 
-	s.RUnlock()
+	s.Unlock()
 
 	channel, _ := s.session.Channel.GetChannel(id)
 
@@ -137,14 +137,14 @@ func (s *State) Member(guildID string, userID string) (*discord.GuildMember, err
 		return nil, err
 	}
 
-	s.RLock()
+	s.Lock()
 	if _, ok := s.members[guildID]; ok {
 		if member, ok := s.members[guildID][userID]; ok {
-			s.RUnlock()
+			s.Unlock()
 			return member, nil
 		}
 	}
-	s.RUnlock()
+	s.Unlock()
 
 	member, _ := s.session.Guild.GetMember(guildID, userID)
 

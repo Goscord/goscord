@@ -127,15 +127,12 @@ func (s *Session) Login() error {
 
 	s.Lock()
 	s.lastHeartbeatAck = time.Now().UTC()
-	s.Unlock()
-	
-	s.RLock()
 	sessionID := s.sessionID
 	sequence := s.lastSequence
 	token := s.options.Token
 	intents := s.options.Intents
 	cclose := s.close
-	s.RUnlock()
+	s.Unlock()
 
 	if sequence == 0 && sessionID == "" {
 		identify := packet.NewIdentify(token, intents)
@@ -214,9 +211,9 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 }
 
 func (s *Session) startHeartbeat(closed <-chan bool) {
-	s.RLock()
+	s.Lock()
 	heartbeatInterval := s.heartbeatInterval
-	s.RUnlock()
+	s.Unlock()
 
 	ticker := time.NewTicker(heartbeatInterval * time.Millisecond)
 	defer ticker.Stop()
@@ -353,22 +350,22 @@ func (s *Session) Close() {
 }
 
 func (s *Session) Bus() *ev.EventBus {
-	s.RLock()
-	defer s.RUnlock()
+	s.Lock()
+	defer s.Unlock()
 
 	return s.bus
 }
 
 func (s *Session) Me() *discord.User {
-	s.RLock()
-	defer s.RUnlock()
+	s.Lock()
+	defer s.Unlock()
 
 	return s.user
 }
 
 func (s *Session) State() *State {
-	s.RLock()
-	defer s.RUnlock()
+	s.Lock()
+	defer s.Unlock()
 
 	return s.state
 }

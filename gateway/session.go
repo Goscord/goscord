@@ -105,9 +105,9 @@ func (s *Session) Login() error {
 	})
 	s.connMu.Unlock()
 
-	s.Lock()
+	s.connMu.Lock()
 	s.conn = conn
-	s.Unlock()
+	s.connMu.Unlock()
 
 	s.connMu.Lock()
 	_, msg, err := s.conn.ReadMessage()

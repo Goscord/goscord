@@ -4,7 +4,7 @@ const (
 	IntentGuilds int = 1 << iota
 	IntentGuildMembers
 	IntentGuildBans
-	IntentGuildEmojis
+	IntentGuildEmojisAndStickers
 	IntentGuildIntegrations
 	IntentGuildWebhooks
 	IntentGuildInvites
@@ -16,4 +16,7 @@ const (
 	IntentDirectMessages
 	IntentDirectMessageReactions
 	IntentDirectMessageTyping
+	IntentGuildScheduledEvents
+	IntentAutoModerationConfiguration
+	IntentAutoModerationExecution
 )

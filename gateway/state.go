@@ -11,9 +11,9 @@ type State struct {
 	sync.RWMutex
 
 	session  *Session
-	Guilds   map[string]*discord.Guild
-	Channels map[string]*discord.Channel
-	Members  map[string]map[string]*discord.GuildMember
+	guilds   map[string]*discord.Guild
+	channels map[string]*discord.Channel
+	members  map[string]map[string]*discord.GuildMember
 }
 
 func NewState(session *Session) *State {
@@ -155,4 +155,27 @@ func (s *State) Member(guildID string, userID string) (*discord.GuildMember, err
 	}
 
 	return nil, errors.New("member not found")
+}
+
+func (s *State) Guilds() map[string]*discord.Guild{} {
+	s.RLock()
+	defer s.RUnlock()
+	
+	return s.guilds
+}
+
+
+func (s *State) Channels() map[string]*discord.Channel{} {
+	s.RLock()
+	defer s.RUnlock()
+	
+	return s.channels
+}
+
+
+func (s *State) Members() map[string]*discord.GuildMembers{} {
+	s.RLock()
+	defer s.RUnlock()
+	
+	return s.members
 }

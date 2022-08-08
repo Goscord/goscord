@@ -336,8 +336,8 @@ func (s *Session) UpdatePresence(status *packet.UpdateStatus) error {
 }
 
 func (s *Session) Latency() time.Duration {
-	s.Lock()
-	defer s.Unlock()
+	s.RLock()
+	defer s.RUnlock()
 
 	return s.lastHeartbeatAck.Sub(s.lastHeartbeatSent)
 }

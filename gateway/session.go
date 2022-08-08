@@ -15,7 +15,8 @@ import (
 )
 
 type Session struct {
-	sync.RWMutex
+	sync.Mutex
+
 	options           *Options
 	status            *packet.UpdateStatus
 	user              *discord.User

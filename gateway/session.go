@@ -15,7 +15,7 @@ import (
 )
 
 type Session struct {
-	sync.Mutex
+	sync.RWMutex
 
 	options           *Options
 	status            *packet.UpdateStatus
@@ -128,12 +128,15 @@ func (s *Session) Login() error {
 
 	s.Lock()
 	s.lastHeartbeatAck = time.Now().UTC()
+	s.Unlock()
+
+	s.RLock()
 	sessionID := s.sessionID
 	sequence := s.lastSequence
 	token := s.options.Token
 	intents := s.options.Intents
 	cclose := s.close
-	s.Unlock()
+	s.RUnlock()
 
 	if sequence == 0 && sessionID == "" {
 		identify := packet.NewIdentify(token, intents)
@@ -212,17 +215,20 @@ func (s *Session) onMessage(msg []byte) (*packet.Packet, error) {
 }
 
 func (s *Session) startHeartbeat(closed <-chan bool) {
-	s.Lock()
+	s.RLock()
 	heartbeatInterval := s.heartbeatInterval
-	s.Unlock()
+	s.RUnlock()
 
 	ticker := time.NewTicker(heartbeatInterval * time.Millisecond)
 	defer ticker.Stop()
 
 	for {
-		s.Lock()
+		s.RLock()
 		lastSequence := s.lastSequence
 		lastHeartbeatAck := s.lastHeartbeatAck
+		s.RUnlock()
+
+		s.Lock()
 		s.lastHeartbeatSent = time.Now().UTC()
 		s.Unlock()
 
@@ -351,22 +357,22 @@ func (s *Session) Close() {
 }
 
 func (s *Session) Bus() *ev.EventBus {
-	s.Lock()
-	defer s.Unlock()
+	s.RLock()
+	defer s.RUnlock()
 
 	return s.bus
 }
 
 func (s *Session) Me() *discord.User {
-	s.Lock()
-	defer s.Unlock()
+	s.RLock()
+	defer s.RUnlock()
 
 	return s.user
 }
 
 func (s *Session) State() *State {
-	s.Lock()
-	defer s.Unlock()
+	s.RLock()
+	defer s.RUnlock()
 
 	return s.state
 }

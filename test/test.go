@@ -18,7 +18,7 @@ func main() {
 
 	client = goscord.New(&gateway.Options{
 		Token:   "",
-		Intents: 3243775,
+		Intents: gateway.IntentGuilds + gateway.IntentGuildMessages,
 	})
 
 	_ = client.On("ready", OnReady)
@@ -33,6 +33,7 @@ func main() {
 
 func OnReady() {
 	fmt.Println("Logged in as " + client.Me().Tag())
+	_ = client.SetActivity(&discord.Activity{Name: fmt.Sprintf("%d servers", len(client.State().Guilds())), Type: 5})
 	_ = client.SetStatus("idle")
 }
 

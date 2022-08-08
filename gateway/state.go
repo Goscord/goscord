@@ -157,25 +157,23 @@ func (s *State) Member(guildID string, userID string) (*discord.GuildMember, err
 	return nil, errors.New("member not found")
 }
 
-func (s *State) Guilds() map[string]*discord.Guild{} {
+func (s *State) Guilds() map[string]*discord.Guild {
 	s.RLock()
 	defer s.RUnlock()
-	
+
 	return s.guilds
 }
 
-
-func (s *State) Channels() map[string]*discord.Channel{} {
+func (s *State) Channels() map[string]*discord.Channel {
 	s.RLock()
 	defer s.RUnlock()
-	
+
 	return s.channels
 }
 
-
-func (s *State) Members() map[string]*discord.GuildMembers{} {
+func (s *State) Members() map[string]map[string]*discord.GuildMember {
 	s.RLock()
 	defer s.RUnlock()
-	
+
 	return s.members
 }

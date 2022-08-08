@@ -33,7 +33,7 @@ func main() {
 
 func OnReady() {
 	fmt.Println("Logged in as " + client.Me().Tag())
-	_ = client.SetActivity(&discord.Activity{Name: fmt.Sprintf("%d servers", len(client.State().Guilds())), Type: 5})
+	_ = client.SetActivity(&discord.Activity{Name: fmt.Sprintf("%d servers", len(client.State().Guilds())), Type: discord.ActivityWatching})
 	_ = client.SetStatus("idle")
 }
 

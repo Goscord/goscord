@@ -15,8 +15,8 @@ func NewGuildHandler(rest *Client) *GuildHandler {
 	return &GuildHandler{rest: rest}
 }
 
-func (gh *GuildHandler) GetMember(guildID, userID string) (*discord.GuildMember, error) {
-	data, err := gh.rest.Request(fmt.Sprintf(EndpointGetGuildMember, guildID, userID), "GET", nil, "application/json")
+func (gh *GuildHandler) GetMember(guildId, userId string) (*discord.GuildMember, error) {
+	data, err := gh.rest.Request(fmt.Sprintf(EndpointGetGuildMember, guildId, userId), "GET", nil, "application/json")
 
 	if err != nil {
 		return nil, err
@@ -32,4 +32,14 @@ func (gh *GuildHandler) GetMember(guildID, userID string) (*discord.GuildMember,
 	return &member, nil
 }
 
-// TODO
+func (gh *GuildHandler) AddMemberRole(guildId, userId, roleId string) error {
+	_, err := gh.rest.Request(fmt.Sprintf(EndpointAddGuildMemberRole, guildId, userId, roleId), "PUT", nil, "application/json")
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ToDo

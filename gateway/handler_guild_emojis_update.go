@@ -5,19 +5,13 @@ import "github.com/Goscord/goscord/gateway/event"
 type GuildEmojisUpdateHandler struct{}
 
 func (_ *GuildEmojisUpdateHandler) Handle(s *Session, data []byte) {
-	ev, err := event.NewGuildEmojisUpdate(s.rest, data)
+	_, err := event.NewGuildEmojisUpdate(s.rest, data)
 
 	if err != nil {
 		return
 	}
 
-	guild, err := s.state.Guild(ev.Data.GuildId)
+	// updated emojis are not added to the state
 
-	if err != nil {
-		return
-	}
-
-	guild.Emojis = ev.Data.Emojis
-
-	s.bus.Publish("guildEmojisUpdate", guild)
+	//s.bus.Publish("guildEmojisUpdate", guild)
 }

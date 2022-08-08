@@ -13,7 +13,7 @@ func (_ *ChannelCreateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.state.AddChannel(ev.Data)
+	s.State().AddChannel(ev.Data)
 
 	s.bus.Publish("channelCreate", ev.Data)
 }

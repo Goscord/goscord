@@ -11,12 +11,12 @@ func (_ *GuildBanAddHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	guild, err := s.state.Guild(ev.Data.GuildId)
+	guild, err := s.State().Guild(ev.Data.GuildId)
 	user := ev.Data.User
 
 	if err != nil {
 		return
 	}
 
-	s.bus.Publish("guildBanAdd", guild, user)
+	s.Bus().Publish("guildBanAdd", guild, user)
 }

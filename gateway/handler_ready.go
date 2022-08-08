@@ -19,7 +19,7 @@ func (_ *ReadyHandler) Handle(s *Session, data []byte) {
 	s.Unlock()
 
 	for _, guild := range ev.Data.Guilds {
-		s.state.AddGuild(guild)
+		s.State().AddGuild(guild)
 	}
 
 	s.Bus().Publish("ready")

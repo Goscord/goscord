@@ -11,7 +11,7 @@ func (_ *GuildBanRemoveHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	guild, err := s.state.Guild(ev.Data.GuildId)
+	guild, err := s.State().Guild(ev.Data.GuildId)
 	user := ev.Data.User
 
 	if err != nil {

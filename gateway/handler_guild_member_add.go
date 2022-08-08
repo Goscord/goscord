@@ -7,11 +7,13 @@ import (
 type GuildMemberAddHandler struct{}
 
 func (_ *GuildMemberAddHandler) Handle(s *Session, data []byte) {
-	_, err := event.NewGuildMemberAdd(s.rest, data)
+	ev, err := event.NewGuildMemberAdd(s.rest, data)
 
 	if err != nil {
 		return
 	}
 
-	// ToDo : Need some rework on State
+	s.State().AddMember(ev.Data.GuildId, ev.Data)
+
+	s.Bus().Publish("guildMemberAdd", ev.Data)
 }

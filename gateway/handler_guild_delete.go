@@ -13,7 +13,7 @@ func (_ *GuildDeleteHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.state.RemoveGuild(ev.Data)
+	s.State().RemoveGuild(ev.Data)
 
 	s.bus.Publish("guildDelete", ev.Data)
 }

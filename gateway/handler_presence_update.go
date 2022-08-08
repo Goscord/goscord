@@ -13,5 +13,5 @@ func (_ *PresenceUpdateHandler) Handle(s *Session, Data []byte) {
 
 	// ToDo : Need to handle guildMemberAdd and guildMemberRemove events
 
-	s.bus.Publish("presenceUpdate", ev.Data)
+	s.Bus().Publish("presenceUpdate", ev.Data)
 }

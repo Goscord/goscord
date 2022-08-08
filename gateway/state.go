@@ -19,9 +19,9 @@ type State struct {
 func NewState(session *Session) *State {
 	return &State{
 		session:  session,
-		Guilds:   map[string]*discord.Guild{},
-		Channels: map[string]*discord.Channel{},
-		Members:  map[string]map[string]*discord.GuildMember{},
+		guilds:   map[string]*discord.Guild{},
+		channels: map[string]*discord.Channel{},
+		members:  map[string]map[string]*discord.GuildMember{},
 	}
 }
 
@@ -37,7 +37,7 @@ func (s *State) AddGuild(guild *discord.Guild) {
 	}
 
 	s.Lock()
-	s.Guilds[guild.Id] = guild
+	s.guilds[guild.Id] = guild
 	s.Unlock()
 }
 
@@ -50,7 +50,7 @@ func (s *State) RemoveGuild(guild *discord.Guild) {
 		}
 
 		s.Lock()
-		delete(s.Guilds, g.Id)
+		delete(s.guilds, g.Id)
 		s.Unlock()
 	}
 }
@@ -59,7 +59,7 @@ func (s *State) Guild(id string) (*discord.Guild, error) {
 	s.RLock()
 	defer s.RUnlock()
 
-	if guild, ok := s.Guilds[id]; ok {
+	if guild, ok := s.guilds[id]; ok {
 		return guild, nil
 	}
 
@@ -70,14 +70,14 @@ func (s *State) Guild(id string) (*discord.Guild, error) {
 
 func (s *State) AddChannel(channel *discord.Channel) {
 	s.Lock()
-	s.Channels[channel.Id] = channel
+	s.channels[channel.Id] = channel
 	s.Unlock()
 }
 
 func (s *State) RemoveChannel(channel *discord.Channel) {
 	if c, err := s.Channel(channel.Id); err == nil {
 		s.Lock()
-		delete(s.Channels, c.Id)
+		delete(s.channels, c.Id)
 		s.Unlock()
 	}
 }
@@ -85,7 +85,7 @@ func (s *State) RemoveChannel(channel *discord.Channel) {
 func (s *State) Channel(id string) (*discord.Channel, error) {
 	s.RLock()
 
-	if channel, ok := s.Channels[id]; ok {
+	if channel, ok := s.channels[id]; ok {
 		s.RUnlock()
 		return channel, nil
 	}
@@ -112,11 +112,11 @@ func (s *State) AddMember(guildID string, member *discord.GuildMember) {
 
 	s.Lock()
 
-	if _, ok := s.Members[guildID]; !ok {
-		s.Members[guildID] = map[string]*discord.GuildMember{}
+	if _, ok := s.members[guildID]; !ok {
+		s.members[guildID] = map[string]*discord.GuildMember{}
 	}
 
-	s.Members[guildID][member.User.Id] = member
+	s.members[guildID][member.User.Id] = member
 	s.Unlock()
 }
 
@@ -126,8 +126,8 @@ func (s *State) RemoveMember(guildID string, member string) {
 	}
 
 	s.Lock()
-	if _, ok := s.Members[guildID]; ok {
-		delete(s.Members[guildID], member)
+	if _, ok := s.members[guildID]; ok {
+		delete(s.members[guildID], member)
 	}
 	s.Unlock()
 }
@@ -138,8 +138,8 @@ func (s *State) Member(guildID string, userID string) (*discord.GuildMember, err
 	}
 
 	s.RLock()
-	if _, ok := s.Members[guildID]; ok {
-		if member, ok := s.Members[guildID][userID]; ok {
+	if _, ok := s.members[guildID]; ok {
+		if member, ok := s.members[guildID][userID]; ok {
 			s.RUnlock()
 			return member, nil
 		}

@@ -36,7 +36,7 @@ func main() {
         fmt.Println("Logged in as " + client.Me().Tag())
     })
 
-    client.On("message", func(msg *discord.Message) {
+    client.On("messageCreate", func(msg *discord.Message) {
         if msg.Content == "ping" {
             client.Channel.Send(msg.ChannelId, "Pong ! 🏓")
         }

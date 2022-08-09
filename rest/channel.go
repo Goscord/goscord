@@ -38,8 +38,8 @@ func (ch *ChannelHandler) GetChannel(channelId string) (*discord.Channel, error)
 	return &channel, nil
 }
 
-func (ch *ChannelHandler) GetMessage(channelId, id string) (*discord.Message, error) {
-	data, err := ch.rest.Request(fmt.Sprintf(EndpointGetChannelMessage, channelId, id), "GET", nil, "application/json")
+func (ch *ChannelHandler) GetMessage(channelId, messageId string) (*discord.Message, error) {
+	data, err := ch.rest.Request(fmt.Sprintf(EndpointGetChannelMessage, channelId, messageId), "GET", nil, "application/json")
 
 	if err != nil {
 		return nil, err
@@ -160,6 +160,23 @@ func (ch *ChannelHandler) Edit(channelId, messageId string, content interface{})
 	}
 
 	return msg, nil
+}
+
+func (ch *ChannelHandler) CrosspostMessage(channelId, messageId string) (*discord.Message, error) {
+	data, err := ch.rest.Request(fmt.Sprintf(EndpointCrosspostMessage, channelId, messageId), "POST", nil, "application/json")
+
+	if err != nil {
+		return nil, err
+	}
+
+	var msg discord.Message
+	err = json.Unmarshal(data, &msg)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &msg, nil
 }
 
 // TODO

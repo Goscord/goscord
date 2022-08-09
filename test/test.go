@@ -23,6 +23,7 @@ func main() {
 
 	_ = client.On("ready", OnReady)
 	_ = client.On("messageCreate", OnMessageCreate)
+	_ = client.On("guildMemberAdd", OnGuildMemberAdd)
 
 	if err := client.Login(); err != nil {
 		panic(err)
@@ -34,8 +35,16 @@ func main() {
 func OnReady() {
 	fmt.Println("Logged in as " + client.Me().Tag())
 
-	_ = client.SetActivity(&discord.Activity{Name: fmt.Sprintf("%d servers", len(client.State().Guilds())), Type: discord.ActivityWatching})
+	_ = client.SetActivity(&discord.Activity{Name: "Goscord devs working on the lib rn", Type: discord.ActivityWatching})
 	_ = client.SetStatus("idle")
+}
+
+func OnGuildMemberAdd(*discord.GuildMember) {
+	if c, ok := client.State().Channel("1001943782016688292"); ok == nil {
+		client.Channel.Send(c.Id, "aram sur lol?")
+	} else {
+		fmt.Println("Could not find channel")
+	}
 }
 
 func OnMessageCreate(msg *discord.Message) {

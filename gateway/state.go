@@ -2,7 +2,6 @@ package gateway
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/Goscord/goscord/discord"
@@ -20,9 +19,9 @@ type State struct {
 func NewState(session *Session) *State {
 	return &State{
 		session:  session,
-		guilds:   map[string]*discord.Guild{},
-		channels: map[string]*discord.Channel{},
-		members:  map[string]map[string]*discord.GuildMember{},
+		guilds:   make(map[string]*discord.Guild),
+		channels: make(map[string]*discord.Channel),
+		members:  make(map[string]map[string]*discord.GuildMember),
 	}
 }
 
@@ -201,8 +200,6 @@ func (s *State) Channel(id string) (*discord.Channel, error) {
 	s.RLock()
 	defer s.RUnlock()
 
-	fmt.Println(len(s.channels))
-
 	if c, ok := s.channels[id]; ok {
 		return c, nil
 	}
@@ -289,22 +286,22 @@ func (s *State) Member(guildID string, userID string) (*discord.GuildMember, err
 }
 
 func (s *State) Guilds() map[string]*discord.Guild {
-	s.Lock()
-	defer s.Unlock()
+	s.RLock()
+	defer s.RUnlock()
 
 	return s.guilds
 }
 
 func (s *State) Channels() map[string]*discord.Channel {
-	s.Lock()
-	defer s.Unlock()
+	s.RLock()
+	defer s.RUnlock()
 
 	return s.channels
 }
 
 func (s *State) Members() map[string]map[string]*discord.GuildMember {
-	s.Lock()
-	defer s.Unlock()
+	s.RLock()
+	defer s.RUnlock()
 
 	return s.members
 }

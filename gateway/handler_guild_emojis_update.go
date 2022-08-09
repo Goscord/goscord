@@ -11,7 +11,7 @@ func (_ *GuildEmojisUpdateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	// updated emojis are not added to the state
+	// ToDo : updated emojis are not added to the state
 
 	//s.bus.Publish("guildEmojisUpdate", guild)
 }

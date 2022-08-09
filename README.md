@@ -53,4 +53,4 @@ func main() {
 See [documentation](https://goscord.dev/documentation) for more detailed information.
 
 ## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change. 

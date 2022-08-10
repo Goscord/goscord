@@ -31,14 +31,15 @@ type Session struct {
 	lastHeartbeatSent time.Time
 	lastSequence      int64
 
-	Channel  *rest.ChannelHandler
-	Emoji    *rest.EmojiHandler
-	Guild    *rest.GuildHandler
-	Invite   *rest.InviteHandler
-	Template *rest.TemplateHandler
-	User     *rest.UserHandler
-	Voice    *rest.VoiceHandler
-	Webhook  *rest.WebhookHandler
+	Channel     *rest.ChannelHandler
+	Emoji       *rest.EmojiHandler
+	Guild       *rest.GuildHandler
+	Interaction *rest.InteractionHandler
+	Invite      *rest.InviteHandler
+	Template    *rest.TemplateHandler
+	User        *rest.UserHandler
+	Voice       *rest.VoiceHandler
+	Webhook     *rest.WebhookHandler
 
 	handlers map[string]EventHandler
 	close    chan bool
@@ -57,6 +58,7 @@ func NewSession(options *Options) *Session {
 	s.Channel = rest.NewChannelHandler(s.rest)
 	s.Emoji = rest.NewEmojiHandler(s.rest)
 	s.Guild = rest.NewGuildHandler(s.rest)
+	s.Interaction = rest.NewInteractionHandler(s.rest)
 	s.Invite = rest.NewInviteHandler(s.rest)
 	s.Template = rest.NewTemplateHandler(s.rest)
 	s.User = rest.NewUserHandler(s.rest)
@@ -122,7 +124,7 @@ func (s *Session) Login() error {
 
 	if err != nil {
 		return err
-	} else if pk.Opcode != 10 {
+	} else if pk.Opcode != packet.OpHello {
 		return errors.New("expecting op 10")
 	}
 
@@ -220,7 +222,7 @@ func (s *Session) startHeartbeat(closed <-chan bool) {
 	heartbeatInterval := s.heartbeatInterval
 	s.RUnlock()
 
-	ticker := time.NewTicker(heartbeatInterval * time.Millisecond)
+	ticker := time.NewTicker(heartbeatInterval)
 	defer ticker.Stop()
 
 	for {

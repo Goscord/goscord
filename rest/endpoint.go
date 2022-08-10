@@ -124,6 +124,10 @@ const (
 	EndpointModifyGuildTemplate  = "/guilds/%s/templates/%s"
 	EndpointDeleteGuildTemplate  = "/guilds/%s/templates/%s"
 
+	// Interaction
+	EndpointRegisterGlobalCommand = "/applications/%s/commands"
+	EndpointRegisterGuildCommand  = "/applications/%s/guilds/%s/commands"
+
 	// Invite
 	EndpointGetInvite    = "/invites/%s"
 	EndpointDeleteInvite = "/invites/%s"

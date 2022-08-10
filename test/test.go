@@ -35,6 +35,14 @@ func main() {
 func OnReady() {
 	fmt.Println("Logged in as " + client.Me().Tag())
 
+	appCmd := &discord.ApplicationCommand{
+		Name:        "ping",
+		Type:        discord.ApplicationCommandChat,
+		Description: "Pong!",
+	}
+
+	_ = client.Interaction.RegisterCommand(client.Me().Id, "", appCmd)
+
 	_ = client.SetActivity(&discord.Activity{Name: "Luther - ALAKAZAM", Type: discord.ActivityListening})
 	_ = client.SetStatus("idle")
 }
@@ -61,6 +69,28 @@ func OnMessageCreate(msg *discord.Message) {
 
 	if strings.ToLower(msg.Content) == "reply" {
 		_, _ = client.Channel.ReplyMessage(msg.ChannelId, msg.Id, "Replied to you!")
+	}
+
+	if strings.ToLower(msg.Content) == "serverinfo" {
+		guild, err := client.State().Guild(msg.GuildId)
+
+		if err != nil {
+			_, _ = client.Channel.SendMessage(msg.ChannelId, err.Error())
+			return
+		}
+
+		_, _ = client.Channel.SendMessage(msg.ChannelId, "Server name: "+guild.Name+"\nID: "+guild.Id+"\nMembers: "+fmt.Sprintf("%d", guild.MemberCount))
+	}
+
+	if strings.ToLower(msg.Content) == "memberinfo" {
+		member, err := client.State().Member(msg.GuildId, msg.Author.Id)
+
+		if err != nil {
+			_, _ = client.Channel.SendMessage(msg.ChannelId, err.Error())
+			return
+		}
+
+		_, _ = client.Channel.SendMessage(msg.ChannelId, "Username: "+member.User.Username+"\nID: "+member.User.Id+"\nNickname: "+member.Nick)
 	}
 
 	if strings.ToLower(msg.Content) == "dogeimage" {

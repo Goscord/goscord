@@ -31,6 +31,12 @@ func (s *State) AddGuild(guild *discord.Guild) {
 	s.Lock()
 	defer s.Unlock()
 
+	// ToDo : Maybe set the guild id for channels and voice states
+
+	for _, member := range guild.Members {
+		member.GuildId = guild.Id
+	}
+
 	for _, c := range guild.Channels {
 		s.channels[c.Id] = c
 	}
@@ -272,7 +278,7 @@ func (s *State) Member(guildID string, userID string) (*discord.GuildMember, err
 
 	members, ok := s.members[guildID]
 	if !ok {
-		return nil, errors.New("guild member not found")
+		return nil, errors.New("guild members not found")
 	}
 
 	m, ok := members[userID]

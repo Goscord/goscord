@@ -311,27 +311,30 @@ func (s *Session) Send(v interface{}) error {
 
 func (s *Session) SetActivity(activity *discord.Activity) error {
 	s.Lock()
-	defer s.Unlock()
-
 	s.status.Data.Activities[0] = activity
+	s.Unlock()
+
+	s.RLock()
+	defer s.RUnlock()
 
 	return s.Send(s.status)
 }
 
 func (s *Session) SetStatus(status discord.StatusType) error {
 	s.Lock()
-	defer s.Unlock()
-
 	s.status.Data.Status = status
+	s.Unlock()
+
+	s.RLock()
+	defer s.RUnlock()
 
 	return s.Send(s.status)
 }
 
 func (s *Session) UpdatePresence(status *packet.PresenceUpdate) error {
 	s.Lock()
-	defer s.Unlock()
-
 	s.status = status
+	s.Unlock()
 
 	return s.Send(status)
 }

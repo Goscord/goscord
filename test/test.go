@@ -18,7 +18,7 @@ func main() {
 
 	client = goscord.New(&gateway.Options{
 		Token:   "",
-		Intents: gateway.IntentGuilds + gateway.IntentGuildMessages,
+		Intents: gateway.IntentGuilds + gateway.IntentGuildMembers + gateway.IntentGuildMessages,
 	})
 
 	_ = client.On("ready", OnReady)
@@ -41,7 +41,7 @@ func OnReady() {
 
 func OnGuildMemberAdd(*discord.GuildMember) {
 	if c, ok := client.State().Channel("1001943782016688292"); ok == nil {
-		client.Channel.Send(c.Id, "aram sur lol?")
+		client.Channel.SendMessage(c.Id, "aram sur lol?")
 	} else {
 		fmt.Println("Could not find channel")
 	}
@@ -49,14 +49,18 @@ func OnGuildMemberAdd(*discord.GuildMember) {
 
 func OnMessageCreate(msg *discord.Message) {
 	if strings.ToLower(msg.Content) == "ping" {
-		_, _ = client.Channel.Send(msg.ChannelId, "Pong!")
+		_, _ = client.Channel.SendMessage(msg.ChannelId, "Pong!")
 	}
 
 	if strings.ToLower(msg.Content) == "embed" {
 		embed := embed.NewEmbedBuilder()
 		embed.SetAuthor("Testing", "")
 		embed.SetDescription("Just testing some things lol")
-		_, _ = client.Channel.Send(msg.ChannelId, embed)
+		_, _ = client.Channel.SendMessage(msg.ChannelId, embed)
+	}
+
+	if strings.ToLower(msg.Content) == "reply" {
+		_, _ = client.Channel.ReplyMessage(msg.ChannelId, msg.Id, "Replied to you!")
 	}
 
 	if strings.ToLower(msg.Content) == "dogeimage" {
@@ -67,6 +71,6 @@ func OnMessageCreate(msg *discord.Message) {
 
 		defer dogeImg.Close()
 
-		_, _ = client.Channel.Send(msg.ChannelId, dogeImg)
+		_, _ = client.Channel.SendMessage(msg.ChannelId, dogeImg)
 	}
 }

@@ -5,52 +5,6 @@ import (
 	"time"
 )
 
-type BitwisePermissionFlag int64
-
-const (
-	BitwisePermissionFlagCreateInstantInvite BitwisePermissionFlag = 1 << iota
-	BitwisePermissionFlagKickMembers
-	BitwisePermissionFlagBanMembers
-	BitwisePermissionFlagAdministrator
-	BitwisePermissionFlagManageChannels
-	BitwisePermissionFlagManageGuild
-	BitwisePermissionFlagAddReactions
-	BitwisePermissionFlagViewAuditLog
-	BitwisePermissionFlagPrioritySpeaker
-	BitwisePermissionFlagStream
-	BitwisePermissionFlagViewChannel
-	BitwisePermissionFlagSendMessages
-	BitwisePermissionFlagSendTTSMessages
-	BitwisePermissionFlagManageMessages
-	BitwisePermissionFlagEmbedLinks
-	BitwisePermissionFlagAttachFiles
-	BitwisePermissionFlagReadMessageHistory
-	BitwisePermissionFlagMentionEveryone
-	BitwisePermissionFlagUseExternalEmojis
-	BitwisePermissionFlagViewGuildInsights
-	BitwisePermissionFlagConnect
-	BitwisePermissionFlagSpeak
-	BitwisePermissionFlagMuteMembers
-	BitwisePermissionFlagDeafenMembers
-	BitwisePermissionFlagMoveMembers
-	BitwisePermissionFlagUseVAD
-	BitwisePermissionFlagChangeNickname
-	BitwisePermissionFlagManageNicknames
-	BitwisePermissionFlagManageRoles
-	BitwisePermissionFlagManageWebhooks
-	BitwisePermissionFlagManageEmojisAndStickers
-	BitwisePermissionFlagManageUseApplicationCommands
-	BitwisePermissionFlagManageRequestToSpeak
-	BitwisePermissionFlagManageManageEvents
-	BitwisePermissionFlagManageManageThreads
-	BitwisePermissionFlagManageCreatePublicThreads
-	BitwisePermissionFlagManageCreatePrivateThreads
-	BitwisePermissionFlagManageUseExternalStickers
-	BitwisePermissionFlagManageSendMessagesInThreads
-	BitwisePermissionFlagManageUseEmbeddedActivities
-	BitwisePermissionFlagManageModerateMembers
-)
-
 type RoleTag struct {
 	BotId             string          `json:"bot_id,omitempty"`
 	IntegrationId     string          `json:"integration_id,omitempty"`

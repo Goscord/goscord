@@ -1,5 +1,55 @@
 package discord
 
+type BitwisePermissionFlag int64
+
+const (
+	BitwisePermissionFlagCreateInstantInvite BitwisePermissionFlag = 1 << iota
+	BitwisePermissionFlagKickMembers
+	BitwisePermissionFlagBanMembers
+	BitwisePermissionFlagAdministrator
+	BitwisePermissionFlagManageChannels
+	BitwisePermissionFlagManageGuild
+	BitwisePermissionFlagAddReactions
+	BitwisePermissionFlagViewAuditLog
+	BitwisePermissionFlagPrioritySpeaker
+	BitwisePermissionFlagStream
+	BitwisePermissionFlagViewChannel
+	BitwisePermissionFlagSendMessages
+	BitwisePermissionFlagSendTTSMessages
+	BitwisePermissionFlagManageMessages
+	BitwisePermissionFlagEmbedLinks
+	BitwisePermissionFlagAttachFiles
+	BitwisePermissionFlagReadMessageHistory
+	BitwisePermissionFlagMentionEveryone
+	BitwisePermissionFlagUseExternalEmojis
+	BitwisePermissionFlagViewGuildInsights
+	BitwisePermissionFlagConnect
+	BitwisePermissionFlagSpeak
+	BitwisePermissionFlagMuteMembers
+	BitwisePermissionFlagDeafenMembers
+	BitwisePermissionFlagMoveMembers
+	BitwisePermissionFlagUseVAD
+	BitwisePermissionFlagChangeNickname
+	BitwisePermissionFlagManageNicknames
+	BitwisePermissionFlagManageRoles
+	BitwisePermissionFlagManageWebhooks
+	BitwisePermissionFlagManageEmojisAndStickers
+	BitwisePermissionFlagManageUseApplicationCommands
+	BitwisePermissionFlagManageRequestToSpeak
+	BitwisePermissionFlagManageManageEvents
+	BitwisePermissionFlagManageManageThreads
+	BitwisePermissionFlagManageCreatePublicThreads
+	BitwisePermissionFlagManageCreatePrivateThreads
+	BitwisePermissionFlagManageUseExternalStickers
+	BitwisePermissionFlagManageSendMessagesInThreads
+	BitwisePermissionFlagManageUseEmbeddedActivities
+	BitwisePermissionFlagManageModerateMembers
+)
+
+func (b BitwisePermissionFlag) Has(flag BitwisePermissionFlag) bool {
+	return b&flag == flag
+}
+
 type Locale string
 
 const (

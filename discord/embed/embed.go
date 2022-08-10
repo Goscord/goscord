@@ -13,11 +13,6 @@ const (
 	EmbedTypeLink    EmbedType = "link"
 )
 
-type MessageEmbed struct {
-	Content string `json:"content,omitempty"`
-	Embed   *Embed `json:"embed"`
-}
-
 type Embed struct {
 	Title       string          `json:"title,omitempty"`
 	Type        EmbedType       `json:"type,omitempty"`

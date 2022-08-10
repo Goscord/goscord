@@ -38,6 +38,7 @@ func (ch *ChannelHandler) GetChannel(channelId string) (*discord.Channel, error)
 	return &channel, nil
 }
 
+// Send / reply to a message
 func (ch *ChannelHandler) GetMessage(channelId, messageId string) (*discord.Message, error) {
 	data, err := ch.rest.Request(fmt.Sprintf(EndpointGetChannelMessage, channelId, messageId), "GET", nil, "application/json")
 
@@ -55,7 +56,7 @@ func (ch *ChannelHandler) GetMessage(channelId, messageId string) (*discord.Mess
 	return &msg, nil
 }
 
-func (ch *ChannelHandler) Send(channelId string, content interface{}) (*discord.Message, error) {
+func (ch *ChannelHandler) SendMessage(channelId string, content interface{}) (*discord.Message, error) {
 	b := new(bytes.Buffer)
 	contentType := "application/json"
 
@@ -71,7 +72,7 @@ func (ch *ChannelHandler) Send(channelId string, content interface{}) (*discord.
 		b = bytes.NewBuffer(jsonb)
 
 	case *embed.Builder:
-		content = &embed.MessageEmbed{Content: ccontent.Content(), Embed: ccontent.Embed()}
+		content = &discord.Message{Content: ccontent.Content(), Embeds: []*embed.Embed{ccontent.Embed()}}
 		jsonb, err := json.Marshal(content)
 
 		if err != nil {
@@ -81,7 +82,7 @@ func (ch *ChannelHandler) Send(channelId string, content interface{}) (*discord.
 		b = bytes.NewBuffer(jsonb)
 
 	case *embed.Embed:
-		content = &embed.MessageEmbed{Embed: ccontent}
+		content = &discord.Message{Embeds: []*embed.Embed{ccontent}}
 		jsonb, err := json.Marshal(content)
 
 		if err != nil {
@@ -127,16 +128,90 @@ func (ch *ChannelHandler) Send(channelId string, content interface{}) (*discord.
 	return msg, nil
 }
 
+func (ch *ChannelHandler) ReplyMessage(channelId, messageId string, content interface{}) (*discord.Message, error) {
+	b := new(bytes.Buffer)
+	contentType := "application/json"
+
+	switch ccontent := content.(type) {
+	case string:
+		content = &discord.Message{Content: ccontent, MessageReference: &discord.MessageReference{ChannelId: channelId, MessageId: messageId}}
+		jsonb, err := json.Marshal(content)
+
+		if err != nil {
+			return nil, err
+		}
+
+		b = bytes.NewBuffer(jsonb)
+
+	case *embed.Builder:
+		content = &discord.Message{Content: ccontent.Content(), Embeds: []*embed.Embed{ccontent.Embed()}, MessageReference: &discord.MessageReference{ChannelId: channelId, MessageId: messageId}}
+		jsonb, err := json.Marshal(content)
+
+		if err != nil {
+			return nil, err
+		}
+
+		b = bytes.NewBuffer(jsonb)
+
+	case *embed.Embed:
+		content = &discord.Message{Embeds: []*embed.Embed{ccontent}, MessageReference: &discord.MessageReference{ChannelId: channelId, MessageId: messageId}}
+		jsonb, err := json.Marshal(content)
+
+		if err != nil {
+			return nil, err
+		}
+
+		b = bytes.NewBuffer(jsonb)
+
+	/* TODO: implement file upload
+	case *os.File:
+		w := multipart.NewWriter(b)
+
+		fw, err := w.CreateFormFile("attachment", ccontent.Name())
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = io.Copy(fw, ccontent)
+		if err != nil {
+			return nil, err
+		}
+
+		w.Close()
+		contentType = w.FormDataContentType()
+	*/
+
+	default:
+		return nil, errors.New("bad content type")
+	}
+
+	res, err := ch.rest.Request(fmt.Sprintf(EndpointCreateMessage, channelId), "POST", b, contentType)
+
+	if err != nil {
+		return nil, err
+	}
+
+	msg := new(discord.Message)
+
+	err = json.Unmarshal(res, msg)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return msg, nil
+}
+
 func (ch *ChannelHandler) Edit(channelId, messageId string, content interface{}) (*discord.Message, error) {
 	switch ccontent := content.(type) {
 	case string:
 		content = &discord.Message{Content: ccontent}
 
 	case *embed.Builder:
-		content = &embed.MessageEmbed{Content: ccontent.Content(), Embed: ccontent.Embed()}
+		content = &discord.Message{Content: ccontent.Content(), Embeds: []*embed.Embed{ccontent.Embed()}}
 
 	case *embed.Embed:
-		content = &embed.MessageEmbed{Embed: ccontent}
+		content = &discord.Message{Embeds: []*embed.Embed{ccontent}}
 	}
 
 	b, err := json.Marshal(content)

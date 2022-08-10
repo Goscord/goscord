@@ -4,7 +4,7 @@ const (
 	OpDispatch            = 0
 	OpHeartbeat           = 1
 	OpIdentify            = 2
-	OpUpdateStatus        = 3
+	OpPresenceUpdate      = 3
 	OpVoiceStateUpdate    = 4
 	OpResume              = 6
 	OpReconnect           = 7

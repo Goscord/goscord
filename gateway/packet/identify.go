@@ -16,7 +16,7 @@ type Identify struct {
 		Compress       bool                  `json:"compress,omitempty"`
 		LargeThreshold int                   `json:"large_threshold,omitempty"`
 		Shard          []int                 `json:"shard,omitempty"`
-		Presence       *UpdateStatus         `json:"presence,omitempty"`
+		Presence       *PresenceUpdate       `json:"presence,omitempty"`
 		Intents        int                   `json:"intents,omitempty"`
 	} `json:"d,omitempty"`
 }
@@ -29,13 +29,18 @@ func newConnectionProperties(os, browser, device string) *ConnectionProperties {
 	}
 }
 
-func NewIdentify(token string, intents int) *Identify {
-	identify := &Identify{}
+func NewIdentify(token string, intents int, isMobile bool) *Identify {
+	identify := new(Identify)
+
+	if isMobile {
+		identify.Data.Properties = newConnectionProperties("android", "Goscord", "Android Goscord")
+	} else {
+		identify.Data.Properties = newConnectionProperties(runtime.GOOS, "Goscord", "Goscord")
+	}
 
 	identify.Opcode = OpIdentify
 	identify.Data.Token = token
 	identify.Data.Intents = intents
-	identify.Data.Properties = newConnectionProperties(runtime.GOOS, "Goscord", "Goscord")
 	identify.Data.Compress = false
 
 	return identify

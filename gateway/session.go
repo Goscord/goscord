@@ -18,7 +18,7 @@ type Session struct {
 	sync.RWMutex
 
 	options           *Options
-	status            *packet.UpdateStatus
+	status            *packet.PresenceUpdate
 	user              *discord.User
 	rest              *rest.Client
 	bus               *ev.EventBus
@@ -48,7 +48,7 @@ func NewSession(options *Options) *Session {
 	s := &Session{}
 
 	s.options = options
-	s.status = packet.NewUpdateStatus(nil, "")
+	s.status = packet.NewPresenceUpdate(nil, "")
 	s.rest = rest.NewClient(options.Token)
 	s.bus = ev.New().(*ev.EventBus)
 	s.state = NewState(s)
@@ -135,11 +135,12 @@ func (s *Session) Login() error {
 	sequence := s.lastSequence
 	token := s.options.Token
 	intents := s.options.Intents
+	isMobile := s.options.IsMobile
 	cclose := s.close
 	s.RUnlock()
 
 	if sequence == 0 && sessionID == "" {
-		identify := packet.NewIdentify(token, intents)
+		identify := packet.NewIdentify(token, intents, isMobile)
 
 		if err = s.Send(identify); err != nil {
 			return err
@@ -312,7 +313,7 @@ func (s *Session) SetActivity(activity *discord.Activity) error {
 	s.Lock()
 	defer s.Unlock()
 
-	s.status.Data.Game = activity
+	s.status.Data.Activities[0] = activity
 
 	return s.Send(s.status)
 }
@@ -326,7 +327,7 @@ func (s *Session) SetStatus(status discord.StatusType) error {
 	return s.Send(s.status)
 }
 
-func (s *Session) UpdatePresence(status *packet.UpdateStatus) error {
+func (s *Session) UpdatePresence(status *packet.PresenceUpdate) error {
 	s.Lock()
 	defer s.Unlock()
 

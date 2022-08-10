@@ -35,13 +35,13 @@ func main() {
 func OnReady() {
 	fmt.Println("Logged in as " + client.Me().Tag())
 
-	_ = client.SetActivity(&discord.Activity{Name: "Goscord devs working on the lib rn", Type: discord.ActivityWatching})
+	_ = client.SetActivity(&discord.Activity{Name: "Luther - ALAKAZAM", Type: discord.ActivityListening})
 	_ = client.SetStatus("idle")
 }
 
-func OnGuildMemberAdd(*discord.GuildMember) {
+func OnGuildMemberAdd(a *discord.GuildMember) {
 	if c, ok := client.State().Channel("1001943782016688292"); ok == nil {
-		client.Channel.SendMessage(c.Id, "aram sur lol?")
+		client.Channel.SendMessage(c.Id, "Welcome to the server <@"+a.User.Id+"> !")
 	} else {
 		fmt.Println("Could not find channel")
 	}

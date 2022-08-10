@@ -6,7 +6,7 @@ type Heartbeat struct {
 }
 
 func NewHeartbeat(lastSequence int64) *Heartbeat {
-	heartbeat := &Heartbeat{}
+	heartbeat := new(Heartbeat)
 
 	heartbeat.Opcode = OpHeartbeat
 	heartbeat.Data = lastSequence

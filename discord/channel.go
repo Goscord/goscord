@@ -214,27 +214,27 @@ type Channel struct {
 	GuildId  string      `json:"guild_id,omitempty"`
 	Position int         `json:"position,omitempty"`
 	//PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
-	Name                       string          `json:"name,omitempty"`
-	Topic                      string          `json:"topic,omitempty"`
-	Nsfw                       bool            `json:"nsfw,omitempty"`
-	LastMessageId              string          `json:"last_message_id,omitempty"`
-	Bitrate                    int             `json:"bitrate,omitempty"`
-	UserLimit                  int             `json:"user_limit,omitempty"`
-	RateLimitPerUser           int             `json:"rate_limit_per_user,omitempty"`
-	Recipients                 []User          `json:"recipients,omitempty"`
-	Icon                       string          `json:"icon,omitempty"`
-	OwnerId                    string          `json:"owner_id,omitempty"`
-	ApplicationId              string          `json:"application_id,omitempty"`
-	ParentId                   string          `json:"parent_id,omitempty"`
-	LastPinTimestamp           *time.Time      `json:"last_pin_timestamp,omitempty"`
-	RtcRegion                  string          `json:"rtc_region,omitempty"` // 	voice region id for the voice channel, automatic when set to null
-	VideoQualityMode           VideoQuality    `json:"video_quality_mode,omitempty"`
-	MessageCount               int             `json:"message_count,omitempty"`
-	MemberCount                int             `json:"member_count,omitempty"`
-	ThreadMetadata             *ThreadMetadata `json:"thread_metadata,omitempty"`
-	Member                     *ThreadMember   `json:"member,omitempty"`
-	DefaultAutoArchiveDuration int             `json:"default_auto_archive_duration,omitempty"`
-	Permissions                string          `json:"permissions,omitempty"`
-	Flags                      ChannelFlags    `json:"flags,omitempty"`
-	TotalMessageSent           int             `json:"total_message_sent,omitempty"`
+	Name                       string                `json:"name,omitempty"`
+	Topic                      string                `json:"topic,omitempty"`
+	Nsfw                       bool                  `json:"nsfw,omitempty"`
+	LastMessageId              string                `json:"last_message_id,omitempty"`
+	Bitrate                    int                   `json:"bitrate,omitempty"`
+	UserLimit                  int                   `json:"user_limit,omitempty"`
+	RateLimitPerUser           int                   `json:"rate_limit_per_user,omitempty"`
+	Recipients                 []User                `json:"recipients,omitempty"`
+	Icon                       string                `json:"icon,omitempty"`
+	OwnerId                    string                `json:"owner_id,omitempty"`
+	ApplicationId              string                `json:"application_id,omitempty"`
+	ParentId                   string                `json:"parent_id,omitempty"`
+	LastPinTimestamp           *time.Time            `json:"last_pin_timestamp,omitempty"`
+	RtcRegion                  string                `json:"rtc_region,omitempty"` // 	voice region id for the voice channel, automatic when set to null
+	VideoQualityMode           VideoQuality          `json:"video_quality_mode,omitempty"`
+	MessageCount               int                   `json:"message_count,omitempty"`
+	MemberCount                int                   `json:"member_count,omitempty"`
+	ThreadMetadata             *ThreadMetadata       `json:"thread_metadata,omitempty"`
+	Member                     *ThreadMember         `json:"member,omitempty"`
+	DefaultAutoArchiveDuration int                   `json:"default_auto_archive_duration,omitempty"`
+	Permissions                BitwisePermissionFlag `json:"permissions,string,omitempty"`
+	Flags                      ChannelFlags          `json:"flags,omitempty"`
+	TotalMessageSent           int                   `json:"total_message_sent,omitempty"`
 }

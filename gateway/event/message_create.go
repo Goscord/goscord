@@ -2,6 +2,7 @@ package event
 
 import (
 	"encoding/json"
+
 	"github.com/Goscord/goscord/discord"
 	"github.com/Goscord/goscord/rest"
 )

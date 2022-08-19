@@ -1,7 +1,7 @@
 package rest
 
 const (
-	BaseUrl    = "https://discord.com/api/v9"
+	BaseUrl    = "https://discord.com/api/v10"
 	GatewayUrl = "wss://gateway.discord.gg/?v=9&encoding=json"
 
 	// Audit Log
@@ -127,6 +127,15 @@ const (
 	// Interaction
 	EndpointRegisterGlobalCommand = "/applications/%s/commands"
 	EndpointRegisterGuildCommand  = "/applications/%s/guilds/%s/commands"
+
+	EndpointCreateInteractionResponse = "/interactions/%s/%s/callback"
+	EndpointGetInteractionResponse    = "/interactions/%s/%s/messages/@original"
+	EndpointEditInteractionResponse   = "/interactions/%s/%s/messages/@original"
+	EndpointDeleteInteractionResponse = "/interactions/%s/%s/messages/@original"
+	EndpointCreateFollowupMessage     = "/webhooks/%s/%s"
+	EndpointGetFollowupMessage        = "/webhooks/%s/%s/messages/%s"
+	EndpointEditFollowupMessage       = "/webhooks/%s/%s/messages/%s"
+	EndpointDeleteFollowupMessage     = "/webhooks/%s/%s/messages/%s"
 
 	// Invite
 	EndpointGetInvite    = "/invites/%s"

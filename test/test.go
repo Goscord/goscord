@@ -18,12 +18,13 @@ func main() {
 
 	client = goscord.New(&gateway.Options{
 		Token:   "",
-		Intents: gateway.IntentGuilds + gateway.IntentGuildMembers + gateway.IntentGuildMessages,
+		Intents: gateway.IntentGuilds | gateway.IntentGuildMembers | gateway.IntentGuildMessages,
 	})
 
-	_ = client.On("ready", OnReady)
-	_ = client.On("messageCreate", OnMessageCreate)
-	_ = client.On("guildMemberAdd", OnGuildMemberAdd)
+	client.On("ready", OnReady)
+	client.On("messageCreate", OnMessageCreate)
+	client.On("guildMemberAdd", OnGuildMemberAdd)
+	client.On("interactionCreate", OnInteractionCreate)
 
 	if err := client.Login(); err != nil {
 		panic(err)
@@ -38,13 +39,23 @@ func OnReady() {
 	appCmd := &discord.ApplicationCommand{
 		Name:        "ping",
 		Type:        discord.ApplicationCommandChat,
-		Description: "Pong!",
+		Description: "Pong pong pong!",
 	}
 
 	_ = client.Interaction.RegisterCommand(client.Me().Id, "", appCmd)
 
 	_ = client.SetActivity(&discord.Activity{Name: "Luther - ALAKAZAM", Type: discord.ActivityListening})
 	_ = client.SetStatus("idle")
+}
+
+func OnInteractionCreate(i *discord.Interaction) {
+	if i.Type == discord.InteractionTypeApplicationCommand {
+
+		_, err := client.Interaction.CreateResponse(i.Id, i.Token, "Pong! lol")
+		if err != nil {
+			fmt.Printf("Error: %s", err.Error())
+		}
+	}
 }
 
 func OnGuildMemberAdd(a *discord.GuildMember) {

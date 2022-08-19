@@ -59,8 +59,11 @@ func (c *Client) Request(endpoint, method string, data io.Reader, contentType st
 		return nil, err
 	}
 
-	switch resp.StatusCode {
-	case 429:
+	if msg, ok := resData["message"]; ok {
+		return nil, errors.New(msg.(string))
+	}
+
+	if resp.StatusCode == 429 {
 		rateLimit, err := ratelimit.NewRateLimit(body)
 
 		if err != nil {
@@ -72,8 +75,6 @@ func (c *Client) Request(endpoint, method string, data io.Reader, contentType st
 		time.Sleep(rateLimit.RetryAfter)
 
 		body, err = c.Request(endpoint, method, data, contentType)
-	case 401:
-		return nil, errors.New("an invalid token was provided")
 	}
 
 	return body, nil

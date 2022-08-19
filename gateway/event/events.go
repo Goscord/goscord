@@ -19,4 +19,5 @@ const (
 	EventGuildMemberAdd    = "GUILD_MEMBER_ADD"
 	EventGuildMemberRemove = "GUILD_MEMBER_REMOVE"
 	EventGuildMemberUpdate = "GUILD_MEMBER_UPDATE"
+	EventInteractionCreate = "INTERACTION_CREATE"
 )

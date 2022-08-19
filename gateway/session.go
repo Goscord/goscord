@@ -86,11 +86,13 @@ func (s *Session) registerHandlers() {
 		event.EventChannelDelete:     &ChannelDeleteHandler{},
 		event.EventPresenceUpdate:    &PresenceUpdateHandler{},
 		event.EventGuildMemberAdd:    &GuildMemberAddHandler{},
+		event.EventInteractionCreate: &InteractionCreateHandler{},
 	}
 }
 
 func (s *Session) Login() error {
 	s.connMu.Lock()
+	s.lastHeartbeatSent = time.Now().UTC()
 	conn, _, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
 	s.connMu.Unlock()
 
@@ -298,8 +300,8 @@ func (s *Session) reconnect() {
 
 		wait *= 2
 
-		if wait > 600 {
-			wait = 600
+		if wait > 300 {
+			wait = 300
 		}
 	}
 }

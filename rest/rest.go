@@ -24,7 +24,7 @@ func (c *Client) Request(endpoint, method string, data io.Reader, contentType st
 	var req *http.Request
 
 	method = strings.ToUpper(method)
-	url := strings.ToLower(BaseUrl + endpoint)
+	url := BaseUrl + endpoint
 	req, err := http.NewRequest(method, url, data)
 
 	if err != nil {

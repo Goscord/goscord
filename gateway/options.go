@@ -1,8 +1,7 @@
 package gateway
 
 type Options struct {
-	Token    string
-	Intents  int
-	IsMobile bool
+	Token   string
+	Intents int
 	//NumShards int
 }

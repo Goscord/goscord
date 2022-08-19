@@ -139,12 +139,11 @@ func (s *Session) Login() error {
 	sequence := s.lastSequence
 	token := s.options.Token
 	intents := s.options.Intents
-	isMobile := s.options.IsMobile
 	cclose := s.close
 	s.RUnlock()
 
 	if sequence == 0 && sessionID == "" {
-		identify := packet.NewIdentify(token, intents, isMobile)
+		identify := packet.NewIdentify(token, intents)
 
 		if err = s.Send(identify); err != nil {
 			return err

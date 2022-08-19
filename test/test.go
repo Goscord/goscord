@@ -50,10 +50,11 @@ func OnReady() {
 
 func OnInteractionCreate(i *discord.Interaction) {
 	if i.Type == discord.InteractionTypeApplicationCommand {
-
-		_, err := client.Interaction.CreateResponse(i.Id, i.Token, "Pong! lol")
-		if err != nil {
-			fmt.Printf("Error: %s", err.Error())
+		if i.Data.Name == "ping" {
+			client.Interaction.CreateResponse(i.Id, i.Token, &discord.InteractionCallbackMessage{
+				Content: "Pong!",
+				Flags:   discord.MessageFlagEphemeral,
+			})
 		}
 	}
 }

@@ -19,8 +19,7 @@ const (
 type MessageFlag int
 
 const (
-	_ MessageFlag = 1 << iota
-	MessageFlagCrossposted
+	MessageFlagCrossposted MessageFlag = 1 << iota
 	MessageFlagIsCrosspost
 	MessageFlagSuppressEmbeds
 	MessageFlagSourceMessageDeleted

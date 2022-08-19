@@ -29,15 +29,10 @@ func newConnectionProperties(os, browser, device string) *ConnectionProperties {
 	}
 }
 
-func NewIdentify(token string, intents int, isMobile bool) *Identify {
+func NewIdentify(token string, intents int) *Identify {
 	identify := new(Identify)
 
-	if isMobile {
-		identify.Data.Properties = newConnectionProperties("android", "Goscord", "Android Goscord")
-	} else {
-		identify.Data.Properties = newConnectionProperties(runtime.GOOS, "Goscord", "Goscord")
-	}
-
+	identify.Data.Properties = newConnectionProperties(runtime.GOOS, "Goscord", "Goscord")
 	identify.Opcode = OpIdentify
 	identify.Data.Token = token
 	identify.Data.Intents = intents

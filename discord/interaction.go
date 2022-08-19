@@ -37,29 +37,6 @@ const (
 	ApplicationCommandPermissionTypeChannel
 )
 
-type InteractionType int
-
-const (
-	_ InteractionType = iota
-	InteractionTypePing
-	InteractionTypeApplicationCommand
-	InteractionTypeMessageComponent
-	InteractionTypeApplicationCommandAutocomplete
-	InteractionTypeModalSubmit
-)
-
-type InteractionCallbackType int
-
-const (
-	InteractionCallbackTypePong                                 = 1 // ack a ping
-	InteractionCallbackTypeChannelWithSource                    = 4 // respond to an interaction with a message
-	InteractionCallbackTypeDeferredChannelMessageWithSource     = 5 // ACK an interaction and edit a response later, the user sees a loading state
-	InteractionCallbackTypeDeferredUpdateMessage                = 6 // for components, ACK an interaction and edit the original message later; the user does not see a loading state
-	InteractionCallbackTypeUpdateMessage                        = 7 // for components, edit the message the component was attached to
-	InteractionCallbackTypeApplicationCommandAutocompleteResult = 8 // for autocomplete, return the results of the autocomplete
-	InteractionCallbackTypeModal                                = 9 // respond to an interaction with a popup modal
-)
-
 type ComponentType int
 
 const (
@@ -166,6 +143,30 @@ type ApplicationCommandOption struct {
 	MaxLength                int                               `json:"max_length,omitempty"`
 }
 
+// Interaction
+type InteractionType int
+
+const (
+	_ InteractionType = iota
+	InteractionTypePing
+	InteractionTypeApplicationCommand
+	InteractionTypeMessageComponent
+	InteractionTypeApplicationCommandAutocomplete
+	InteractionTypeModalSubmit
+)
+
+type InteractionCallbackType int
+
+const (
+	InteractionCallbackTypePong                                 = 1 // ack a ping
+	InteractionCallbackTypeChannelWithSource                    = 4 // respond to an interaction with a message
+	InteractionCallbackTypeDeferredChannelMessageWithSource     = 5 // ACK an interaction and edit a response later, the user sees a loading state
+	InteractionCallbackTypeDeferredUpdateMessage                = 6 // for components, ACK an interaction and edit the original message later; the user does not see a loading state
+	InteractionCallbackTypeUpdateMessage                        = 7 // for components, edit the message the component was attached to
+	InteractionCallbackTypeApplicationCommandAutocompleteResult = 8 // for autocomplete, return the results of the autocomplete
+	InteractionCallbackTypeModal                                = 9 // respond to an interaction with a popup modal
+)
+
 type Interaction struct {
 	Id             string                `json:"id"`
 	ApplicationId  string                `json:"application_id"`
@@ -184,13 +185,13 @@ type Interaction struct {
 }
 
 type InteractionData struct {
-	Id       string                      `json:"id"`
-	Name     string                      `json:"name"`
-	Type     ApplicationCommandType      `json:"type"`
-	Resolved bool                        `json:"resolved,omitempty"`
-	Options  []*ApplicationCommandOption `json:"options,omitempty"`
-	GuildId  string                      `json:"guild_id,omitempty"`
-	TargetId string                      `json:"target_id,omitempty"` // user or message
+	Id       string                                     `json:"id"`
+	Name     string                                     `json:"name"`
+	Type     ApplicationCommandType                     `json:"type"`
+	Resolved *ResolvedData                              `json:"resolved,omitempty"`
+	Options  []*ApplicationCommandInteractionDataOption `json:"options,omitempty"`
+	GuildId  string                                     `json:"guild_id,omitempty"`
+	TargetId string                                     `json:"target_id,omitempty"` // user or message
 }
 
 type MessageComponent struct {

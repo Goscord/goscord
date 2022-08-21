@@ -6,7 +6,7 @@ You can join our community on our [Discord server](https://discord.gg/6Np8sbyHXt
 ## Getting Started
 ### Installing
 ```sh
-# InitD the module:
+# Init the module:
 go mod init <url> 
 
 # Install Goscord :

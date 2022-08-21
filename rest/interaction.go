@@ -19,7 +19,7 @@ func NewInteractionHandler(rest *Client) *InteractionHandler {
 
 // CreateResponse creates a response to an interaction
 func (ch *InteractionHandler) CreateResponse(interactionId, interactionToken string, content interface{}) (*discord.InteractionResponse, error) {
-	b, err := formatMessage(content)
+	b, err := ch.formatMessage(content)
 
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (ch *InteractionHandler) GetResponse(applicationId, interactionToken string
 
 // EditResponse edits the response of an interaction
 func (ch *InteractionHandler) EditResponse(applicationId, interactionToken string, content interface{}) (*discord.InteractionResponse, error) {
-	b, err := formatMessage(content)
+	b, err := ch.formatMessage(content)
 
 	if err != nil {
 		return nil, err
@@ -97,7 +97,7 @@ func (ch *InteractionHandler) DeleteResponse(applicationId, interactionToken str
 
 // CreateFollowupMessage creates a followup message for an Interaction
 func (ch *InteractionHandler) CreateFollowupMessage(applicationId, interactionToken string, content interface{}) (*discord.Message, error) {
-	b, err := formatMessage(content)
+	b, err := ch.formatMessage(content)
 
 	if err != nil {
 		return nil, err
@@ -139,7 +139,7 @@ func (ch *InteractionHandler) GetFollowupMessage(applicationId, interactionToken
 
 // EditFollowupMessage edits the followup message of an interaction
 func (ch *InteractionHandler) EditFollowupMessage(applicationId, interactionToken, messageId string, content interface{}) (*discord.Message, error) {
-	b, err := formatMessage(content)
+	b, err := ch.formatMessage(content)
 
 	if err != nil {
 		return nil, err
@@ -173,14 +173,14 @@ func (ch *InteractionHandler) DeleteFollowupMessage(applicationId, interactionTo
 }
 
 // formatMessage formats the message to be sent to the API it avoids code duplication
-func formatMessage(content interface{}) (*bytes.Buffer, error) {
-	var b *bytes.Buffer
+func (ch *InteractionHandler) formatMessage(content interface{}) (*bytes.Buffer, error) {
+	b := new(bytes.Buffer)
 
 	switch ccontent := content.(type) {
 	case string:
 		content = &discord.InteractionResponse{
 			Type: discord.InteractionCallbackTypeChannelWithSource,
-			Data: &discord.InteractionCallbackMessage{Content: ccontent, Flags: discord.MessageFlagEphemeral},
+			Data: &discord.InteractionCallbackMessage{Content: ccontent},
 		}
 		jsonb, err := json.Marshal(content)
 

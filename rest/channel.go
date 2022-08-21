@@ -3,7 +3,6 @@ package rest
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -57,50 +56,10 @@ func (ch *ChannelHandler) GetMessage(channelId, messageId string) (*discord.Mess
 }
 
 func (ch *ChannelHandler) SendMessage(channelId string, content interface{}) (*discord.Message, error) {
-	b := new(bytes.Buffer)
-	contentType := "application/json"
+	b, contentType, err := ch.formatMessage(content, "")
 
-	switch ccontent := content.(type) {
-	case string:
-		content = &discord.Message{Content: ccontent}
-		jsonb, err := json.Marshal(content)
-
-		if err != nil {
-			return nil, err
-		}
-
-		b = bytes.NewBuffer(jsonb)
-
-	case *embed.Embed:
-		content = &discord.Message{Embeds: []*embed.Embed{ccontent}}
-		jsonb, err := json.Marshal(content)
-
-		if err != nil {
-			return nil, err
-		}
-
-		b = bytes.NewBuffer(jsonb)
-
-	case []*os.File:
-		w := multipart.NewWriter(b)
-
-		for i, file := range ccontent {
-			fw, err := w.CreateFormFile("attachment"+string(rune(i)), file.Name())
-			if err != nil {
-				return nil, err
-			}
-
-			_, err = io.Copy(fw, file)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		w.Close()
-		contentType = w.FormDataContentType()
-
-	default:
-		return nil, errors.New("bad content type")
+	if err != nil {
+		return nil, err
 	}
 
 	res, err := ch.rest.Request(fmt.Sprintf(EndpointCreateMessage, channelId), "POST", b, contentType)
@@ -121,60 +80,10 @@ func (ch *ChannelHandler) SendMessage(channelId string, content interface{}) (*d
 }
 
 func (ch *ChannelHandler) ReplyMessage(channelId, messageId string, content interface{}) (*discord.Message, error) {
-	var b *bytes.Buffer
-	contentType := "application/json"
+	b, contentType, err := ch.formatMessage(content, messageId)
 
-	switch ccontent := content.(type) {
-	case string:
-		content = &discord.Message{Content: ccontent, MessageReference: &discord.MessageReference{ChannelId: channelId, MessageId: messageId}}
-		jsonb, err := json.Marshal(content)
-
-		if err != nil {
-			return nil, err
-		}
-
-		b = bytes.NewBuffer(jsonb)
-
-	case *embed.Builder:
-		content = &discord.Message{Content: ccontent.Content(), Embeds: []*embed.Embed{ccontent.Embed()}, MessageReference: &discord.MessageReference{ChannelId: channelId, MessageId: messageId}}
-		jsonb, err := json.Marshal(content)
-
-		if err != nil {
-			return nil, err
-		}
-
-		b = bytes.NewBuffer(jsonb)
-
-	case *embed.Embed:
-		content = &discord.Message{Embeds: []*embed.Embed{ccontent}, MessageReference: &discord.MessageReference{ChannelId: channelId, MessageId: messageId}}
-		jsonb, err := json.Marshal(content)
-
-		if err != nil {
-			return nil, err
-		}
-
-		b = bytes.NewBuffer(jsonb)
-
-	/* TODO: implement file upload
-	case *os.File:
-		w := multipart.NewWriter(b)
-
-		fw, err := w.CreateFormFile("attachment", ccontent.Name())
-		if err != nil {
-			return nil, err
-		}
-
-		_, err = io.Copy(fw, ccontent)
-		if err != nil {
-			return nil, err
-		}
-
-		w.Close()
-		contentType = w.FormDataContentType()
-	*/
-
-	default:
-		return nil, errors.New("bad content type")
+	if err != nil {
+		return nil, err
 	}
 
 	res, err := ch.rest.Request(fmt.Sprintf(EndpointCreateMessage, channelId), "POST", b, contentType)
@@ -195,24 +104,13 @@ func (ch *ChannelHandler) ReplyMessage(channelId, messageId string, content inte
 }
 
 func (ch *ChannelHandler) Edit(channelId, messageId string, content interface{}) (*discord.Message, error) {
-	switch ccontent := content.(type) {
-	case string:
-		content = &discord.Message{Content: ccontent}
-
-	case *embed.Builder:
-		content = &discord.Message{Content: ccontent.Content(), Embeds: []*embed.Embed{ccontent.Embed()}}
-
-	case *embed.Embed:
-		content = &discord.Message{Embeds: []*embed.Embed{ccontent}}
-	}
-
-	b, err := json.Marshal(content)
+	b, contentType, err := ch.formatMessage(content, "")
 
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditMessage, channelId, messageId), "PATCH", bytes.NewBuffer(b), "application/json")
+	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditMessage, channelId, messageId), "PATCH", b, contentType)
 
 	if err != nil {
 		return nil, err
@@ -244,6 +142,65 @@ func (ch *ChannelHandler) CrosspostMessage(channelId, messageId string) (*discor
 	}
 
 	return &msg, nil
+}
+
+// formatMessage formats the message to be sent to the API it avoids code duplication
+func (ch *ChannelHandler) formatMessage(content interface{}, messageId string) (*bytes.Buffer, string, error) {
+	b := new(bytes.Buffer)
+	contentType := "application/json"
+
+	switch ccontent := content.(type) {
+	case string:
+		if messageId != "" {
+			content = &discord.Message{Content: ccontent, MessageReference: &discord.MessageReference{MessageId: messageId}}
+		} else {
+			content = &discord.Message{Content: ccontent}
+		}
+
+		jsonb, err := json.Marshal(content)
+
+		if err != nil {
+			return nil, "", err
+		}
+
+		b = bytes.NewBuffer(jsonb)
+
+	case *embed.Embed:
+		if messageId != "" {
+			content = &discord.Message{Embeds: []*embed.Embed{ccontent}, MessageReference: &discord.MessageReference{MessageId: messageId}}
+		} else {
+			content = &discord.Message{Embeds: []*embed.Embed{ccontent}}
+		}
+
+		jsonb, err := json.Marshal(content)
+
+		if err != nil {
+			return nil, "", err
+		}
+
+		b = bytes.NewBuffer(jsonb)
+
+	case []*os.File:
+		w := multipart.NewWriter(b)
+
+		for i, file := range ccontent {
+			fw, err := w.CreateFormFile(fmt.Sprintf("attachment-%d", i), file.Name())
+			if err != nil {
+				return nil, "", err
+			}
+
+			_, err = io.Copy(fw, file)
+			if err != nil {
+				return nil, "", err
+			}
+		}
+
+		w.Close()
+		contentType = w.FormDataContentType()
+		fmt.Println(contentType)
+	}
+
+	return b, contentType, nil
 }
 
 // TODO

@@ -71,16 +71,6 @@ func (ch *ChannelHandler) SendMessage(channelId string, content interface{}) (*d
 
 		b = bytes.NewBuffer(jsonb)
 
-	case *embed.Builder:
-		content = &discord.Message{Content: ccontent.Content(), Embeds: []*embed.Embed{ccontent.Embed()}}
-		jsonb, err := json.Marshal(content)
-
-		if err != nil {
-			return nil, err
-		}
-
-		b = bytes.NewBuffer(jsonb)
-
 	case *embed.Embed:
 		content = &discord.Message{Embeds: []*embed.Embed{ccontent}}
 		jsonb, err := json.Marshal(content)
@@ -91,17 +81,19 @@ func (ch *ChannelHandler) SendMessage(channelId string, content interface{}) (*d
 
 		b = bytes.NewBuffer(jsonb)
 
-	case *os.File:
+	case []*os.File:
 		w := multipart.NewWriter(b)
 
-		fw, err := w.CreateFormFile("attachment", ccontent.Name())
-		if err != nil {
-			return nil, err
-		}
+		for i, file := range ccontent {
+			fw, err := w.CreateFormFile("attachment"+string(rune(i)), file.Name())
+			if err != nil {
+				return nil, err
+			}
 
-		_, err = io.Copy(fw, ccontent)
-		if err != nil {
-			return nil, err
+			_, err = io.Copy(fw, file)
+			if err != nil {
+				return nil, err
+			}
 		}
 
 		w.Close()
@@ -129,7 +121,7 @@ func (ch *ChannelHandler) SendMessage(channelId string, content interface{}) (*d
 }
 
 func (ch *ChannelHandler) ReplyMessage(channelId, messageId string, content interface{}) (*discord.Message, error) {
-	b := new(bytes.Buffer)
+	var b *bytes.Buffer
 	contentType := "application/json"
 
 	switch ccontent := content.(type) {

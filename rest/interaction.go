@@ -17,29 +17,6 @@ func NewInteractionHandler(rest *Client) *InteractionHandler {
 	return &InteractionHandler{rest: rest}
 }
 
-func (ch *InteractionHandler) RegisterCommand(applicationId, guildId string, application *discord.ApplicationCommand) error {
-	var endpoint string
-
-	if guildId == "" {
-		endpoint = fmt.Sprintf(EndpointRegisterGlobalCommand, applicationId)
-	} else {
-		endpoint = fmt.Sprintf(EndpointRegisterGuildCommand, applicationId, guildId)
-	}
-
-	data, err := json.Marshal(application)
-
-	if err != nil {
-		return err
-	}
-
-	_, err = ch.rest.Request(endpoint, "POST", bytes.NewBuffer(data), "application/json")
-
-	return err
-}
-
-// ToDo : UnregisterCommand
-// ToDo : UpdateCommand
-
 func (ch *InteractionHandler) CreateResponse(interactionId, interactionToken string, content interface{}) (*discord.InteractionResponse, error) {
 	var b *bytes.Buffer
 
@@ -48,19 +25,6 @@ func (ch *InteractionHandler) CreateResponse(interactionId, interactionToken str
 		content = &discord.InteractionResponse{
 			Type: discord.InteractionCallbackTypeChannelWithSource,
 			Data: &discord.InteractionCallbackMessage{Content: ccontent, Flags: discord.MessageFlagEphemeral},
-		}
-		jsonb, err := json.Marshal(content)
-
-		if err != nil {
-			return nil, err
-		}
-
-		b = bytes.NewBuffer(jsonb)
-
-	case *embed.Builder:
-		content = &discord.InteractionResponse{
-			Type: discord.InteractionCallbackTypeChannelWithSource,
-			Data: &discord.InteractionCallbackMessage{Content: ccontent.Content(), Embeds: []*embed.Embed{ccontent.Embed()}},
 		}
 		jsonb, err := json.Marshal(content)
 

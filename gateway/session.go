@@ -31,6 +31,10 @@ type Session struct {
 	lastHeartbeatSent time.Time
 	lastSequence      int64
 
+	handlers map[string]EventHandler
+	close    chan bool
+
+	Application *rest.ApplicationHandler
 	Channel     *rest.ChannelHandler
 	Emoji       *rest.EmojiHandler
 	Guild       *rest.GuildHandler
@@ -40,9 +44,6 @@ type Session struct {
 	User        *rest.UserHandler
 	Voice       *rest.VoiceHandler
 	Webhook     *rest.WebhookHandler
-
-	handlers map[string]EventHandler
-	close    chan bool
 }
 
 func NewSession(options *Options) *Session {
@@ -55,6 +56,7 @@ func NewSession(options *Options) *Session {
 	s.state = NewState(s)
 	s.close = make(chan bool)
 
+	s.Application = rest.NewApplicationHandler(s.rest)
 	s.Channel = rest.NewChannelHandler(s.rest)
 	s.Emoji = rest.NewEmojiHandler(s.rest)
 	s.Guild = rest.NewGuildHandler(s.rest)

@@ -124,10 +124,25 @@ const (
 	EndpointModifyGuildTemplate  = "/guilds/%s/templates/%s"
 	EndpointDeleteGuildTemplate  = "/guilds/%s/templates/%s"
 
-	// Interaction
-	EndpointRegisterGlobalCommand = "/applications/%s/commands"
-	EndpointRegisterGuildCommand  = "/applications/%s/guilds/%s/commands"
+	// Application
+	EndpointGetGlobalApplicationCommands           = "/applications/%s/commands"
+	EndpointCreateGlobalApplicationCommand         = "/applications/%s/commands"
+	EndpointGetGlobalApplicationCommand            = "/applications/%s/commands/%s"
+	EndpointEditGlobalApplicationCommand           = "/applications/%s/commands/%s"
+	EndpointDeleteGlobalApplicationCommand         = "/applications/%s/commands/%s"
+	EndpointBulkOverwriteGlobalApplicationCommands = "/applications/%s/commands"
+	EndpointGetGuildApplicationCommands            = "/applications/%s/guilds/%s/commands"
+	EndpointCreateGuildApplicationCommand          = "/applications/%s/guilds/%s/commands"
+	EndpointGetGuildApplicationCommand             = "/applications/%s/guilds/%s/commands/%s"
+	EndpointEditGuildApplicationCommand            = "/applications/%s/guilds/%s/commands/%s"
+	EndpointDeleteGuildApplicationCommand          = "/applications/%s/guilds/%s/commands/%s"
+	EndpointBulkOverwriteGuildApplicationCommands  = "/applications/%s/guilds/%s/commands"
+	EndpointGetGuildApplicationCommandPermissions  = "/applications/%s/guilds/%s/commands/permissions"
+	EndpointGetApplicationCommandPermissions       = "/applications/%s/guilds/%s/commands/%s/permissions"
+	EndpointEditApplicationCommandPermissions      = "/applications/%s/guilds/%s/commands/%s/permissions"
+	EndpointBatchEditApplicationCommandPermissions = "/applications/%s/guilds/%s/commands/permissions"
 
+	// Interaction
 	EndpointCreateInteractionResponse = "/interactions/%s/%s/callback"
 	EndpointGetInteractionResponse    = "/interactions/%s/%s/messages/@original"
 	EndpointEditInteractionResponse   = "/interactions/%s/%s/messages/@original"

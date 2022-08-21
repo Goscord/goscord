@@ -42,7 +42,7 @@ func OnReady() {
 		Description: "Pong pong pong!",
 	}
 
-	_ = client.Interaction.RegisterCommand(client.Me().Id, "", appCmd)
+	_ = client.Application.RegisterCommand(client.Me().Id, "", appCmd)
 
 	_ = client.SetActivity(&discord.Activity{Name: "Luther - ALAKAZAM", Type: discord.ActivityListening})
 	_ = client.SetStatus("idle")

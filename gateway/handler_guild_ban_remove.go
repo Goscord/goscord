@@ -18,5 +18,5 @@ func (_ *GuildBanRemoveHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.bus.Publish("guildBanRemove", guild, user)
+	s.Bus().Publish("guildBanRemove", guild, user)
 }

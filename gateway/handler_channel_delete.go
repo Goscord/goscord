@@ -15,5 +15,5 @@ func (_ *ChannelDeleteHandler) Handle(s *Session, data []byte) {
 
 	s.state.RemoveChannel(ev.Data)
 
-	s.bus.Publish("channelDelete", ev.Data)
+	s.Bus().Publish("channelDelete", ev.Data)
 }

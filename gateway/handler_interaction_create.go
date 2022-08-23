@@ -1,6 +1,8 @@
 package gateway
 
 import (
+	"fmt"
+
 	"github.com/Goscord/goscord/gateway/event"
 )
 
@@ -10,8 +12,9 @@ func (_ *InteractionCreateHandler) Handle(s *Session, data []byte) {
 	ev, err := event.NewInteractionCreate(s.rest, data)
 
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
 
-	s.bus.Publish("interactionCreate", ev.Data)
+	s.Bus().Publish("interactionCreate", ev.Data)
 }

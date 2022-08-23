@@ -13,3 +13,37 @@ const (
 	OpHello               = 10
 	OpHeartbeatAck        = 11
 )
+
+type CloseEventCode int
+
+const (
+	CloseEventCodeUnknownError CloseEventCode = iota + 4000
+	CloseEventCodeUnknownOpcode
+	CloseEventCodeDecodeError
+	CloseEventCodeNotAuthenticated
+	CloseEventCodeAuthenticationFailed
+	CloseEventCodeAlreadyAuthenticated
+	_
+	CloseEventCodeInvalidSeq
+	CloseEventCodeRateLimited
+	CloseEventCodeSessionTimedOut
+	CloseEventCodeInvalidShard
+	CloseEventCodeShardingRequired
+	CloseEventCodeInvalidAPIVersion
+	CloseEventCodeInvalidIntents
+	CloseEventCodeDisallowedIntents
+)
+
+func (c CloseEventCode) ShouldReconnect() bool {
+	switch c {
+	case CloseEventCodeAuthenticationFailed,
+		CloseEventCodeInvalidShard,
+		CloseEventCodeShardingRequired,
+		CloseEventCodeInvalidAPIVersion,
+		CloseEventCodeInvalidIntents,
+		CloseEventCodeDisallowedIntents:
+		return false
+	}
+
+	return true
+}

@@ -15,5 +15,5 @@ func (_ *GuildCreateHandler) Handle(s *Session, data []byte) {
 
 	s.State().AddGuild(ev.Data)
 
-	s.bus.Publish("guildCreate", ev.Data)
+	s.Bus().Publish("guildCreate", ev.Data)
 }

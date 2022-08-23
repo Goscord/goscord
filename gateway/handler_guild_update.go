@@ -13,5 +13,5 @@ func (_ *GuildUpdateHandler) Handle(s *Session, data []byte) {
 
 	s.State().AddGuild(ev.Data)
 
-	s.bus.Publish("guildUpdate", ev.Data)
+	s.Bus().Publish("guildUpdate", ev.Data)
 }

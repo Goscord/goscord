@@ -21,7 +21,5 @@ func NewHello(data []byte) (*Hello, error) {
 		return nil, err
 	}
 
-	packet.Data.HeartbeatInterval = packet.Data.HeartbeatInterval * time.Millisecond
-
 	return &packet, nil
 }

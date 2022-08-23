@@ -42,7 +42,7 @@ func OnReady() {
 		Description: "Pong pong pong!",
 	}
 
-	_ = client.Application.RegisterCommand(client.Me().Id, "", appCmd)
+	_, _ = client.Application.RegisterCommand(client.Me().Id, "", appCmd)
 
 	_ = client.SetActivity(&discord.Activity{Name: "Goscord's devs working on the lib rn", Type: discord.ActivityWatching})
 	_ = client.SetStatus(discord.StatusTypeIdle)

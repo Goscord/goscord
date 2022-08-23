@@ -3,7 +3,7 @@ package packet
 import "encoding/json"
 
 type Packet struct {
-	Opcode   int             `json:"op,omitempty"`
+	Opcode   int             `json:"op"`
 	Sequence int64           `json:"s,omitempty"`
 	Event    string          `json:"t,omitempty"`
 	Data     json.RawMessage `json:"d"`

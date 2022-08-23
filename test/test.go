@@ -44,8 +44,8 @@ func OnReady() {
 
 	_ = client.Application.RegisterCommand(client.Me().Id, "", appCmd)
 
-	_ = client.SetActivity(&discord.Activity{Name: "Luther - ALAKAZAM", Type: discord.ActivityListening})
-	_ = client.SetStatus("idle")
+	_ = client.SetActivity(&discord.Activity{Name: "Goscord's devs working on the lib rn", Type: discord.ActivityWatching})
+	_ = client.SetStatus(discord.StatusTypeIdle)
 }
 
 func OnInteractionCreate(i *discord.Interaction) {

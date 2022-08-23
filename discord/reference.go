@@ -158,7 +158,7 @@ type ActivityButton struct {
 type Activity struct {
 	Name          string              `json:"name"`
 	Type          ActivityType        `json:"type"`
-	StreamURL     string              `json:"url,omitempty"`
+	Url           string              `json:"url,omitempty"`
 	CreatedAt     int                 `json:"created_at"`
 	Timestamps    *ActivityTimestamps `json:"timestamps,omitempty"`
 	ApplicationId string              `json:"application_id,omitempty"`

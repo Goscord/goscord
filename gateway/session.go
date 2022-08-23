@@ -72,7 +72,7 @@ func NewSession(options *Options) *Session {
 	s := new(Session)
 
 	s.options = options
-	s.presence = packet.NewPresenceUpdate(nil, "")
+	s.presence = packet.NewPresenceUpdate(nil, discord.StatusTypeOnline)
 	s.user = new(discord.User)
 	s.rest = rest.NewClient(options.Token)
 	s.bus = ev.New().(*ev.EventBus)
@@ -153,6 +153,8 @@ func (s *Session) Login() error {
 		if !closeCode.ShouldReconnect() {
 			panic(fmt.Errorf("error connecting to gateway : %d %s", code, text))
 		}
+
+		fmt.Printf("%d: %s\n", code, text)
 
 		return nil
 	})
@@ -387,7 +389,7 @@ func (s *Session) SetActivity(activity *discord.Activity) error {
 	s.RLock()
 	defer s.RUnlock()
 
-	return s.Send(s.status)
+	return s.Send(s.presence)
 }
 
 func (s *Session) SetStatus(status discord.StatusType) error {
@@ -398,7 +400,7 @@ func (s *Session) SetStatus(status discord.StatusType) error {
 	s.RLock()
 	defer s.RUnlock()
 
-	return s.Send(s.status)
+	return s.Send(s.presence)
 }
 
 func (s *Session) UpdatePresence(status *packet.PresenceUpdate) error {

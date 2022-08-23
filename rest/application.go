@@ -41,8 +41,9 @@ func (ch *ApplicationHandler) GetCommands(applicationId, guildId string) ([]*dis
 	return commands, nil
 }
 
-func (ch *ApplicationHandler) RegisterCommand(applicationId, guildId string, application *discord.ApplicationCommand) error {
+func (ch *ApplicationHandler) RegisterCommand(applicationId, guildId string, application *discord.ApplicationCommand) (*discord.ApplicationCommand, error) {
 	var endpoint string
+	var command *discord.ApplicationCommand
 
 	if guildId == "" {
 		endpoint = fmt.Sprintf(EndpointCreateGlobalApplicationCommand, applicationId)
@@ -53,12 +54,22 @@ func (ch *ApplicationHandler) RegisterCommand(applicationId, guildId string, app
 	data, err := json.Marshal(application)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	_, err = ch.rest.Request(endpoint, "POST", bytes.NewBuffer(data), "application/json")
+	res, err := ch.rest.Request(endpoint, "POST", bytes.NewBuffer(data), "application/json")
 
-	return err
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(res, &command)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return command, nil
 }
 
 func (ch *ApplicationHandler) GetCommand(applicationId, guildId, commandId string) (*discord.ApplicationCommand, error) {

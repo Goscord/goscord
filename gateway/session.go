@@ -154,8 +154,6 @@ func (s *Session) Login() error {
 			panic(fmt.Errorf("error connecting to gateway : %d %s", code, text))
 		}
 
-		fmt.Printf("%d: %s\n", code, text)
-
 		return nil
 	})
 

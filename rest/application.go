@@ -86,5 +86,18 @@ func (ch *ApplicationHandler) GetCommand(applicationId, guildId, commandId strin
 	return command, nil
 }
 
-// ToDo : UnregisterCommand
 // ToDo : UpdateCommand
+
+func (ch *ApplicationHandler) DeleteApplicationCommand(applicationId, guildId, commandId string) error {
+	var endpoint string
+
+	if guildId == "" {
+		endpoint = fmt.Sprintf(EndpointDeleteGlobalApplicationCommand, applicationId, commandId)
+	} else {
+		endpoint = fmt.Sprintf(EndpointDeleteGuildApplicationCommand, applicationId, guildId, commandId)
+	}
+
+	_, err := ch.rest.Request(endpoint, "GET", bytes.NewBufferString(""), "application/json")
+
+	return err
+}

@@ -108,7 +108,7 @@ func (ch *ApplicationHandler) DeleteApplicationCommand(applicationId, guildId, c
 		endpoint = fmt.Sprintf(EndpointDeleteGuildApplicationCommand, applicationId, guildId, commandId)
 	}
 
-	_, err := ch.rest.Request(endpoint, "GET", bytes.NewBufferString(""), "application/json")
+	_, err := ch.rest.Request(endpoint, "DELETE", bytes.NewBufferString(""), "application/json")
 
 	return err
 }

@@ -410,10 +410,12 @@ func (s *Session) UpdatePresence(status *packet.PresenceUpdate) error {
 }
 
 func (s *Session) Latency() time.Duration {
-	s.RLock()
-	defer s.RUnlock()
+	s.connMu.Lock()
+	lastHeartbeatAck := s.lastHeartbeatAck
+	lastHeartbeatSent := s.lastHeartbeatSent
+	s.connMu.Unlock()
 
-	return s.lastHeartbeatAck.Sub(s.lastHeartbeatSent)
+	return lastHeartbeatAck.Sub(lastHeartbeatSent)
 }
 
 func (s *Session) Close() {

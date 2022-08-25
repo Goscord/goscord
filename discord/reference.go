@@ -172,3 +172,27 @@ type Activity struct {
 	Flags         ActivityFlag        `json:"flags,omitempty"`
 	Buttons       []*ActivityButton   `json:"buttons,omitempty"`
 }
+
+// Teams
+
+type MembershipState int
+
+const (
+	MembershipStateInvited MembershipState = iota + 1
+	MembershipStateAccepted
+)
+
+type TeamMember struct {
+	MembershipState MembershipState       `json:"membership_state"`
+	Permissions     BitwisePermissionFlag `json:"permissions,string"`
+	TeamId          string                `json:"team_id"`
+	User            *User                 `json:"user"`
+}
+
+type Team struct {
+	Icon        string        `json:"icon"`
+	Id          string        `json:"id"`
+	Members     []*TeamMember `json:"members"`
+	Name        string        `json:"name"`
+	OwnerUserId string        `json:"owner_user_id"`
+}

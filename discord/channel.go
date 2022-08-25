@@ -131,19 +131,19 @@ type Reaction struct {
 // ToDo add Overwrite struct
 
 type ThreadMetadata struct {
-	Archived            bool      `json:"archived"`
-	AutoArchiveDuration int       `json:"auto_archive_duration"`
-	ArchiveTimestamp    time.Time `json:"archive_timestamp"`
-	Locked              bool      `json:"locked"`
-	Invitable           bool      `json:"invitable,omitempty"`
-	CreateTimestamp     time.Time `json:"create_timestamp,omitempty"`
+	Archived            bool       `json:"archived"`
+	AutoArchiveDuration int        `json:"auto_archive_duration"`
+	ArchiveTimestamp    *time.Time `json:"archive_timestamp"`
+	Locked              bool       `json:"locked"`
+	Invitable           bool       `json:"invitable,omitempty"`
+	CreateTimestamp     *time.Time `json:"create_timestamp,omitempty"`
 }
 
 type ThreadMember struct {
-	Id            string    `json:"id,omitempty"`
-	UserId        string    `json:"user_id,omitempty"`
-	JoinTimestamp time.Time `json:"join_timestamp"`
-	Flags         int       `json:"flags"`
+	Id            string     `json:"id,omitempty"`
+	UserId        string     `json:"user_id,omitempty"`
+	JoinTimestamp *time.Time `json:"join_timestamp"`
+	Flags         int        `json:"flags"`
 }
 
 type Attachment struct {
@@ -178,8 +178,8 @@ type Message struct {
 	Author          *User            `json:"author"`
 	Member          *GuildMember     `json:"member"`
 	Content         string           `json:"content"`
-	Timestamp       time.Time        `json:"timestamp"`
-	EditedTimestamp time.Time        `json:"edited_timestamp"`
+	Timestamp       *time.Time       `json:"timestamp"`
+	EditedTimestamp *time.Time       `json:"edited_timestamp"`
 	Tts             bool             `json:"tts"`
 	MentionEveryone bool             `json:"mention_everyone"`
 	Mentions        []*User          `json:"mentions"`
@@ -224,7 +224,7 @@ type Channel struct {
 	OwnerId                    string                `json:"owner_id,omitempty"`
 	ApplicationId              string                `json:"application_id,omitempty"`
 	ParentId                   string                `json:"parent_id,omitempty"`
-	LastPinTimestamp           *time.Time            `json:"last_pin_timestamp,omitempty"`
+	LastPinTimestamp           **time.Time           `json:"last_pin_timestamp,omitempty"`
 	RtcRegion                  string                `json:"rtc_region,omitempty"` // 	voice region id for the voice channel, automatic when set to null
 	VideoQualityMode           VideoQuality          `json:"video_quality_mode,omitempty"`
 	MessageCount               int                   `json:"message_count,omitempty"`

@@ -9,8 +9,7 @@ import (
 type MessageActivityType int
 
 const (
-	_ MessageActivityType = iota
-	MessageActivityTypeJoin
+	MessageActivityTypeJoin MessageActivityType = iota + 1
 	MessageActivityTypeSpectate
 	MessageActivityTypeListen
 	MessageActivityTypeJoinRequest

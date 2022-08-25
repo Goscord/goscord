@@ -3,16 +3,14 @@ package discord
 type StickerType int
 
 const (
-	_ StickerType = iota
-	StickerTypeStandard
+	StickerTypeStandard StickerType = iota + 1
 	StickerTypeGuild
 )
 
 type StickerFormat int
 
 const (
-	_ StickerFormat = iota
-	StickerFormatPng
+	StickerFormatPng StickerFormat = iota + 1
 	StickerFormatApng
 	StickerFormatLottie
 )

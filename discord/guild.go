@@ -139,13 +139,13 @@ type GuildMember struct {
 	User                       *User                 `json:"user"`
 	Nick                       string                `json:"nick,omitempty"`
 	Roles                      []string              `json:"roles"`
-	JoinedAt                   time.Time             `json:"joined_at"`
-	PremiumSince               time.Time             `json:"premium_since,omitempty"`
+	JoinedAt                   *time.Time            `json:"joined_at"`
+	PremiumSince               *time.Time            `json:"premium_since,omitempty"`
 	Deaf                       bool                  `json:"deaf"`
 	Mute                       bool                  `json:"mute"`
 	Pending                    bool                  `json:"pending"`
 	Permissions                BitwisePermissionFlag `json:"permissions,string,omitempty"`
-	CommunicationDisabledUntil time.Time             `json:"communication_disabled_until"`
+	CommunicationDisabledUntil *time.Time            `json:"communication_disabled_until"`
 	GuildId                    string                `json:"guild_id"`
 }
 
@@ -161,7 +161,7 @@ type Integration struct {
 	ExpireGracePeriod int                       `json:"expire_grace_period,omitempty"`
 	User              *User                     `json:"user,omitempty"`
 	Account           *IntegrationAccount       `json:"account"`
-	SyncedAt          time.Time                 `json:"synced_at,omitempty"`
+	SyncedAt          *time.Time                `json:"synced_at,omitempty"`
 	SubscriberCount   int                       `json:"subscriber_count,omitempty"`
 	Revoked           bool                      `json:"revoked,omitempty"`
 	Applications      []*IntegrationApplication `json:"applications,omitempty"`
@@ -255,7 +255,7 @@ type Guild struct {
 	PremiumProgressBarEnabled   bool                       `json:"premium_progress_bar_enabled"`
 
 	// GUILD_CREATE event specific fields
-	JoinedAt       time.Time         `json:"joined_at"`
+	JoinedAt       *time.Time        `json:"joined_at"`
 	Large          bool              `json:"large"`
 	Unavailable    bool              `json:"unavailable,omitempty"`
 	MemberCount    int               `json:"member_count"`

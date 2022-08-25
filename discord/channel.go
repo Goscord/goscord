@@ -128,8 +128,6 @@ type Reaction struct {
 	Emoji *Emoji `json:"emoji"`
 }
 
-// ToDo add Overwrite struct
-
 type ThreadMetadata struct {
 	Archived            bool       `json:"archived"`
 	AutoArchiveDuration int        `json:"auto_archive_duration"`
@@ -172,46 +170,46 @@ type AllowedMentions struct {
 }
 
 type Message struct {
-	Id              string           `json:"id"`
-	ChannelId       string           `json:"channel_id"`
-	GuildId         string           `json:"guild_id,omitempty"`
-	Author          *User            `json:"author"`
-	Member          *GuildMember     `json:"member"`
-	Content         string           `json:"content"`
-	Timestamp       *time.Time       `json:"timestamp"`
-	EditedTimestamp *time.Time       `json:"edited_timestamp"`
-	Tts             bool             `json:"tts"`
-	MentionEveryone bool             `json:"mention_everyone"`
-	Mentions        []*User          `json:"mentions"`
-	MentionRoles    []string         `json:"mention_roles"`
-	MentionChannels []*Channel       `json:"mention_channels,omitempty"`
-	Attachments     []*Attachment    `json:"attachments"`
-	Embeds          []*embed.Embed   `json:"embeds"`
-	Reactions       []*Reaction      `json:"reactions"`
-	Nonce           interface{}      `json:"nonce,omitempty"` // integer or string
-	Pinned          bool             `json:"pinned"`
-	WebhookId       string           `json:"webhook_id,omitempty"`
-	Type            MessageType      `json:"type"`
-	Activity        *MessageActivity `json:"activity,omitempty"`
-	//Application    *Application     `json:"application,omitempty"`
-	ApplicationId     string            `json:"application_id,omitempty"`
-	MessageReference  *MessageReference `json:"message_reference,omitempty"`
-	Flags             int               `json:"flags,omitempty"`
-	ReferencedMessage *Message          `json:"referenced_message,omitempty"`
-	//Interaction       *Interaction      `json:"interaction,omitempty"`
-	Thread *Channel `json:"thread,omitempty"`
-	//Components []*MessageComponent `json:"components,omitempty"`
-	StickerItems []*StickerItem `json:"sticker_items,omitempty"`
-	Stickers     []*Sticker     `json:"stickers,omitempty"`
-	Position     int            `json:"position,omitempty"`
+	Id                string              `json:"id"`
+	ChannelId         string              `json:"channel_id"`
+	GuildId           string              `json:"guild_id,omitempty"`
+	Author            *User               `json:"author"`
+	Member            *GuildMember        `json:"member"`
+	Content           string              `json:"content"`
+	Timestamp         *time.Time          `json:"timestamp"`
+	EditedTimestamp   *time.Time          `json:"edited_timestamp"`
+	Tts               bool                `json:"tts"`
+	MentionEveryone   bool                `json:"mention_everyone"`
+	Mentions          []*User             `json:"mentions"`
+	MentionRoles      []string            `json:"mention_roles"`
+	MentionChannels   []*Channel          `json:"mention_channels,omitempty"`
+	Attachments       []*Attachment       `json:"attachments"`
+	Embeds            []*embed.Embed      `json:"embeds"`
+	Reactions         []*Reaction         `json:"reactions"`
+	Nonce             interface{}         `json:"nonce,omitempty"` // integer or string
+	Pinned            bool                `json:"pinned"`
+	WebhookId         string              `json:"webhook_id,omitempty"`
+	Type              MessageType         `json:"type"`
+	Activity          *MessageActivity    `json:"activity,omitempty"`
+	Application       *Application        `json:"application,omitempty"`
+	ApplicationId     string              `json:"application_id,omitempty"`
+	MessageReference  *MessageReference   `json:"message_reference,omitempty"`
+	Flags             int                 `json:"flags,omitempty"`
+	ReferencedMessage *Message            `json:"referenced_message,omitempty"`
+	Interaction       *Interaction        `json:"interaction,omitempty"`
+	Thread            *Channel            `json:"thread,omitempty"`
+	Components        []*MessageComponent `json:"components,omitempty"`
+	StickerItems      []*StickerItem      `json:"sticker_items,omitempty"`
+	Stickers          []*Sticker          `json:"stickers,omitempty"`
+	Position          int                 `json:"position,omitempty"`
 }
 
 type Channel struct {
-	Id       string      `json:"id"`
-	Type     ChannelType `json:"type"`
-	GuildId  string      `json:"guild_id,omitempty"`
-	Position int         `json:"position,omitempty"`
-	//PermissionOverwrites []PermissionOverwrite `json:"permission_overwrites,omitempty"`
+	Id                         string                `json:"id"`
+	Type                       ChannelType           `json:"type"`
+	GuildId                    string                `json:"guild_id,omitempty"`
+	Position                   int                   `json:"position,omitempty"`
+	PermissionOverwrites       []Overwrite           `json:"permission_overwrites,omitempty"`
 	Name                       string                `json:"name,omitempty"`
 	Topic                      string                `json:"topic,omitempty"`
 	Nsfw                       bool                  `json:"nsfw,omitempty"`

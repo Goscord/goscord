@@ -128,7 +128,6 @@ func (s *Session) Login() error {
 
 	conn, rs, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
 	if err != nil {
-		fmt.Println(err)
 		body := "null"
 
 		if rs != nil && rs.Body != nil {
@@ -423,12 +422,16 @@ func (s *Session) Close() {
 
 func (s *Session) CloseWithCode(code int, message string) {
 	s.connMu.Lock()
-	defer s.connMu.Unlock()
+	heartbeatTicker := s.heartbeatTicker
+	s.connMu.Unlock()
 
-	if s.heartbeatTicker != nil {
-		s.heartbeatTicker.Stop()
-		s.heartbeatTicker = nil
+	if heartbeatTicker != nil {
+		heartbeatTicker.Stop()
+		heartbeatTicker = nil
 	}
+
+	s.connMu.Lock()
+	defer s.connMu.Unlock()
 
 	if s.conn != nil {
 		s.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message))

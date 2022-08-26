@@ -421,7 +421,7 @@ func (s *Session) Close() {
 	s.CloseWithCode(websocket.CloseNormalClosure, "Shutting down")
 }
 
-func (s *Session) CloseWithCode(code int, message string) 
+func (s *Session) CloseWithCode(code int, message string) {
         s.connMu.Lock()
 	defer s.connMu.Unlock()
 

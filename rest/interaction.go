@@ -43,7 +43,7 @@ func (ch *InteractionHandler) CreateResponse(interactionId, interactionToken str
 }
 
 // GetResponse gets the initial response of an interaction
-func (ch *InteractionHandler) GetResponse(applicationId, interactionToken string) (*discord.InteractionResponse, error) {
+func (ch *InteractionHandler) GetOriginalResponse(applicationId, interactionToken string) (*discord.InteractionResponse, error) {
 	res, err := ch.rest.Request(fmt.Sprintf(EndpointGetInteractionResponse, applicationId, interactionToken), "GET", nil, "application/json")
 
 	if err != nil {
@@ -61,7 +61,7 @@ func (ch *InteractionHandler) GetResponse(applicationId, interactionToken string
 }
 
 // EditResponse edits the response of an interaction
-func (ch *InteractionHandler) EditResponse(applicationId, interactionToken string, content interface{}) (*discord.InteractionResponse, error) {
+func (ch *InteractionHandler) EditOriginalResponse(applicationId, interactionToken string, content interface{}) (*discord.InteractionResponse, error) {
 	b, err := ch.formatMessage(content)
 
 	if err != nil {
@@ -85,7 +85,7 @@ func (ch *InteractionHandler) EditResponse(applicationId, interactionToken strin
 }
 
 // DeleteResponse deletes the response of an interaction
-func (ch *InteractionHandler) DeleteResponse(applicationId, interactionToken string) error {
+func (ch *InteractionHandler) DeleteOriginalResponse(applicationId, interactionToken string) error {
 	_, err := ch.rest.Request(fmt.Sprintf(EndpointDeleteInteractionResponse, applicationId, interactionToken), "DELETE", nil, "application/json")
 
 	if err != nil {

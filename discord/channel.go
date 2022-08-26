@@ -104,10 +104,10 @@ type FollowedChannel struct {
 }
 
 type Overwrite struct {
-	Id    string                `json:"id"`    // role or user id
-	Type  int                   `json:"type"`  // 0 for role, 1 for user
-	Allow BitwisePermissionFlag `json:"allow"` // permission bit set
-	Deny  BitwisePermissionFlag `json:"deny"`  // permission bit set
+	Id    string                `json:"id"`           // role or user id
+	Type  int                   `json:"type"`         // 0 for role, 1 for user
+	Allow BitwisePermissionFlag `json:"allow,string"` // permission bit set
+	Deny  BitwisePermissionFlag `json:"deny,string"`  // permission bit set
 }
 
 type MessageActivity struct {
@@ -209,7 +209,7 @@ type Channel struct {
 	Type                       ChannelType           `json:"type"`
 	GuildId                    string                `json:"guild_id,omitempty"`
 	Position                   int                   `json:"position,omitempty"`
-	PermissionOverwrites       []Overwrite           `json:"permission_overwrites,omitempty"`
+	PermissionOverwrites       []*Overwrite          `json:"permission_overwrites,omitempty"`
 	Name                       string                `json:"name,omitempty"`
 	Topic                      string                `json:"topic,omitempty"`
 	Nsfw                       bool                  `json:"nsfw,omitempty"`

@@ -421,13 +421,9 @@ func (s *Session) Close() {
 }
 
 func (s *Session) CloseWithCode(code int, message string) {
-	s.connMu.Lock()
-	heartbeatTicker := s.heartbeatTicker
-	s.connMu.Unlock()
-
-	if heartbeatTicker != nil {
-		heartbeatTicker.Stop()
-		heartbeatTicker = nil
+	if s.heartbeatTicker != nil {
+		s.heartbeatTicker.Stop()
+		s.heartbeatTicker = nil
 	}
 
 	s.connMu.Lock()

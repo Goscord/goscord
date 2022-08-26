@@ -310,7 +310,7 @@ loop:
 
 func (s *Session) startHeartbeat() {
 	s.connMu.Lock()
-        heartbeatTicker = time.NewTicker(s.heartbeatInterval) 
+        heartbeatTicker := time.NewTicker(s.heartbeatInterval) 
         s.heartbeatTicker = heartbeatTicker
 	s.connMu.Unlock()
 

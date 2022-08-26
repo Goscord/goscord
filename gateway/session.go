@@ -1,475 +1,480 @@
 package gateway
 
 import (
-    "encoding/json"
-    "errors"
-    "fmt"
-    "io"
-    "net"
-    "sync"
-    "syscall"
-    "time"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"net"
+	"sync"
+	"syscall"
+	"time"
 
-    "github.com/Goscord/goscord/discord"
-    "github.com/Goscord/goscord/gateway/event"
-    "github.com/Goscord/goscord/gateway/packet"
-    "github.com/Goscord/goscord/rest"
-    ev "github.com/asaskevich/EventBus"
-    "github.com/gorilla/websocket"
+	"github.com/Goscord/goscord/discord"
+	"github.com/Goscord/goscord/gateway/event"
+	"github.com/Goscord/goscord/gateway/packet"
+	"github.com/Goscord/goscord/rest"
+	ev "github.com/asaskevich/EventBus"
+	"github.com/gorilla/websocket"
 )
 
 type Status int
 
 const (
-    StatusUnconnected Status = iota StatusConnecting StatusWaitingForHello StatusWaitingForReady StatusIdentifying StatusReady StatusResuming StatusDisconnected
+	StatusUnconnected Status = iota
+	StatusConnecting
+	StatusWaitingForHello
+	StatusWaitingForReady
+	StatusIdentifying
+	StatusReady
+	StatusResuming
+	StatusDisconnected
 )
 
 type Session struct {
-    sync.RWMutex
+	sync.RWMutex
 
-    options * Options
-    rest * rest.Client
-    presence * packet.PresenceUpdate
-    user * discord.User
-    bus * ev.EventBus
-    state * State
-    status Status
+	options  *Options
+	rest     *rest.Client
+	presence *packet.PresenceUpdate
+	user     *discord.User
+	bus      *ev.EventBus
+	state    *State
+	status   Status
 
-    // ws conn
-    connMu sync.Mutex
-    conn * websocket.Conn
-    handlers map[string] EventHandler
+	// ws conn
+	connMu   sync.Mutex
+	conn     *websocket.Conn
+	handlers map[string]EventHandler
 
-    // Discord gateway fields
-    sessionID string
-    heartbeatTicker * time.Ticker
-    heartbeatInterval time.Duration
-    lastHeartbeatAck time.Time
-    lastHeartbeatSent time.Time
-    lastSequence int64
+	// Discord gateway fields
+	sessionID         string
+	heartbeatTicker   *time.Ticker
+	heartbeatInterval time.Duration
+	lastHeartbeatAck  time.Time
+	lastHeartbeatSent time.Time
+	lastSequence      int64
 
-    // Rest handlers
-    Application * rest.ApplicationHandler
-    Channel * rest.ChannelHandler
-    Emoji * rest.EmojiHandler
-    Guild * rest.GuildHandler
-    Interaction * rest.InteractionHandler
-    Invite * rest.InviteHandler
-    Template * rest.TemplateHandler
-    User * rest.UserHandler
-    Voice * rest.VoiceHandler
-    Webhook * rest.WebhookHandler
+	// Rest handlers
+	Application *rest.ApplicationHandler
+	Channel     *rest.ChannelHandler
+	Emoji       *rest.EmojiHandler
+	Guild       *rest.GuildHandler
+	Interaction *rest.InteractionHandler
+	Invite      *rest.InviteHandler
+	Template    *rest.TemplateHandler
+	User        *rest.UserHandler
+	Voice       *rest.VoiceHandler
+	Webhook     *rest.WebhookHandler
 }
 
-func NewSession(options * Options) * Session {
-    s: = new(Session)
+func NewSession(options *Options) *Session {
+	s := new(Session)
 
-        s.options = options
-    s.presence = packet.NewPresenceUpdate(nil, discord.StatusTypeOnline)
-    s.user = new(discord.User)
-    s.rest = rest.NewClient(options.Token)
-    s.bus = ev.New().( * ev.EventBus)
-    s.state = NewState(s)
-    s.status = StatusUnconnected
+	s.options = options
+	s.presence = packet.NewPresenceUpdate(nil, discord.StatusTypeOnline)
+	s.user = new(discord.User)
+	s.rest = rest.NewClient(options.Token)
+	s.bus = ev.New().(*ev.EventBus)
+	s.state = NewState(s)
+	s.status = StatusUnconnected
 
-    s.Application = rest.NewApplicationHandler(s.rest)
-    s.Channel = rest.NewChannelHandler(s.rest)
-    s.Emoji = rest.NewEmojiHandler(s.rest)
-    s.Guild = rest.NewGuildHandler(s.rest)
-    s.Interaction = rest.NewInteractionHandler(s.rest)
-    s.Invite = rest.NewInviteHandler(s.rest)
-    s.Template = rest.NewTemplateHandler(s.rest)
-    s.User = rest.NewUserHandler(s.rest)
-    s.Voice = rest.NewVoiceHandler(s.rest)
-    s.Webhook = rest.NewWebhookHandler(s.rest)
+	s.Application = rest.NewApplicationHandler(s.rest)
+	s.Channel = rest.NewChannelHandler(s.rest)
+	s.Emoji = rest.NewEmojiHandler(s.rest)
+	s.Guild = rest.NewGuildHandler(s.rest)
+	s.Interaction = rest.NewInteractionHandler(s.rest)
+	s.Invite = rest.NewInviteHandler(s.rest)
+	s.Template = rest.NewTemplateHandler(s.rest)
+	s.User = rest.NewUserHandler(s.rest)
+	s.Voice = rest.NewVoiceHandler(s.rest)
+	s.Webhook = rest.NewWebhookHandler(s.rest)
 
-    s.registerHandlers()
+	s.registerHandlers()
 
-    return s
+	return s
 }
 
-func(s * Session) registerHandlers() {
-    s.handlers = map[string] EventHandler {
-        event.EventReady: & ReadyHandler {},
-            event.EventResumed: & ResumedHandler {},
-            event.EventGuildCreate: & GuildCreateHandler {},
-            event.EventGuildUpdate: & GuildUpdateHandler {},
-            event.EventGuildDelete: & GuildDeleteHandler {},
-            event.EventGuildBanAdd: & GuildBanAddHandler {},
-            event.EventGuildBanRemove: & GuildBanRemoveHandler {},
-            event.EventGuildEmojisUpdate: & GuildEmojisUpdateHandler {},
-            event.EventMessageCreate: & MessageCreateHandler {},
-            event.EventChannelCreate: & ChannelCreateHandler {},
-            event.EventChannelUpdate: & ChannelUpdateHandler {},
-            event.EventChannelDelete: & ChannelDeleteHandler {},
-            event.EventPresenceUpdate: & PresenceUpdateHandler {},
-            event.EventGuildMemberAdd: & GuildMemberAddHandler {},
-            event.EventInteractionCreate: & InteractionCreateHandler {},
-    }
+func (s *Session) registerHandlers() {
+	s.handlers = map[string]EventHandler{
+		event.EventReady:             &ReadyHandler{},
+		event.EventResumed:           &ResumedHandler{},
+		event.EventGuildCreate:       &GuildCreateHandler{},
+		event.EventGuildUpdate:       &GuildUpdateHandler{},
+		event.EventGuildDelete:       &GuildDeleteHandler{},
+		event.EventGuildBanAdd:       &GuildBanAddHandler{},
+		event.EventGuildBanRemove:    &GuildBanRemoveHandler{},
+		event.EventGuildEmojisUpdate: &GuildEmojisUpdateHandler{},
+		event.EventMessageCreate:     &MessageCreateHandler{},
+		event.EventChannelCreate:     &ChannelCreateHandler{},
+		event.EventChannelUpdate:     &ChannelUpdateHandler{},
+		event.EventChannelDelete:     &ChannelDeleteHandler{},
+		event.EventPresenceUpdate:    &PresenceUpdateHandler{},
+		event.EventGuildMemberAdd:    &GuildMemberAddHandler{},
+		event.EventInteractionCreate: &InteractionCreateHandler{},
+	}
 }
 
-func(s * Session) Login() error {
-    s.connMu.Lock()
-    defer s.connMu.Unlock()
+func (s *Session) Login() error {
+	s.connMu.Lock()
+	defer s.connMu.Unlock()
 
-    if s.conn != nil {
-        return errors.New("session is already connected")
-    }
+	if s.conn != nil {
+		return errors.New("session is already connected")
+	}
 
-    s.status = StatusConnecting
-    s.lastHeartbeatSent = time.Now().UTC()
+	s.status = StatusConnecting
+	s.lastHeartbeatSent = time.Now().UTC()
 
-    conn, rs, err: = websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
-    if err != nil {
-        fmt.Println(err)
-        body: = "null"
+	conn, rs, err := websocket.DefaultDialer.Dial(rest.GatewayUrl, nil)
+	if err != nil {
+		fmt.Println(err)
+		body := "null"
 
-        if rs != nil && rs.Body != nil {
-            defer func() {
-                _ = rs.Body.Close()
-            }()
+		if rs != nil && rs.Body != nil {
+			defer func() {
+				_ = rs.Body.Close()
+			}()
 
-            rawBody, bErr: = io.ReadAll(rs.Body)
-            if bErr != nil {
-                return err
-            }
+			rawBody, bErr := io.ReadAll(rs.Body)
+			if bErr != nil {
+				return err
+			}
 
-            body = string(rawBody)
-        }
+			body = string(rawBody)
+		}
 
-        return fmt.Errorf("error while connecting to the gateway : %s", body)
-    }
+		return fmt.Errorf("error while connecting to the gateway : %s", body)
+	}
 
-    conn.SetCloseHandler(func(code int, text string) error {
-        closeCode: = packet.CloseEventCode(code)
+	conn.SetCloseHandler(func(code int, text string) error {
+		closeCode := packet.CloseEventCode(code)
 
-        if !closeCode.ShouldReconnect() {
-            panic(fmt.Errorf("error connecting to gateway : %d %s", code, text))
-        }
+		if !closeCode.ShouldReconnect() {
+			panic(fmt.Errorf("error connecting to gateway : %d %s", code, text))
+		}
 
-        return nil
-    })
+		return nil
+	})
 
-    s.conn = conn
-    s.status = StatusWaitingForHello
+	s.conn = conn
+	s.status = StatusWaitingForHello
 
-    go s.listen(conn)
+	go s.listen(conn)
 
-    return nil
+	return nil
 }
 
-func(s * Session) listen(conn * websocket.Conn) {
-    loop: for {
-        _, msg, err: = conn.ReadMessage()
+func (s *Session) listen(conn *websocket.Conn) {
+loop:
+	for {
+		_, msg, err := conn.ReadMessage()
 
-        if err != nil {
-            s.connMu.Lock()
-            sameConnection: = s.conn == conn
-            s.connMu.Unlock()
+		if err != nil {
+			s.connMu.Lock()
+			sameConnection := s.conn == conn
+			s.connMu.Unlock()
 
-            if !sameConnection {
-                return
-            }
+			if !sameConnection {
+				return
+			}
 
-            reconnect: = true
+			reconnect := true
 
-            if closeError, ok: = err.( * websocket.CloseError);
-            ok {
-                closeCode: = packet.CloseEventCode(closeError.Code)
-                reconnect = closeCode.ShouldReconnect()
-            } else if errors.Is(err, net.ErrClosed) {
-                reconnect = false
-            }
+			if closeError, ok := err.(*websocket.CloseError); ok {
+				closeCode := packet.CloseEventCode(closeError.Code)
+				reconnect = closeCode.ShouldReconnect()
+			} else if errors.Is(err, net.ErrClosed) {
+				reconnect = false
+			}
 
-            s.CloseWithCode(websocket.CloseServiceRestart, "reconnecting")
-            if reconnect {
-                go s.reconnect()
+			s.CloseWithCode(websocket.CloseServiceRestart, "reconnecting")
+			if reconnect {
+				go s.reconnect()
 
-                break loop
-            }
-        }
+				break loop
+			}
+		}
 
-        pk, err: = packet.NewPacket(msg)
+		pk, err := packet.NewPacket(msg)
 
-        if err != nil {
-            return
-        }
+		if err != nil {
+			return
+		}
 
-        opcode, e: = pk.Opcode, pk.Event
+		opcode, e := pk.Opcode, pk.Event
 
-        switch opcode {
-            case packet.OpHello:
-                s.connMu.Lock()
-                s.lastHeartbeatAck = time.Now().UTC()
-                s.connMu.Unlock()
+		switch opcode {
+		case packet.OpHello:
+			s.connMu.Lock()
+			s.lastHeartbeatAck = time.Now().UTC()
+			s.connMu.Unlock()
 
-                hello, err: = packet.NewHello(msg)
+			hello, err := packet.NewHello(msg)
 
-                if err != nil {
-                    return
-                }
+			if err != nil {
+				return
+			}
 
-                go s.startHeartbeat()
+			go s.startHeartbeat()
 
-                s.connMu.Lock()
-                s.heartbeatInterval = time.Duration(hello.Data.HeartbeatInterval) * time.Millisecond
-                lastSequence: = s.lastSequence
-                sessionID: = s.sessionID
+			s.connMu.Lock()
+			s.heartbeatInterval = time.Duration(hello.Data.HeartbeatInterval) * time.Millisecond
+			lastSequence := s.lastSequence
+			sessionID := s.sessionID
 
-                token: = s.options.Token
-                intents: = s.options.Intents
-                s.connMu.Unlock()
+			token := s.options.Token
+			intents := s.options.Intents
+			s.connMu.Unlock()
 
-                if lastSequence == 0 || sessionID == "" {
-                    s.connMu.Lock()
-                    s.status = StatusIdentifying
-                    s.connMu.Unlock()
+			if lastSequence == 0 || sessionID == "" {
+				s.connMu.Lock()
+				s.status = StatusIdentifying
+				s.connMu.Unlock()
 
-                    identify: = packet.NewIdentify(token, intents)
+				identify := packet.NewIdentify(token, intents)
 
-                    if err = s.Send(identify);
-                    err != nil {
-                        return
-                    }
+				if err = s.Send(identify); err != nil {
+					return
+				}
 
-                    s.connMu.Lock()
-                    s.status = StatusWaitingForReady
-                    s.connMu.Unlock()
-                } else {
-                    resume: = packet.NewResume(token, sessionID, lastSequence)
+				s.connMu.Lock()
+				s.status = StatusWaitingForReady
+				s.connMu.Unlock()
+			} else {
+				resume := packet.NewResume(token, sessionID, lastSequence)
 
-                    if err = s.Send(resume);err != nil {
-                        return
-                    }
-                }
+				if err = s.Send(resume); err != nil {
+					return
+				}
+			}
 
-            case packet.OpDispatch:
-                s.connMu.Lock()
-                s.lastSequence = pk.Sequence
-                s.connMu.Unlock()
+		case packet.OpDispatch:
+			s.connMu.Lock()
+			s.lastSequence = pk.Sequence
+			s.connMu.Unlock()
 
-                if e != "" {
-                    s.connMu.Lock()
-                    s.lastSequence = pk.Sequence
-                    handler, exists: = s.handlers[e]
-                    s.connMu.Unlock()
+			if e != "" {
+				s.connMu.Lock()
+				s.lastSequence = pk.Sequence
+				handler, exists := s.handlers[e]
+				s.connMu.Unlock()
 
-                    if exists {
-                        go handler.Handle(s, msg)
-                    } else {
-                        fmt.Println("Unhandled event : " + e)
-                    }
-                }
+				if exists {
+					go handler.Handle(s, msg)
+				} else {
+					fmt.Println("Unhandled event : " + e)
+				}
+			}
 
-            case packet.OpHeartbeat:
-                s.sendHeartbeat()
+		case packet.OpHeartbeat:
+			s.sendHeartbeat()
 
-            case packet.OpReconnect:
-                s.CloseWithCode(websocket.CloseServiceRestart, "reconnecting")
-                go s.reconnect()
+		case packet.OpReconnect:
+			s.CloseWithCode(websocket.CloseServiceRestart, "reconnecting")
+			go s.reconnect()
 
-                break loop
+			break loop
 
-            case packet.OpInvalidSession:
-                var shouldResume = false
+		case packet.OpInvalidSession:
+			var shouldResume = false
 
-                err = json.Unmarshal(pk.Data, & shouldResume)
-                if err != nil {
-                    shouldResume = false
-                }
+			err = json.Unmarshal(pk.Data, &shouldResume)
+			if err != nil {
+				shouldResume = false
+			}
 
-                code: = websocket.CloseNormalClosure
-                if shouldResume {
-                    code = websocket.CloseServiceRestart
-                } else {
-                    s.connMu.Lock()
-                    s.sessionID = ""
-                    s.lastSequence = 0
-                    s.connMu.Unlock()
-                }
+			code := websocket.CloseNormalClosure
+			if shouldResume {
+				code = websocket.CloseServiceRestart
+			} else {
+				s.connMu.Lock()
+				s.sessionID = ""
+				s.lastSequence = 0
+				s.connMu.Unlock()
+			}
 
-                s.CloseWithCode(code, "invalid session")
+			s.CloseWithCode(code, "invalid session")
 
-                go s.reconnect()
+			go s.reconnect()
 
-                break loop
+			break loop
 
-            case packet.OpHeartbeatAck:
-                s.connMu.Lock()
-                s.lastHeartbeatAck = time.Now().UTC()
-                s.connMu.Unlock()
-        }
-    }
+		case packet.OpHeartbeatAck:
+			s.connMu.Lock()
+			s.lastHeartbeatAck = time.Now().UTC()
+			s.connMu.Unlock()
+		}
+	}
 }
 
-func(s * Session) startHeartbeat() {
-    s.connMu.Lock()
-    heartbeatTicker = time.NewTicker(s.heartbeatInterval)
-    s.heartbeatTicker = heartbeatTicker
-    s.connMu.Unlock()
+func (s *Session) startHeartbeat() {
+	s.connMu.Lock()
+        heartbeatTicker = time.NewTicker(s.heartbeatInterval) 
+        s.heartbeatTicker = heartbeatTicker
+	s.connMu.Unlock()
 
-    defer heartbeatTicker.Stop()
+	defer heartbeatTicker.Stop()
 
-    for range heartbeatTicker.C {
-        s.sendHeartbeat()
-    }
+	for range heartbeatTicker.C {
+		s.sendHeartbeat()
+	}
 }
 
-func(s * Session) sendHeartbeat() {
-    s.connMu.Lock()
-    lastSequence: = s.lastSequence
-    s.connMu.Unlock()
+func (s *Session) sendHeartbeat() {
+	s.connMu.Lock()
+	lastSequence := s.lastSequence
+	s.connMu.Unlock()
 
-    heartbeat: = packet.NewHeartbeat(lastSequence)
+	heartbeat := packet.NewHeartbeat(lastSequence)
 
-    if err: = s.Send(heartbeat);
-    err != nil {
-        if errors.Is(err, syscall.EPIPE) {
-            return
-        }
+	if err := s.Send(heartbeat); err != nil {
+		if errors.Is(err, syscall.EPIPE) {
+			return
+		}
 
-        s.CloseWithCode(websocket.CloseServiceRestart, "heartbeat timeout")
+		s.CloseWithCode(websocket.CloseServiceRestart, "heartbeat timeout")
 
-        go s.reconnect()
+		go s.reconnect()
 
-        return
-    }
+		return
+	}
 
-    s.connMu.Lock()
-    s.lastHeartbeatSent = time.Now().UTC()
-    s.connMu.Unlock()
+	s.connMu.Lock()
+	s.lastHeartbeatSent = time.Now().UTC()
+	s.connMu.Unlock()
 }
 
-func(s * Session) reconnect() {
-    wait: = time.Duration(5)
+func (s *Session) reconnect() {
+	wait := time.Duration(5)
 
-    for {
-        fmt.Println("Reconnecting")
+	for {
+		fmt.Println("Reconnecting")
 
-        err: = s.Login()
+		err := s.Login()
 
-        if err == nil {
-            // ToDo : Reconnect to voice connections
+		if err == nil {
+			// ToDo : Reconnect to voice connections
 
-            fmt.Println("Reconnected")
+			fmt.Println("Reconnected")
 
-            return
-        }
+			return
+		}
 
-        < -time.After(wait)
+		<-time.After(wait)
 
-        wait *= 2
+		wait *= 2
 
-        if wait > 300 {
-            wait = 300
-        }
-    }
+		if wait > 300 {
+			wait = 300
+		}
+	}
 }
 
-func(s * Session) Send(v interface {}) error {
-    s.connMu.Lock()
-    defer s.connMu.Unlock()
+func (s *Session) Send(v interface{}) error {
+	s.connMu.Lock()
+	defer s.connMu.Unlock()
 
-    return s.conn.WriteJSON(v)
+	return s.conn.WriteJSON(v)
 }
 
-func(s * Session) SetActivity(activity * discord.Activity) error {
-    s.Lock()
-    s.presence.Data.Activities[0] = activity
-    s.Unlock()
+func (s *Session) SetActivity(activity *discord.Activity) error {
+	s.Lock()
+	s.presence.Data.Activities[0] = activity
+	s.Unlock()
 
-    s.RLock()
-    defer s.RUnlock()
+	s.RLock()
+	defer s.RUnlock()
 
-    return s.Send(s.presence)
+	return s.Send(s.presence)
 }
 
-func(s * Session) SetStatus(status discord.StatusType) error {
-    s.Lock()
-    s.presence.Data.Status = status
-    s.Unlock()
+func (s *Session) SetStatus(status discord.StatusType) error {
+	s.Lock()
+	s.presence.Data.Status = status
+	s.Unlock()
 
-    s.RLock()
-    defer s.RUnlock()
+	s.RLock()
+	defer s.RUnlock()
 
-    return s.Send(s.presence)
+	return s.Send(s.presence)
 }
 
-func(s * Session) UpdatePresence(status * packet.PresenceUpdate) error {
-    s.Lock()
-    s.presence = status
-    s.Unlock()
+func (s *Session) UpdatePresence(status *packet.PresenceUpdate) error {
+	s.Lock()
+	s.presence = status
+	s.Unlock()
 
-    return s.Send(status)
+	return s.Send(status)
 }
 
-func(s * Session) Latency() time.Duration {
-    s.connMu.Lock()
-    lastHeartbeatAck: = s.lastHeartbeatAck
-    lastHeartbeatSent: = s.lastHeartbeatSent
-    s.connMu.Unlock()
+func (s *Session) Latency() time.Duration {
+	s.connMu.Lock()
+	lastHeartbeatAck := s.lastHeartbeatAck
+	lastHeartbeatSent := s.lastHeartbeatSent
+	s.connMu.Unlock()
 
-    return lastHeartbeatAck.Sub(lastHeartbeatSent)
+	return lastHeartbeatAck.Sub(lastHeartbeatSent)
 }
 
-func(s * Session) Close() {
-    s.CloseWithCode(websocket.CloseNormalClosure, "Shutting down")
+func (s *Session) Close() {
+	s.CloseWithCode(websocket.CloseNormalClosure, "Shutting down")
 }
 
-func(s * Session) CloseWithCode(code int, message string)
-s.connMu.Lock()
-defer s.connMu.Unlock()
+func (s *Session) CloseWithCode(code int, message string) 
+        s.connMu.Lock()
+	defer s.connMu.Unlock()
 
-if s.heartbeatTicker != nil {
-    s.heartbeatTicker.Stop()
-    s.heartbeatTicker = nil
+	if s.heartbeatTicker != nil {
+		s.heartbeatTicker.Stop()
+		s.heartbeatTicker = nil
+	}
+
+	if s.conn != nil {
+		s.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message))
+
+		_ = s.conn.Close()
+
+		s.conn = nil
+
+		if code == websocket.CloseNormalClosure || code == websocket.CloseGoingAway {
+			s.sessionID = ""
+			s.lastSequence = 0
+		}
+	}
 }
 
-if s.conn != nil {
-    s.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message))
+func (s *Session) Bus() *ev.EventBus {
+	s.RLock()
+	defer s.RUnlock()
 
-    _ = s.conn.Close()
-
-    s.conn = nil
-
-    if code == websocket.CloseNormalClosure || code == websocket.CloseGoingAway {
-        s.sessionID = ""
-        s.lastSequence = 0
-    }
-}
+	return s.bus
 }
 
-func(s * Session) Bus() * ev.EventBus {
-    s.RLock()
-    defer s.RUnlock()
+func (s *Session) Me() *discord.User {
+	s.RLock()
+	defer s.RUnlock()
 
-    return s.bus
+	return s.user
 }
 
-func(s * Session) Me() * discord.User {
-    s.RLock()
-    defer s.RUnlock()
+func (s *Session) State() *State {
+	s.RLock()
+	defer s.RUnlock()
 
-    return s.user
+	return s.state
 }
 
-func(s * Session) State() * State {
-    s.RLock()
-    defer s.RUnlock()
+func (s *Session) Status() Status {
+	s.RLock()
+	defer s.RUnlock()
 
-    return s.state
+	return s.status
 }
 
-func(s * Session) Status() Status {
-    s.RLock()
-    defer s.RUnlock()
+func (s *Session) On(ev string, fn interface{}) error {
+	s.Lock()
+	defer s.Unlock()
 
-    return s.status
-}
-
-func(s * Session) On(ev string, fn interface {}) error {
-    s.Lock()
-    defer s.Unlock()
-
-    return s.bus.SubscribeAsync(ev, fn, false)
+	return s.bus.SubscribeAsync(ev, fn, false)
 }

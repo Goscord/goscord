@@ -144,9 +144,9 @@ const (
 
 	// Interaction
 	EndpointCreateInteractionResponse = "/interactions/%s/%s/callback"
-	EndpointGetInteractionResponse    = "/interactions/%s/%s/messages/@original"
-	EndpointEditInteractionResponse   = "/interactions/%s/%s/messages/@original"
-	EndpointDeleteInteractionResponse = "/interactions/%s/%s/messages/@original"
+	EndpointGetInteractionResponse    = "/webhooks/%s/%s/messages/@original"
+	EndpointEditInteractionResponse   = "/webhooks/%s/%s/messages/@original"
+	EndpointDeleteInteractionResponse = "/webhooks/%s/%s/messages/@original"
 	EndpointCreateFollowupMessage     = "/webhooks/%s/%s"
 	EndpointGetFollowupMessage        = "/webhooks/%s/%s/messages/%s"
 	EndpointEditFollowupMessage       = "/webhooks/%s/%s/messages/%s"

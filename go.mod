@@ -1,4 +1,4 @@
-module github.com/djpiper28/goscord
+module github.com/Goscord/goscord
 
 go 1.14
 

@@ -25,6 +25,10 @@ type Role struct {
 	Tags         *RoleTag              `json:"tags,omitempty"`
 }
 
+func (role *Role) String() string {
+	return role.Id
+}
+
 type MessageNotificationLevel int
 
 const (

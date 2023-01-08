@@ -206,7 +206,7 @@ type Message struct {
 	Position          int                `json:"position,omitempty"`
 }
 
-// UnmarshalJSON is a helper function to unmarshal components
+// UnmarshalJSON ...
 func (m *Message) UnmarshalJSON(data []byte) error {
 	var v struct {
 		Message       Message                         `json:"-"`

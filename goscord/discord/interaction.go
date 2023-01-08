@@ -138,7 +138,6 @@ type ApplicationCommandOption struct {
 	MaxLength                int                               `json:"max_length,omitempty"`
 }
 
-// Interaction
 type InteractionType int
 
 const (
@@ -186,7 +185,7 @@ type unmarshalableInteraction struct {
 	Data json.RawMessage `json:"data"`
 }
 
-// UnmarshalJSON is a method for unmarshalling JSON object to Interaction
+// UnmarshalJSON ...
 func (i *Interaction) UnmarshalJSON(data []byte) error {
 	var tmp unmarshalableInteraction
 

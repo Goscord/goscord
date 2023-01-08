@@ -37,10 +37,13 @@ func (ch *InteractionHandler) CreateResponse(interactionId, interactionToken str
 }
 
 func (ch *InteractionHandler) DeferResponse(interactionId, interactionToken string, ephemeral bool) error {
-	data := &discord.Message{}
+	data := &discord.InteractionResponse{
+		Type: discord.InteractionCallbackTypeDeferredChannelMessageWithSource,
+		Data: &discord.Message{},
+	}
 
 	if ephemeral {
-		data.Flags = discord.MessageFlagEphemeral
+		data.Data.(*discord.Message).Flags = discord.MessageFlagEphemeral
 	}
 
 	jsonb, err := json.Marshal(data)

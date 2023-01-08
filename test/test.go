@@ -2,13 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/Goscord/goscord/goscord"
+	"github.com/Goscord/goscord/goscord/discord"
+	"github.com/Goscord/goscord/goscord/discord/embed"
+	"github.com/Goscord/goscord/goscord/gateway"
 	"os"
 	"strings"
-
-	"github.com/Goscord/goscord"
-	"github.com/Goscord/goscord/discord"
-	"github.com/Goscord/goscord/discord/embed"
-	"github.com/Goscord/goscord/gateway"
 )
 
 var client *gateway.Session
@@ -18,7 +17,7 @@ func main() {
 
 	client = goscord.New(&gateway.Options{
 		Token:   "",
-		Intents: gateway.IntentGuilds | gateway.IntentGuildMembers | gateway.IntentGuildMessages,
+		Intents: gateway.IntentGuilds,
 	})
 
 	client.On("ready", OnReady)
@@ -49,12 +48,58 @@ func OnReady() {
 }
 
 func OnInteractionCreate(i *discord.Interaction) {
+	if i.Type == discord.InteractionTypeMessageComponent {
+		data := i.MessageComponentData()
+
+		if data.CustomId == "test_btn_pong" {
+			client.Interaction.CreateResponse(i.Id, i.Token, &discord.InteractionCallbackMessage{Content: "Pong!"})
+		}
+
+		if data.CustomId == "test_text" {
+			client.Interaction.CreateResponse(i.Id, i.Token, &discord.InteractionCallbackMessage{Content: fmt.Sprintf("You choose : %s", strings.Join(data.Values, ", "))})
+		}
+	}
+
 	if i.Type == discord.InteractionTypeApplicationCommand {
-		if i.Data.Name == "ping" {
-			client.Interaction.CreateResponse(i.Id, i.Token, &discord.InteractionCallbackMessage{
+		if i.ApplicationCommandData().Name == "ping" {
+			if err := client.Interaction.CreateResponse(i.Id, i.Token, &discord.InteractionCallbackMessage{
 				Content: "Pong!",
-				Flags:   discord.MessageFlagEphemeral,
-			})
+				Components: []discord.MessageComponent{
+					&discord.ActionRows{
+						Components: []discord.MessageComponent{
+							discord.Button{
+								CustomId: "test_btn_pong",
+								Style:    discord.ButtonStyleSuccess,
+								Label:    "Pong",
+							},
+						},
+					},
+					&discord.ActionRows{
+						Components: []discord.MessageComponent{
+							discord.SelectMenu{
+								CustomId:    "test_text",
+								PlaceHolder: "feur",
+								MinValues:   1,
+								MaxValues:   1,
+								Options: []*discord.SelectOption{
+									{
+										Description: "lmao u good",
+										Label:       "Yes",
+										Value:       "yes",
+									},
+									{
+										Description: "lmao u bad",
+										Label:       "No",
+										Value:       "No",
+									},
+								},
+							},
+						},
+					},
+				},
+			}); err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 }

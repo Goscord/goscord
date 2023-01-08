@@ -21,36 +21,36 @@ Discord API functions and to set callback functions for Discord events.
 package main
 
 import (
-    "fmt"
+	"fmt"
 
-    "github.com/Goscord/goscord"
-    "github.com/Goscord/goscord/discord"
-    "github.com/Goscord/goscord/gateway"
+	"github.com/Goscord/goscord"
+	"github.com/Goscord/goscord/discord"
+	"github.com/Goscord/goscord/goscord/gateway"
 )
 
 var client *gateway.Session
 
 func main() {
-    fmt.Println("Starting...")
+	fmt.Println("Starting...")
 
-    client := goscord.New(&gateway.Options{ 
-        Token: "token", 
-        Intents: gateway.IntentGuildMessages,
-    })
+	client := goscord.New(&gateway.Options{
+		Token:   "token",
+		Intents: gateway.IntentGuildMessages,
+	})
 
-    client.On("ready", func() {
-        fmt.Println("Logged in as " + client.Me().Tag())
-    })
+	client.On("ready", func() {
+		fmt.Println("Logged in as " + client.Me().Tag())
+	})
 
-    client.On("messageCreate", func(msg *discord.Message) {
-        if msg.Content == "ping" {
-            client.Channel.Send(msg.ChannelId, "Pong ! 🏓")
-        }
-    })
+	client.On("messageCreate", func(msg *discord.Message) {
+		if msg.Content == "ping" {
+			client.Channel.Send(msg.ChannelId, "Pong ! 🏓")
+		}
+	})
 
-    client.Login()
+	client.Login()
 
-    select {}
+	select {}
 }
 ```
 

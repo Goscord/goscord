@@ -2,6 +2,7 @@ package rest
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/discord/embed"
@@ -33,7 +34,33 @@ func (ch *InteractionHandler) CreateResponse(interactionId, interactionToken str
 	}
 
 	return nil
+}
 
+func (ch *InteractionHandler) DeferResponse(interactionId, interactionToken string, ephemeral bool) error {
+	data := &discord.Message{}
+
+	if ephemeral {
+		data.Flags = discord.MessageFlagEphemeral
+	}
+
+	jsonb, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	b := bytes.NewBuffer(jsonb)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = ch.rest.Request(fmt.Sprintf(EndpointCreateInteractionResponse, interactionId, interactionToken), "POST", b, "application/json")
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // GetOriginalResponse GetResponse gets the initial response of an interaction
@@ -208,18 +235,8 @@ func formatInteractionResponse(content interface{}) (*bytes.Buffer, error) {
 
 		b = bytes.NewBuffer(jsonb)
 
-	default: // defer by default. ToDo : Create a function to defer, it's a bit hardcoded right now
-		content = &discord.InteractionResponse{
-			Type: discord.InteractionCallbackTypeDeferredChannelMessageWithSource,
-			Data: nil,
-		}
-
-		jsonb, err := json.Marshal(content)
-		if err != nil {
-			return nil, err
-		}
-
-		b = bytes.NewBuffer(jsonb)
+	default:
+		return nil, errors.New("invalid content type")
 	}
 
 	return b, nil

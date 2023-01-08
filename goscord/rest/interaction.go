@@ -90,13 +90,13 @@ func (ch *InteractionHandler) DeleteOriginalResponse(applicationId, interactionT
 
 // CreateFollowupMessage creates a followup message for an Interaction
 func (ch *InteractionHandler) CreateFollowupMessage(applicationId, interactionToken string, content interface{}) (*discord.Message, error) {
-	b, contentType, err := formatMessage(content, "")
+	b, err := formatInteractionResponse(content)
 
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := ch.rest.Request(fmt.Sprintf(EndpointCreateFollowupMessage, applicationId, interactionToken), "POST", b, contentType)
+	res, err := ch.rest.Request(fmt.Sprintf(EndpointCreateFollowupMessage, applicationId, interactionToken), "POST", b, "application/json")
 
 	if err != nil {
 		return nil, err

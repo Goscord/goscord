@@ -20,7 +20,7 @@ func NewInteractionHandler(rest *Client) *InteractionHandler {
 
 // CreateResponse creates a response to an interaction
 func (ch *InteractionHandler) CreateResponse(interactionId, interactionToken string, content interface{}) error {
-	b, err := formatInteractionResponse(content, false)
+	b, err := formatInteractionResponse(content)
 
 	if err != nil {
 		return err
@@ -56,13 +56,13 @@ func (ch *InteractionHandler) GetOriginalResponse(applicationId, interactionToke
 
 // EditOriginalResponse EditResponse edits the response of an interaction
 func (ch *InteractionHandler) EditOriginalResponse(applicationId, interactionToken string, content interface{}) (*discord.Message, error) {
-	b, err := formatInteractionResponse(content, true)
+	b, ct, err := formatMessage(content, "")
 
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditInteractionResponse, applicationId, interactionToken), "PATCH", b, "application/json")
+	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditInteractionResponse, applicationId, interactionToken), "PATCH", b, ct)
 
 	if err != nil {
 		return nil, err
@@ -135,13 +135,13 @@ func (ch *InteractionHandler) GetFollowupMessage(applicationId, interactionToken
 
 // EditFollowupMessage edits the followup message of an interaction
 func (ch *InteractionHandler) EditFollowupMessage(applicationId, interactionToken, messageId string, content interface{}) (*discord.Message, error) {
-	b, err := formatInteractionResponse(content, true)
+	b, ct, err := formatMessage(content, "")
 
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditFollowupMessage, applicationId, interactionToken, messageId), "PATCH", b, "application/json")
+	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditFollowupMessage, applicationId, interactionToken, messageId), "PATCH", b, ct)
 
 	if err != nil {
 		return nil, err
@@ -169,16 +169,11 @@ func (ch *InteractionHandler) DeleteFollowupMessage(applicationId, interactionTo
 }
 
 // formatMessage formats the message to be sent to the API it avoids code duplication. ToDo : Create a custom type for it
-func formatInteractionResponse(content interface{}, deferred bool) (*bytes.Buffer, error) {
+func formatInteractionResponse(content interface{}) (*bytes.Buffer, error) {
 	b := new(bytes.Buffer)
 
 	content = &discord.InteractionResponse{}
-
-	if !deferred {
-		content.(*discord.InteractionResponse).Type = discord.InteractionCallbackTypeChannelWithSource
-	} else {
-		content.(*discord.InteractionResponse).Type = discord.InteractionCallbackTypeDeferredUpdateMessage
-	}
+	content.(*discord.InteractionResponse).Type = discord.InteractionCallbackTypeChannelWithSource
 
 	switch ccontent := content.(type) {
 	case string:

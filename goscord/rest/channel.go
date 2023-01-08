@@ -180,6 +180,15 @@ func formatMessage(content interface{}, messageId string) (*bytes.Buffer, string
 
 		b = bytes.NewBuffer(jsonb)
 
+	case *discord.Message:
+		jsonb, err := json.Marshal(content)
+
+		if err != nil {
+			return nil, "", err
+		}
+
+		b = bytes.NewBuffer(jsonb)
+
 	case []*os.File:
 		w := multipart.NewWriter(b)
 

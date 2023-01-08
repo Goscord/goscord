@@ -3,7 +3,7 @@ package rest
 import (
 	"bytes"
 	"fmt"
-	discord2 "github.com/Goscord/goscord/goscord/discord"
+	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/discord/embed"
 
 	"github.com/goccy/go-json"
@@ -36,14 +36,14 @@ func (ch *InteractionHandler) CreateResponse(interactionId, interactionToken str
 }
 
 // GetOriginalResponse GetResponse gets the initial response of an interaction
-func (ch *InteractionHandler) GetOriginalResponse(applicationId, interactionToken string) (*discord2.Message, error) {
+func (ch *InteractionHandler) GetOriginalResponse(applicationId, interactionToken string) (*discord.Message, error) {
 	res, err := ch.rest.Request(fmt.Sprintf(EndpointGetInteractionResponse, applicationId, interactionToken), "GET", nil, "application/json")
 
 	if err != nil {
 		return nil, err
 	}
 
-	var response *discord2.Message
+	var response *discord.Message
 	err = json.Unmarshal(res, &response)
 
 	if err != nil {
@@ -54,7 +54,7 @@ func (ch *InteractionHandler) GetOriginalResponse(applicationId, interactionToke
 }
 
 // EditOriginalResponse EditResponse edits the response of an interaction
-func (ch *InteractionHandler) EditOriginalResponse(applicationId, interactionToken string, content interface{}) (*discord2.Message, error) {
+func (ch *InteractionHandler) EditOriginalResponse(applicationId, interactionToken string, content interface{}) (*discord.Message, error) {
 	b, err := ch.formatMessage(content)
 
 	if err != nil {
@@ -67,7 +67,7 @@ func (ch *InteractionHandler) EditOriginalResponse(applicationId, interactionTok
 		return nil, err
 	}
 
-	var response *discord2.Message
+	var response *discord.Message
 	err = json.Unmarshal(res, &response)
 
 	if err != nil {
@@ -89,7 +89,7 @@ func (ch *InteractionHandler) DeleteOriginalResponse(applicationId, interactionT
 }
 
 // CreateFollowupMessage creates a followup message for an Interaction
-func (ch *InteractionHandler) CreateFollowupMessage(applicationId, interactionToken string, content interface{}) (*discord2.Message, error) {
+func (ch *InteractionHandler) CreateFollowupMessage(applicationId, interactionToken string, content interface{}) (*discord.Message, error) {
 	b, err := ch.formatMessage(content)
 
 	if err != nil {
@@ -102,7 +102,7 @@ func (ch *InteractionHandler) CreateFollowupMessage(applicationId, interactionTo
 		return nil, err
 	}
 
-	var message *discord2.Message
+	var message *discord.Message
 	err = json.Unmarshal(res, &message)
 
 	if err != nil {
@@ -113,14 +113,14 @@ func (ch *InteractionHandler) CreateFollowupMessage(applicationId, interactionTo
 }
 
 // GetFollowupMessage gets the followup message of an interaction
-func (ch *InteractionHandler) GetFollowupMessage(applicationId, interactionToken, messageId string) (*discord2.Message, error) {
+func (ch *InteractionHandler) GetFollowupMessage(applicationId, interactionToken, messageId string) (*discord.Message, error) {
 	res, err := ch.rest.Request(fmt.Sprintf(EndpointGetFollowupMessage, applicationId, interactionToken, messageId), "GET", nil, "application/json")
 
 	if err != nil {
 		return nil, err
 	}
 
-	var message *discord2.Message
+	var message *discord.Message
 	err = json.Unmarshal(res, &message)
 
 	if err != nil {
@@ -131,7 +131,7 @@ func (ch *InteractionHandler) GetFollowupMessage(applicationId, interactionToken
 }
 
 // EditFollowupMessage edits the followup message of an interaction
-func (ch *InteractionHandler) EditFollowupMessage(applicationId, interactionToken, messageId string, content interface{}) (*discord2.Message, error) {
+func (ch *InteractionHandler) EditFollowupMessage(applicationId, interactionToken, messageId string, content interface{}) (*discord.Message, error) {
 	b, err := ch.formatMessage(content)
 
 	if err != nil {
@@ -144,7 +144,7 @@ func (ch *InteractionHandler) EditFollowupMessage(applicationId, interactionToke
 		return nil, err
 	}
 
-	var message *discord2.Message
+	var message *discord.Message
 	err = json.Unmarshal(res, &message)
 
 	if err != nil {
@@ -171,9 +171,9 @@ func (ch *InteractionHandler) formatMessage(content interface{}) (*bytes.Buffer,
 
 	switch ccontent := content.(type) {
 	case string:
-		content = &discord2.InteractionResponse{
-			Type: discord2.InteractionCallbackTypeChannelWithSource,
-			Data: &discord2.InteractionCallbackMessage{Content: ccontent},
+		content = &discord.InteractionResponse{
+			Type: discord.InteractionCallbackTypeChannelWithSource,
+			Data: &discord.InteractionCallbackMessage{Content: ccontent},
 		}
 		jsonb, err := json.Marshal(content)
 
@@ -184,9 +184,9 @@ func (ch *InteractionHandler) formatMessage(content interface{}) (*bytes.Buffer,
 		b = bytes.NewBuffer(jsonb)
 
 	case *embed.Embed:
-		content = &discord2.InteractionResponse{
-			Type: discord2.InteractionCallbackTypeChannelWithSource,
-			Data: &discord2.InteractionCallbackMessage{Embeds: []*embed.Embed{ccontent}},
+		content = &discord.InteractionResponse{
+			Type: discord.InteractionCallbackTypeChannelWithSource,
+			Data: &discord.InteractionCallbackMessage{Embeds: []*embed.Embed{ccontent}},
 		}
 		jsonb, err := json.Marshal(content)
 
@@ -196,9 +196,9 @@ func (ch *InteractionHandler) formatMessage(content interface{}) (*bytes.Buffer,
 
 		b = bytes.NewBuffer(jsonb)
 
-	case *discord2.InteractionCallbackMessage:
-		content = &discord2.InteractionResponse{
-			Type: discord2.InteractionCallbackTypeChannelWithSource,
+	case *discord.InteractionCallbackMessage:
+		content = &discord.InteractionResponse{
+			Type: discord.InteractionCallbackTypeChannelWithSource,
 			Data: ccontent,
 		}
 		jsonb, err := json.Marshal(content)
@@ -209,9 +209,9 @@ func (ch *InteractionHandler) formatMessage(content interface{}) (*bytes.Buffer,
 
 		b = bytes.NewBuffer(jsonb)
 
-	case *discord2.InteractionCallbackAutocomplete:
-		content = &discord2.InteractionResponse{
-			Type: discord2.InteractionCallbackTypeApplicationCommandAutocompleteResult,
+	case *discord.InteractionCallbackAutocomplete:
+		content = &discord.InteractionResponse{
+			Type: discord.InteractionCallbackTypeApplicationCommandAutocompleteResult,
 			Data: ccontent,
 		}
 
@@ -223,10 +223,23 @@ func (ch *InteractionHandler) formatMessage(content interface{}) (*bytes.Buffer,
 
 		b = bytes.NewBuffer(jsonb)
 
-	case *discord2.InteractionCallbackModal:
-		content = &discord2.InteractionResponse{
-			Type: discord2.InteractionCallbackTypeModal,
+	case *discord.InteractionCallbackModal:
+		content = &discord.InteractionResponse{
+			Type: discord.InteractionCallbackTypeModal,
 			Data: ccontent,
+		}
+		jsonb, err := json.Marshal(content)
+
+		if err != nil {
+			return nil, err
+		}
+
+		b = bytes.NewBuffer(jsonb)
+
+	default: // defer by default
+		content = &discord.InteractionResponse{
+			Type: discord.InteractionCallbackTypeDeferredChannelMessageWithSource,
+			Data: nil,
 		}
 		jsonb, err := json.Marshal(content)
 

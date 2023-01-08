@@ -19,7 +19,7 @@ func NewInteractionHandler(rest *Client) *InteractionHandler {
 
 // CreateResponse creates a response to an interaction
 func (ch *InteractionHandler) CreateResponse(interactionId, interactionToken string, content interface{}) error {
-	b, err := ch.formatMessage(content)
+	b, err := formatInteractionResponse(content)
 
 	if err != nil {
 		return err
@@ -55,13 +55,13 @@ func (ch *InteractionHandler) GetOriginalResponse(applicationId, interactionToke
 
 // EditOriginalResponse EditResponse edits the response of an interaction
 func (ch *InteractionHandler) EditOriginalResponse(applicationId, interactionToken string, content interface{}) (*discord.Message, error) {
-	b, err := ch.formatMessage(content)
+	b, contentType, err := formatMessage(content, "")
 
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditInteractionResponse, applicationId, interactionToken), "PATCH", b, "application/json")
+	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditInteractionResponse, applicationId, interactionToken), "PATCH", b, contentType)
 
 	if err != nil {
 		return nil, err
@@ -90,13 +90,13 @@ func (ch *InteractionHandler) DeleteOriginalResponse(applicationId, interactionT
 
 // CreateFollowupMessage creates a followup message for an Interaction
 func (ch *InteractionHandler) CreateFollowupMessage(applicationId, interactionToken string, content interface{}) (*discord.Message, error) {
-	b, err := ch.formatMessage(content)
+	b, contentType, err := formatMessage(content, "")
 
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := ch.rest.Request(fmt.Sprintf(EndpointCreateFollowupMessage, applicationId, interactionToken), "POST", b, "application/json")
+	res, err := ch.rest.Request(fmt.Sprintf(EndpointCreateFollowupMessage, applicationId, interactionToken), "POST", b, contentType)
 
 	if err != nil {
 		return nil, err
@@ -132,13 +132,13 @@ func (ch *InteractionHandler) GetFollowupMessage(applicationId, interactionToken
 
 // EditFollowupMessage edits the followup message of an interaction
 func (ch *InteractionHandler) EditFollowupMessage(applicationId, interactionToken, messageId string, content interface{}) (*discord.Message, error) {
-	b, err := ch.formatMessage(content)
+	b, contentType, err := formatMessage(content, "")
 
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditFollowupMessage, applicationId, interactionToken, messageId), "PATCH", b, "application/json")
+	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditFollowupMessage, applicationId, interactionToken, messageId), "PATCH", b, contentType)
 
 	if err != nil {
 		return nil, err
@@ -166,7 +166,7 @@ func (ch *InteractionHandler) DeleteFollowupMessage(applicationId, interactionTo
 }
 
 // formatMessage formats the message to be sent to the API it avoids code duplication. ToDo : Create a custom type for it
-func (ch *InteractionHandler) formatMessage(content interface{}) (*bytes.Buffer, error) {
+func formatInteractionResponse(content interface{}) (*bytes.Buffer, error) {
 	b := new(bytes.Buffer)
 
 	switch ccontent := content.(type) {

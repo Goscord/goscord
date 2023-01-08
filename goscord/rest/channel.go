@@ -56,7 +56,7 @@ func (ch *ChannelHandler) GetMessage(channelId, messageId string) (*discord.Mess
 }
 
 func (ch *ChannelHandler) SendMessage(channelId string, content interface{}) (*discord.Message, error) {
-	b, contentType, err := ch.formatMessage(content, "")
+	b, contentType, err := formatMessage(content, "")
 
 	if err != nil {
 		return nil, err
@@ -80,7 +80,7 @@ func (ch *ChannelHandler) SendMessage(channelId string, content interface{}) (*d
 }
 
 func (ch *ChannelHandler) ReplyMessage(channelId, messageId string, content interface{}) (*discord.Message, error) {
-	b, contentType, err := ch.formatMessage(content, messageId)
+	b, contentType, err := formatMessage(content, messageId)
 
 	if err != nil {
 		return nil, err
@@ -104,7 +104,7 @@ func (ch *ChannelHandler) ReplyMessage(channelId, messageId string, content inte
 }
 
 func (ch *ChannelHandler) Edit(channelId, messageId string, content interface{}) (*discord.Message, error) {
-	b, contentType, err := ch.formatMessage(content, "")
+	b, contentType, err := formatMessage(content, "")
 
 	if err != nil {
 		return nil, err
@@ -145,7 +145,7 @@ func (ch *ChannelHandler) CrosspostMessage(channelId, messageId string) (*discor
 }
 
 // formatMessage formats the message to be sent to the API it avoids code duplication. // ToDo : Create a custom type for it
-func (ch *ChannelHandler) formatMessage(content interface{}, messageId string) (*bytes.Buffer, string, error) {
+func formatMessage(content interface{}, messageId string) (*bytes.Buffer, string, error) {
 	b := new(bytes.Buffer)
 	contentType := "application/json"
 

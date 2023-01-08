@@ -1,6 +1,6 @@
 package packet
 
-import "encoding/json"
+import "github.com/goccy/go-json"
 
 type Packet struct {
 	Opcode   int             `json:"op"`

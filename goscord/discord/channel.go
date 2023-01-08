@@ -196,7 +196,7 @@ type Message struct {
 	Application       *Application       `json:"application,omitempty"`
 	ApplicationId     string             `json:"application_id,omitempty"`
 	MessageReference  *MessageReference  `json:"message_reference,omitempty"`
-	Flags             int                `json:"flags,omitempty"`
+	Flags             MessageFlag        `json:"flags,omitempty"`
 	ReferencedMessage *Message           `json:"referenced_message,omitempty"`
 	Interaction       *Interaction       `json:"interaction,omitempty"`
 	Thread            *Channel           `json:"thread,omitempty"`

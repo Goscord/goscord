@@ -2,6 +2,7 @@ package rest
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/discord/embed"
@@ -207,6 +208,9 @@ func formatMessage(content interface{}, messageId string) (*bytes.Buffer, string
 		w.Close()
 		contentType = w.FormDataContentType()
 		fmt.Println(contentType)
+
+	default:
+		return nil, "", errors.New("invalid content type")
 	}
 
 	return b, contentType, nil

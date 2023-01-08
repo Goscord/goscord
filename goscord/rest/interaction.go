@@ -208,7 +208,7 @@ func formatInteractionResponse(content interface{}) (*bytes.Buffer, error) {
 
 		b = bytes.NewBuffer(jsonb)
 
-	default: // defer by default
+	default: // defer by default. ToDo : Create a function to defer, it's a bit hardcoded right now
 		content = &discord.InteractionResponse{
 			Type: discord.InteractionCallbackTypeDeferredChannelMessageWithSource,
 			Data: nil,

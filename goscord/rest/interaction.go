@@ -19,7 +19,7 @@ func NewInteractionHandler(rest *Client) *InteractionHandler {
 
 // CreateResponse creates a response to an interaction
 func (ch *InteractionHandler) CreateResponse(interactionId, interactionToken string, content interface{}) error {
-	b, err := formatInteractionResponse(content)
+	b, err := formatInteractionResponse(content, false)
 
 	if err != nil {
 		return err
@@ -55,13 +55,13 @@ func (ch *InteractionHandler) GetOriginalResponse(applicationId, interactionToke
 
 // EditOriginalResponse EditResponse edits the response of an interaction
 func (ch *InteractionHandler) EditOriginalResponse(applicationId, interactionToken string, content interface{}) (*discord.Message, error) {
-	b, contentType, err := formatMessage(content, "")
+	b, err := formatInteractionResponse(content, true)
 
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditInteractionResponse, applicationId, interactionToken), "PATCH", b, contentType)
+	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditInteractionResponse, applicationId, interactionToken), "PATCH", b, "application/json")
 
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (ch *InteractionHandler) DeleteOriginalResponse(applicationId, interactionT
 
 // CreateFollowupMessage creates a followup message for an Interaction
 func (ch *InteractionHandler) CreateFollowupMessage(applicationId, interactionToken string, content interface{}) (*discord.Message, error) {
-	b, err := formatInteractionResponse(content)
+	b, err := formatInteractionResponse(content, true)
 
 	if err != nil {
 		return nil, err
@@ -132,13 +132,13 @@ func (ch *InteractionHandler) GetFollowupMessage(applicationId, interactionToken
 
 // EditFollowupMessage edits the followup message of an interaction
 func (ch *InteractionHandler) EditFollowupMessage(applicationId, interactionToken, messageId string, content interface{}) (*discord.Message, error) {
-	b, contentType, err := formatMessage(content, "")
+	b, err := formatInteractionResponse(content, true)
 
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditFollowupMessage, applicationId, interactionToken, messageId), "PATCH", b, contentType)
+	res, err := ch.rest.Request(fmt.Sprintf(EndpointEditFollowupMessage, applicationId, interactionToken, messageId), "PATCH", b, "application/json")
 
 	if err != nil {
 		return nil, err
@@ -166,17 +166,22 @@ func (ch *InteractionHandler) DeleteFollowupMessage(applicationId, interactionTo
 }
 
 // formatMessage formats the message to be sent to the API it avoids code duplication. ToDo : Create a custom type for it
-func formatInteractionResponse(content interface{}) (*bytes.Buffer, error) {
+func formatInteractionResponse(content interface{}, deferred bool) (*bytes.Buffer, error) {
 	b := new(bytes.Buffer)
+
+	content = &discord.InteractionResponse{}
+
+	if !deferred {
+		content.(*discord.InteractionResponse).Type = discord.InteractionCallbackTypeChannelWithSource
+	} else {
+		content.(*discord.InteractionResponse).Type = discord.InteractionCallbackTypeDeferredUpdateMessage
+	}
 
 	switch ccontent := content.(type) {
 	case string:
-		content = &discord.InteractionResponse{
-			Type: discord.InteractionCallbackTypeChannelWithSource,
-			Data: &discord.InteractionCallbackMessage{Content: ccontent},
-		}
-		jsonb, err := json.Marshal(content)
+		content.(*discord.InteractionResponse).Data = &discord.InteractionCallbackMessage{Content: ccontent}
 
+		jsonb, err := json.Marshal(content)
 		if err != nil {
 			return nil, err
 		}
@@ -184,12 +189,9 @@ func formatInteractionResponse(content interface{}) (*bytes.Buffer, error) {
 		b = bytes.NewBuffer(jsonb)
 
 	case *embed.Embed:
-		content = &discord.InteractionResponse{
-			Type: discord.InteractionCallbackTypeChannelWithSource,
-			Data: &discord.InteractionCallbackMessage{Embeds: []*embed.Embed{ccontent}},
-		}
-		jsonb, err := json.Marshal(content)
+		content.(*discord.InteractionResponse).Data = &discord.InteractionCallbackMessage{Embeds: []*embed.Embed{ccontent}}
 
+		jsonb, err := json.Marshal(content)
 		if err != nil {
 			return nil, err
 		}
@@ -197,39 +199,11 @@ func formatInteractionResponse(content interface{}) (*bytes.Buffer, error) {
 		b = bytes.NewBuffer(jsonb)
 
 	case *discord.InteractionCallbackMessage:
-		content = &discord.InteractionResponse{
-			Type: discord.InteractionCallbackTypeChannelWithSource,
-			Data: ccontent,
-		}
-		jsonb, err := json.Marshal(content)
-
-		if err != nil {
-			return nil, err
-		}
-
-		b = bytes.NewBuffer(jsonb)
-
 	case *discord.InteractionCallbackAutocomplete:
-		content = &discord.InteractionResponse{
-			Type: discord.InteractionCallbackTypeApplicationCommandAutocompleteResult,
-			Data: ccontent,
-		}
-
-		jsonb, err := json.Marshal(content)
-
-		if err != nil {
-			return nil, err
-		}
-
-		b = bytes.NewBuffer(jsonb)
-
 	case *discord.InteractionCallbackModal:
-		content = &discord.InteractionResponse{
-			Type: discord.InteractionCallbackTypeModal,
-			Data: ccontent,
-		}
-		jsonb, err := json.Marshal(content)
+		content.(*discord.InteractionResponse).Data = ccontent
 
+		jsonb, err := json.Marshal(content)
 		if err != nil {
 			return nil, err
 		}
@@ -241,8 +215,8 @@ func formatInteractionResponse(content interface{}) (*bytes.Buffer, error) {
 			Type: discord.InteractionCallbackTypeDeferredChannelMessageWithSource,
 			Data: nil,
 		}
-		jsonb, err := json.Marshal(content)
 
+		jsonb, err := json.Marshal(content)
 		if err != nil {
 			return nil, err
 		}

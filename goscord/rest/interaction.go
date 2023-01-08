@@ -97,7 +97,7 @@ func (ch *InteractionHandler) CreateFollowupMessage(applicationId, interactionTo
 		return nil, err
 	}
 
-	log.Println(string(ct))
+	log.Println(b.String())
 
 	res, err := ch.rest.Request(fmt.Sprintf(EndpointCreateFollowupMessage, applicationId, interactionToken), "POST", b, ct)
 

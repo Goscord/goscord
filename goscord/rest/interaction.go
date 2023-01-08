@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/discord/embed"
+	"log"
 
 	"github.com/goccy/go-json"
 )
@@ -95,6 +96,8 @@ func (ch *InteractionHandler) CreateFollowupMessage(applicationId, interactionTo
 	if err != nil {
 		return nil, err
 	}
+
+	log.Println(string(ct))
 
 	res, err := ch.rest.Request(fmt.Sprintf(EndpointCreateFollowupMessage, applicationId, interactionToken), "POST", b, ct)
 

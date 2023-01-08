@@ -25,6 +25,11 @@ type Role struct {
 	Tags         *RoleTag              `json:"tags,omitempty"`
 }
 
+// A function to turn a role into a string. The Role ID is the contents of the string.
+func (role *Role) String() string {
+	return role.Id
+}
+
 type MessageNotificationLevel int
 
 const (

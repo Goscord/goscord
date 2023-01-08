@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"github.com/Goscord/goscord/goscord"
 	"github.com/Goscord/goscord/goscord/discord"
-	"github.com/Goscord/goscord/goscord/discord/embed"
 	"github.com/Goscord/goscord/goscord/gateway"
-	"os"
 	"strings"
 )
 
@@ -21,7 +19,6 @@ func main() {
 	})
 
 	client.On("ready", OnReady)
-	client.On("messageCreate", OnMessageCreate)
 	client.On("guildMemberAdd", OnGuildMemberAdd)
 	client.On("interactionCreate", OnInteractionCreate)
 
@@ -109,55 +106,5 @@ func OnGuildMemberAdd(a *discord.GuildMember) {
 		client.Channel.SendMessage(c.Id, "Welcome to the server <@"+a.User.Id+"> !")
 	} else {
 		fmt.Println("Could not find channel")
-	}
-}
-
-func OnMessageCreate(msg *discord.Message) {
-	if strings.ToLower(msg.Content) == "ping" {
-		_, _ = client.Channel.SendMessage(msg.ChannelId, "Pong!")
-	}
-
-	if strings.ToLower(msg.Content) == "embed" {
-		embed := embed.NewEmbedBuilder()
-		embed.SetAuthor("Testing", "")
-		embed.SetDescription("Just testing some things lol")
-		_, _ = client.Channel.SendMessage(msg.ChannelId, embed)
-	}
-
-	if strings.ToLower(msg.Content) == "reply" {
-		_, _ = client.Channel.ReplyMessage(msg.ChannelId, msg.Id, "Replied to you!")
-	}
-
-	if strings.ToLower(msg.Content) == "serverinfo" {
-		guild, err := client.State().Guild(msg.GuildId)
-
-		if err != nil {
-			_, _ = client.Channel.SendMessage(msg.ChannelId, err.Error())
-			return
-		}
-
-		_, _ = client.Channel.SendMessage(msg.ChannelId, "Server name: "+guild.Name+"\nID: "+guild.Id+"\nMembers: "+fmt.Sprintf("%d", guild.MemberCount))
-	}
-
-	if strings.ToLower(msg.Content) == "memberinfo" {
-		member, err := client.State().Member(msg.GuildId, msg.Author.Id)
-
-		if err != nil {
-			_, _ = client.Channel.SendMessage(msg.ChannelId, err.Error())
-			return
-		}
-
-		_, _ = client.Channel.SendMessage(msg.ChannelId, "Username: "+member.User.Username+"\nID: "+member.User.Id+"\nNickname: "+member.Nick)
-	}
-
-	if strings.ToLower(msg.Content) == "dogeimage" {
-		dogeImg, err := os.Open("doge.png")
-		if err != nil {
-			panic(err)
-		}
-
-		defer dogeImg.Close()
-
-		_, _ = client.Channel.SendMessage(msg.ChannelId, dogeImg)
 	}
 }

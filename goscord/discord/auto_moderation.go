@@ -54,3 +54,18 @@ type AutoModerationActionMetadata struct {
 	ChannelId       string `json:"channel_id"`
 	DurationSeconds int    `json:"duration_seconds"`
 }
+
+// AutoModerationActionExecutionEventFields is used by AUTO_MODERATION_ACTION_EXECUTION event
+type AutoModerationActionExecutionEventFields struct {
+	GuildId              string                        `json:"guild_id"`
+	Action               *AutoModerationAction         `json:"action"`
+	RuleId               string                        `json:"rule_id"`
+	RuleTriggerType      AutoModerationRuleTriggerType `json:"rule_trigger_type"`
+	UserId               string                        `json:"user_id"`
+	ChannelId            string                        `json:"channel_id,omitempty"`
+	MessageId            string                        `json:"message_id,omitempty"`
+	AlertSystemMessageId string                        `json:"alert_system_message_id,omitempty"`
+	Content              string                        `json:"content"`
+	MatchedKeyword       string                        `json:"matched_keyword"`
+	MatchedContent       string                        `json:"matched_content"`
+}

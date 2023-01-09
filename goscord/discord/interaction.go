@@ -75,7 +75,7 @@ type ApplicationCommandPermissionsList struct {
 type GuildApplicationCommandPermissions struct {
 	Id            string                           `json:"id"`
 	ApplicationId string                           `json:"application_id"`
-	GuilddId      string                           `json:"guild_id"`
+	GuildId       string                           `json:"guild_id"`
 	Permissions   []*ApplicationCommandPermissions `json:"permissions"`
 }
 

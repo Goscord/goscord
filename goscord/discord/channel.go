@@ -42,31 +42,31 @@ const (
 type MessageType int
 
 const (
-	Default MessageType = iota
-	RecipientAdd
-	RecipientRemove
-	Call
-	ChannelNameChange
-	ChannelIconChange
-	ChannelPinnedMessage
-	UserJoin
-	GuildBoost
-	GuildBoostTier1
-	GuildBoostTier2
-	GuildBoostTier3
-	ChannelFollowAdd
-	GuildDiscoveryAdd
-	GuildDiscoveryDisqualified
-	GuildDiscoveryRequalified
-	GuildDiscoveryGracePeriodInitialWarning
-	GuildDiscoveryGracePeriodFinalWarning
-	ThreadCreated
-	Reply
-	ChatInputCommand
-	ThreadStarterMessage
-	GuildInviteReminder
-	ContextMenuCommand
-	AutoModerationAction
+	MessageTypeDefault MessageType = iota
+	MessageTypeRecipientAdd
+	MessageTypeRecipientRemove
+	MessageTypeCall
+	MessageTypeChannelNameChange
+	MessageTypeChannelIconChange
+	MessageTypeChannelPinnedMessage
+	MessageTypeUserJoin
+	MessageTypeGuildBoost
+	MessageTypeGuildBoostTier1
+	MessageTypeGuildBoostTier2
+	MessageTypeGuildBoostTier3
+	MessageTypeChannelFollowAdd
+	MessageTypeGuildDiscoveryAdd
+	MessageTypeGuildDiscoveryDisqualified
+	MessageTypeGuildDiscoveryRequalified
+	MessageTypeGuildDiscoveryGracePeriodInitialWarning
+	MessageTypeGuildDiscoveryGracePeriodFinalWarning
+	MessageTypeThreadCreated
+	MessageTypeReply
+	MessageTypeChatInputCommand
+	MessageTypeThreadStarterMessage
+	MessageTypeGuildInviteReminder
+	MessageTypeContextMenuCommand
+	MessageTypeAutoModerationAction
 )
 
 type ChannelType int

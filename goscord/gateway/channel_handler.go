@@ -1,6 +1,8 @@
 package gateway
 
-import "github.com/Goscord/goscord/goscord/gateway/event"
+import (
+	"github.com/Goscord/goscord/goscord/gateway/event"
+)
 
 type ChannelCreateHandler struct{}
 
@@ -39,6 +41,8 @@ func (_ *ChannelDeleteHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
+	ev.Data, _ = s.State().Channel(ev.Data.Id)
+
 	s.state.RemoveChannel(ev.Data)
 
 	s.Bus().Publish("channelDelete", ev.Data)
@@ -54,4 +58,48 @@ func (_ *ChannelPinsUpdateHandler) Handle(s *Session, data []byte) {
 	}
 
 	s.Bus().Publish("channelPinsUpdate", ev.Data)
+}
+
+type ThreadCreateHandler struct{}
+
+func (_ *ThreadCreateHandler) Handle(s *Session, data []byte) {
+	ev, err := event.NewThreadCreate(s.rest, data)
+
+	if err != nil {
+		return
+	}
+
+	s.state.AddChannel(ev.Data)
+
+	s.Bus().Publish("threadCreate", ev.Data)
+}
+
+type ThreadUpdateHandler struct{}
+
+func (_ *ThreadUpdateHandler) Handle(s *Session, data []byte) {
+	ev, err := event.NewThreadUpdate(s.rest, data)
+
+	if err != nil {
+		return
+	}
+
+	s.state.AddChannel(ev.Data)
+
+	s.Bus().Publish("threadUpdate", ev.Data)
+}
+
+type ThreadDeleteHandler struct{}
+
+func (_ *ThreadDeleteHandler) Handle(s *Session, data []byte) {
+	ev, err := event.NewThreadDelete(s.rest, data)
+
+	if err != nil {
+		return
+	}
+
+	ev.Data, _ = s.State().Channel(ev.Data.Id)
+
+	s.state.RemoveChannel(ev.Data)
+
+	s.Bus().Publish("threadDelete", ev.Data)
 }

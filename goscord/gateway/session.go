@@ -111,6 +111,9 @@ func (s *Session) registerHandlers() {
 		event.EventChannelUpdate:                 &ChannelUpdateHandler{},
 		event.EventChannelDelete:                 &ChannelDeleteHandler{},
 		event.EventChannelPinsUpdate:             &ChannelPinsUpdateHandler{},
+		event.EventThreadCreate:                  &ThreadCreateHandler{},
+		event.EventThreadUpdate:                  &ThreadUpdateHandler{},
+		event.EventThreadDelete:                  &ThreadDeleteHandler{},
 
 		event.EventGuildCreate:       &GuildCreateHandler{},
 		event.EventGuildUpdate:       &GuildUpdateHandler{},

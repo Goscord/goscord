@@ -1,18 +1,18 @@
 package event
 
 import (
-	discord2 "github.com/Goscord/goscord/goscord/discord"
+	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/rest"
 	"github.com/goccy/go-json"
 )
 
 type PresenceUpdate struct {
 	Data struct {
-		User         *discord2.User       `json:"user"`
-		GuildId      string               `json:"guild_id"`
-		Status       string               `json:"status"`
-		Activities   []*discord2.Activity `json:"activities"`
-		ClientStatus *ClientStatus        `json:"client_status"`
+		User         *discord.User       `json:"user"`
+		GuildId      string              `json:"guild_id"`
+		Status       string              `json:"status"`
+		Activities   []*discord.Activity `json:"activities"`
+		ClientStatus *ClientStatus       `json:"client_status"`
 	} `json:"d"`
 }
 

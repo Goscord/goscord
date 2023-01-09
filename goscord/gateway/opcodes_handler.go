@@ -1,8 +1,6 @@
 package gateway
 
-import (
-	"github.com/Goscord/goscord/goscord/gateway/event"
-)
+import "github.com/Goscord/goscord/goscord/gateway/event"
 
 type ReadyHandler struct{}
 
@@ -24,4 +22,10 @@ func (_ *ReadyHandler) Handle(s *Session, data []byte) {
 	}
 
 	s.Bus().Publish("ready")
+}
+
+type ResumedHandler struct{}
+
+func (_ *ResumedHandler) Handle(s *Session, _ []byte) {
+	s.bus.Publish("resumed")
 }

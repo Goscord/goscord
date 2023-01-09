@@ -13,7 +13,7 @@ func (_ *PresenceUpdateHandler) Handle(s *Session, Data []byte) {
 		return
 	}
 
-	// ToDo : Need to handle guildMemberAdd and guildMemberRemove events
+	// ToDo : Add a method in state to track presences
 
 	s.Bus().Publish("presenceUpdate", ev.Data)
 }

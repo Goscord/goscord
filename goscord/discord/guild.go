@@ -279,3 +279,8 @@ type GuildEmojisUpdateEventFields struct {
 	GuildId string   `json:"guild_id"`
 	Emojis  []*Emoji `json:"emojis"`
 }
+
+type GuildMemberRemoveEventFields struct {
+	GuildId string `json:"guild_id"`
+	User    *User  `json:"user"`
+}

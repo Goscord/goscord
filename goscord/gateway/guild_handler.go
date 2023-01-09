@@ -132,3 +132,31 @@ func (_ *GuildMemberAddHandler) Handle(s *Session, data []byte) {
 
 	s.Bus().Publish("guildMemberAdd", ev.Data)
 }
+
+type GuildMemberRemoveHandler struct{}
+
+func (_ *GuildMemberRemoveHandler) Handle(s *Session, data []byte) {
+	ev, err := event.NewGuildMemberRemove(s.rest, data)
+
+	if err != nil {
+		return
+	}
+
+	s.State().RemoveMember(ev.Data.GuildId, ev.Data.User.Id)
+
+	s.Bus().Publish("guildMemberRemove", ev.Data)
+}
+
+type GuildMemberUpdateHandler struct{}
+
+func (_ *GuildMemberUpdateHandler) Handle(s *Session, data []byte) {
+	ev, err := event.NewGuildMemberUpdate(s.rest, data)
+
+	if err != nil {
+		return
+	}
+
+	s.State().AddMember(ev.Data.GuildId, ev.Data)
+
+	s.Bus().Publish("guildMemberUpdate", ev.Data)
+}

@@ -114,6 +114,11 @@ func (s *Session) registerHandlers() {
 		event.EventThreadCreate:                  &ThreadCreateHandler{},
 		event.EventThreadUpdate:                  &ThreadUpdateHandler{},
 		event.EventThreadDelete:                  &ThreadDeleteHandler{},
+		// GuildStickersUpdate
+		// GuildIntegrationsUpdate
+		event.EventGuildMemberAdd:    &GuildMemberAddHandler{},
+		event.EventGuildMemberRemove: &GuildMemberRemoveHandler{},
+		event.EventGuildMemberUpdate: &GuildMemberUpdateHandler{},
 
 		event.EventGuildCreate:       &GuildCreateHandler{},
 		event.EventGuildUpdate:       &GuildUpdateHandler{},
@@ -123,7 +128,6 @@ func (s *Session) registerHandlers() {
 		event.EventGuildEmojisUpdate: &GuildEmojisUpdateHandler{},
 		event.EventMessageCreate:     &MessageCreateHandler{},
 		event.EventPresenceUpdate:    &PresenceUpdateHandler{},
-		event.EventGuildMemberAdd:    &GuildMemberAddHandler{},
 		event.EventInteractionCreate: &InteractionCreateHandler{},
 	}
 }

@@ -41,6 +41,7 @@ const (
 	EventIntegrationCreate                   = "INTEGRATION_CREATE"
 	EventIntegrationUpdate                   = "INTEGRATION_UPDATE"
 	EventIntegrationDelete                   = "INTEGRATION_DELETE"
+	EventInteractionCreate                   = "INTERACTION_CREATE"
 	EventInviteCreate                        = "INVITE_CREATE"
 	EventInviteDelete                        = "INVITE_DELETE"
 	EventMessageCreate                       = "MESSAGE_CREATE"

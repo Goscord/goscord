@@ -273,3 +273,9 @@ type Guild struct {
 	StageInstances []*Channel        `json:"stage_instances"` // ToDo : Change to StageInstance
 	//GuildScheduledEvents []*GuildScheduledEvent  `json:"guild_scheduled_events"`
 }
+
+// GuildEmojisUpdateEventFields is the fields for the GuildEmojisUpdate event
+type GuildEmojisUpdateEventFields struct {
+	GuildId string   `json:"guild_id"`
+	Emojis  []*Emoji `json:"emojis"`
+}

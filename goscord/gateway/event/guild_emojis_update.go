@@ -7,10 +7,7 @@ import (
 )
 
 type GuildEmojisUpdate struct {
-	Data struct {
-		GuildId string           `json:"guild_id"`
-		Emojis  []*discord.Emoji `json:"emojis"`
-	} `json:"d"`
+	Data *discord.GuildEmojisUpdateEventFields `json:"d"`
 }
 
 func NewGuildEmojisUpdate(rest *rest.Client, data []byte) (*GuildEmojisUpdate, error) {

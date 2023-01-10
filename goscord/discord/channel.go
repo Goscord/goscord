@@ -67,6 +67,9 @@ const (
 	MessageTypeGuildInviteReminder
 	MessageTypeContextMenuCommand
 	MessageTypeAutoModerationAction
+	MessageTypeRoleSubscription
+	MessageTypeInteractionPremiumUpsell
+	MessageTypeGuildApplicationPremiumSubscription = 32
 )
 
 type ChannelType int

@@ -290,6 +290,8 @@ func (s *State) Member(guildID string, userID string) (*discord.GuildMember, err
 	return nil, errors.New("guild member not found")
 }
 
+// EMOJIS
+
 func (s *State) AddEmoji(guildId string, emoji *discord.Emoji) error {
 	guild, err := s.Guild(guildId)
 	if err != nil {

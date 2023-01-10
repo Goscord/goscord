@@ -114,6 +114,9 @@ func (s *Session) registerHandlers() {
 		event.EventThreadCreate:                  &ThreadCreateHandler{},
 		event.EventThreadUpdate:                  &ThreadUpdateHandler{},
 		event.EventThreadDelete:                  &ThreadDeleteHandler{},
+		event.EventThreadListSync:                &ThreadListSyncHandler{},
+		event.EventThreadMemberUpdate:            &ThreadMemberUpdateHandler{},
+		event.EventThreadMembersUpdate:           &ThreadMembersUpdateHandler{},
 		// GuildStickersUpdate
 		// GuildIntegrationsUpdate
 		event.EventGuildMemberAdd:    &GuildMemberAddHandler{},

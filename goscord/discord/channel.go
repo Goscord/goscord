@@ -144,6 +144,7 @@ type ThreadMember struct {
 	UserId        string     `json:"user_id,omitempty"`
 	JoinTimestamp *time.Time `json:"join_timestamp"`
 	Flags         int        `json:"flags"`
+	GuildId       string     `json:"guild_id,omitempty"`
 }
 
 type Attachment struct {
@@ -265,4 +266,21 @@ type ChannelPinsUpdateEventFields struct {
 	GuildId          string     `json:"guild_id,omitempty"`
 	ChannelId        string     `json:"channel_id"`
 	LastPinTimestamp *time.Time `json:"last_pin_timestamp,omitempty"`
+}
+
+// ThreadListSyncEventFields is used by the THREAD_LIST_SYNC event
+type ThreadListSyncEventFields struct {
+	GuildId    string   `json:"guild_id"`
+	ChannelIds []string `json:"channel_ids,omitempty"`
+	Threads    []*Channel
+	Members    []*ThreadMember
+}
+
+// ThreadMembersUpdateEventFields is used by the THREAD_MEMBERS_UPDATE event
+type ThreadMembersUpdateEventFields struct {
+	Id                string          `json:"id"`
+	GuildId           string          `json:"guild_id"`
+	MemberCount       int             `json:"member_count"`
+	AddedMembers      []*ThreadMember `json:"added_members,omitempty"`
+	RemovedMembersIds []string        `json:"removed_member_ids,omitempty"`
 }

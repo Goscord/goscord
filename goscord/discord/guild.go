@@ -274,7 +274,7 @@ type Guild struct {
 	//GuildScheduledEvents []*GuildScheduledEvent  `json:"guild_scheduled_events"`
 }
 
-// GuildEmojisUpdateEventFields is the fields for the GuildEmojisUpdate event
+// GuildEmojisUpdateEventFields is the fields for the GUILD_EMOJIS_UPDATE event
 type GuildEmojisUpdateEventFields struct {
 	GuildId string   `json:"guild_id"`
 	Emojis  []*Emoji `json:"emojis"`
@@ -283,4 +283,15 @@ type GuildEmojisUpdateEventFields struct {
 type GuildMemberRemoveEventFields struct {
 	GuildId string `json:"guild_id"`
 	User    *User  `json:"user"`
+}
+
+// GuildStickersUpdateEventFields is the fields for the GUILD_STICKERS_UPDATE event
+type GuildStickersUpdateEventFields struct {
+	GuildId  string     `json:"guild_id"`
+	Stickers []*Sticker `json:"stickers"`
+}
+
+// GuildIntegrationsUpdateEventFields is the fields for the GUILD_INTEGRATIONS_UPDATE event
+type GuildIntegrationsUpdateEventFields struct {
+	GuildId string `json:"guild_id"`
 }

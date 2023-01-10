@@ -115,9 +115,31 @@ func (_ *GuildEmojisUpdateHandler) Handle(s *Session, data []byte) {
 	s.Bus().Publish("guildEmojisUpdate", ev.Data)
 }
 
-// ToDo : EventGuildStickersUpdate
+type GuildStickersUpdateHandler struct{}
 
-// ToDo : EventGuildIntegrationsUpdate
+func (_ *GuildStickersUpdateHandler) Handle(s *Session, data []byte) {
+	ev, err := event.NewGuildStickersUpdate(s.rest, data)
+
+	if err != nil {
+		return
+	}
+
+	// ToDo : Cache stickers?
+
+	s.Bus().Publish("guildStickersUpdate", ev.Data)
+}
+
+type GuildIntegrationsUpdateHandler struct{}
+
+func (_ *GuildIntegrationsUpdateHandler) Handle(s *Session, data []byte) {
+	ev, err := event.NewGuildIntegrationsUpdate(s.rest, data)
+
+	if err != nil {
+		return
+	}
+
+	s.Bus().Publish("guildIntegrationsUpdate", ev.Data)
+}
 
 type GuildMemberAddHandler struct{}
 

@@ -24,7 +24,7 @@ const (
 	EventGuildBanAdd                         = "GUILD_BAN_ADD"
 	EventGuildBanRemove                      = "GUILD_BAN_REMOVE"
 	EventGuildEmojisUpdate                   = "GUILD_EMOJIS_UPDATE"
-	EventGuildStickersUpdate                 = "GUILD_STICKERS_UPDATE"
+	EventGuildStickersUpdate                 = "GUILD_STICKERS_UPDATE" // TGM KHIROO
 	EventGuildIntegrationsUpdate             = "GUILD_INTEGRATIONS_UPDATE"
 	EventGuildMemberAdd                      = "GUILD_MEMBER_ADD"
 	EventGuildMemberRemove                   = "GUILD_MEMBER_REMOVE"

@@ -127,7 +127,6 @@ func (_ *ThreadMemberUpdateHandler) Handle(s *Session, data []byte) {
 	ev, err := event.NewThreadMemberUpdate(s.rest, data)
 
 	if err != nil {
-		log.Println(err)
 		return
 	}
 

@@ -182,3 +182,19 @@ func (_ *GuildMemberUpdateHandler) Handle(s *Session, data []byte) {
 
 	s.Bus().Publish("guildMemberUpdate", ev.Data)
 }
+
+type GuildMembersChunkHandler struct{}
+
+func (_ *GuildMembersChunkHandler) Handle(s *Session, data []byte) {
+	ev, err := event.NewGuildMembersChunk(s.rest, data)
+
+	if err != nil {
+		return
+	}
+
+	for _, member := range ev.Data.Members {
+		s.State().AddMember(ev.Data.GuildId, member)
+	}
+
+	s.Bus().Publish("guildMembersChunk", ev.Data)
+}

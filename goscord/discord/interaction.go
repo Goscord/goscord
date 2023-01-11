@@ -8,8 +8,7 @@ import (
 type ApplicationCommandType int
 
 const (
-	_                      ApplicationCommandType = iota
-	ApplicationCommandChat                        // slash command
+	ApplicationCommandChat = iota + 1 // slash command
 	ApplicationCommandUser
 	ApplicationCommandMessage
 )
@@ -17,8 +16,7 @@ const (
 type ApplicationCommandOptionType int
 
 const (
-	_ ApplicationCommandOptionType = iota
-	ApplicationCommandOptionSubCommand
+	ApplicationCommandOptionSubCommand = iota + 1
 	ApplicationCommandOptionSubCommandGroup
 	ApplicationCommandOptionString
 	ApplicationCommandOptionInteger
@@ -141,8 +139,7 @@ type ApplicationCommandOption struct {
 type InteractionType int
 
 const (
-	_ InteractionType = iota
-	InteractionTypePing
+	InteractionTypePing = iota + 1
 	InteractionTypeApplicationCommand
 	InteractionTypeMessageComponent
 	InteractionTypeApplicationCommandAutocomplete

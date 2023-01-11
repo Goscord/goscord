@@ -295,3 +295,14 @@ type GuildStickersUpdateEventFields struct {
 type GuildIntegrationsUpdateEventFields struct {
 	GuildId string `json:"guild_id"`
 }
+
+// GuildMembersChunkEventFields is the fields for the GUILD_MEMBERS_CHUNK event
+type GuildMembersChunkEventFields struct {
+	GuildId    string            `json:"guild_id"`
+	Members    []*GuildMember    `json:"members"`
+	ChunkIndex int               `json:"chunk_index"`
+	ChunkCount int               `json:"chunk_count"`
+	NotFound   []string          `json:"not_found,omitempty"`
+	Presences  []*PresenceUpdate `json:"presences,omitempty"`
+	Nonce      string            `json:"nonce,omitempty"`
+}

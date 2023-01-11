@@ -306,3 +306,21 @@ type GuildMembersChunkEventFields struct {
 	Presences  []*PresenceUpdate `json:"presences,omitempty"`
 	Nonce      string            `json:"nonce,omitempty"`
 }
+
+// GuildRoleCreateEventFields is the fields for the GUILD_ROLE_CREATE event
+type GuildRoleCreateEventFields struct {
+	GuildId string `json:"guild_id"`
+	Role    *Role  `json:"role"`
+}
+
+// GuildRoleUpdateEventFields is the fields for the GUILD_ROLE_UPDATE event
+type GuildRoleUpdateEventFields struct {
+	GuildId string `json:"guild_id"`
+	Role    *Role  `json:"role"`
+}
+
+// GuildRoleDeleteEventFields is the fields for the GUILD_ROLE_DELETE event
+type GuildRoleDeleteEventFields struct {
+	GuildId string `json:"guild_id"`
+	RoleId  string `json:"role_id"`
+}

@@ -204,3 +204,57 @@ func (_ *GuildMembersChunkHandler) Handle(s *Session, data []byte) {
 
 	s.Bus().Publish("guildMembersChunk", ev.Data)
 }
+
+type GuildRoleCreateHandler struct{}
+
+func (_ *GuildRoleCreateHandler) Handle(s *Session, data []byte) {
+	ev, err := event.NewGuildRoleCreate(s.rest, data)
+
+	if err != nil {
+		return
+	}
+
+	err = s.State().AddRole(ev.Data.GuildId, ev.Data.Role)
+
+	if err != nil {
+		return
+	}
+
+	s.Bus().Publish("guildRoleCreate", ev.Data)
+}
+
+type GuildRoleUpdateHandler struct{}
+
+func (_ *GuildRoleUpdateHandler) Handle(s *Session, data []byte) {
+	ev, err := event.NewGuildRoleUpdate(s.rest, data)
+
+	if err != nil {
+		return
+	}
+
+	err = s.State().AddRole(ev.Data.GuildId, ev.Data.Role)
+
+	if err != nil {
+		return
+	}
+
+	s.Bus().Publish("guildRoleUpdate", ev.Data)
+}
+
+type GuildRoleDeleteHandler struct{}
+
+func (_ *GuildRoleDeleteHandler) Handle(s *Session, data []byte) {
+	ev, err := event.NewGuildRoleDelete(s.rest, data)
+
+	if err != nil {
+		return
+	}
+
+	err = s.State().RemoveRole(ev.Data.GuildId, ev.Data.RoleId)
+
+	if err != nil {
+		return
+	}
+
+	s.Bus().Publish("guildRoleDelete", ev.Data)
+}

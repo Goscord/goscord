@@ -123,6 +123,9 @@ func (s *Session) registerHandlers() {
 		event.EventGuildMemberRemove:             &GuildMemberRemoveHandler{},
 		event.EventGuildMemberUpdate:             &GuildMemberUpdateHandler{},
 		event.EventGuildMembersChunk:             &GuildMembersChunkHandler{},
+		event.EventGuildRoleCreate:               &GuildRoleCreateHandler{},
+		event.EventGuildRoleUpdate:               &GuildRoleUpdateHandler{},
+		event.EventGuildRoleDelete:               &GuildRoleDeleteHandler{},
 
 		event.EventGuildCreate:       &GuildCreateHandler{},
 		event.EventGuildUpdate:       &GuildUpdateHandler{},

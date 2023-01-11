@@ -107,10 +107,12 @@ func (_ *GuildEmojisUpdateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	err = s.State().AddEmojis(ev.Data.GuildId, ev.Data.Emojis)
+	guild, err := s.State().Guild(ev.Data.GuildId)
 	if err != nil {
 		return
 	}
+
+	guild.Emojis = ev.Data.Emojis
 
 	s.Bus().Publish("guildEmojisUpdate", ev.Data)
 }

@@ -14,7 +14,7 @@ func main() {
 
 	client = goscord.New(&gateway.Options{
 		Token:   "",
-		Intents: gateway.IntentGuilds | gateway.IntentAutoModerationConfiguration | gateway.IntentAutoModerationExecution,
+		Intents: gateway.IntentsNonPrivileged,
 	})
 
 	if err := client.Login(); err != nil {

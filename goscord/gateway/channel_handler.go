@@ -2,7 +2,6 @@ package gateway
 
 import (
 	"github.com/Goscord/goscord/goscord/gateway/event"
-	"log"
 )
 
 type ChannelCreateHandler struct{}

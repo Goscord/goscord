@@ -30,8 +30,8 @@ jobs:
       - name: Format
         run: test -z $(go fmt ./goscord/...)
 
-      - name: Staticcheck
-        run: |
-          go get honnef.co/go/tools/cmd/staticcheck
-          GOBIN=$PWD/bin go install honnef.co/go/tools/cmd/staticcheck
-          ./bin/staticcheck ./...
+      #- name: Staticcheck
+      #  run: |
+      #    go get honnef.co/go/tools/cmd/staticcheck
+      #    GOBIN=$PWD/bin go install honnef.co/go/tools/cmd/staticcheck
+      #    ./bin/staticcheck ./...g

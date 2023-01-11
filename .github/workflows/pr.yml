@@ -22,13 +22,13 @@ jobs:
           export PATH=$PATH:$GOPATH/bin
 
       - name: Build
-        run: go build -o dragonfly_exe -v .
+        run: go build -v ./goscord/
 
       - name: Vet
-        run: go vet ./...
+        run: go vet ./goscord/...
 
       - name: Format
-        run: test -z $(go fmt ./...)
+        run: test -z $(go fmt ./goscord/...)
 
       - name: Staticcheck
         run: |

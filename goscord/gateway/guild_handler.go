@@ -150,6 +150,8 @@ func (_ *GuildMemberAddHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
+	// ToDo : Implement Member count?
+
 	s.State().AddMember(ev.Data.GuildId, ev.Data)
 
 	s.Bus().Publish("guildMemberAdd", ev.Data)
@@ -163,6 +165,8 @@ func (_ *GuildMemberRemoveHandler) Handle(s *Session, data []byte) {
 	if err != nil {
 		return
 	}
+
+	// ToDo : Implement Member count?
 
 	s.State().RemoveMember(ev.Data.GuildId, ev.Data.User.Id)
 

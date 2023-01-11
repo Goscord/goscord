@@ -342,6 +342,65 @@ func (s *State) AddEmojis(guildId string, emojis []*discord.Emoji) error {
 	return nil
 }
 
+func (s *State) AddRole(guildId string, role *discord.Role) error {
+	guild, err := s.Guild(guildId)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	for i, r := range guild.Roles {
+		if r.Id == role.Id {
+			guild.Roles[i] = role
+
+			return nil
+		}
+	}
+
+	guild.Roles = append(guild.Roles, role)
+
+	return nil
+}
+
+func (s *State) RemoveRole(guildId, roleId string) error {
+	guild, err := s.Guild(guildId)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	for i, r := range guild.Roles {
+		if r.Id == roleId {
+			guild.Roles = append(guild.Roles[:i], guild.Roles[i+1:]...)
+			return nil
+		}
+	}
+
+	return errors.New("role not found")
+}
+
+func (s *State) Role(guildId, roleId string) (*discord.Role, error) {
+	guild, err := s.Guild(guildId)
+	if err != nil {
+		return nil, err
+	}
+
+	s.RLock()
+	defer s.RUnlock()
+
+	for _, r := range guild.Roles {
+		if r.Id == roleId {
+			return r, nil
+		}
+	}
+
+	return nil, errors.New("role not found")
+}
+
 func (s *State) Guilds() map[string]*discord.Guild {
 	s.RLock()
 	defer s.RUnlock()

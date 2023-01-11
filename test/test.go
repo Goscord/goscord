@@ -17,6 +17,8 @@ func main() {
 		Intents: gateway.IntentsNonPrivileged,
 	})
 
+	client.OnReady("ready", OnReady)
+
 	if err := client.Login(); err != nil {
 		panic(err)
 	}

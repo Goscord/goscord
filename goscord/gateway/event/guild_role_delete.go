@@ -6,7 +6,7 @@ import (
 	"github.com/goccy/go-json"
 )
 
-// GuildRoleDelete Is sent when a guild role is created.
+// GuildRoleDelete Is sent when a guild role is deleted.
 type GuildRoleDelete struct {
 	Data *discord.GuildRoleDeleteEventFields `json:"d"`
 }

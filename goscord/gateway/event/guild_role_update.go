@@ -6,7 +6,7 @@ import (
 	"github.com/goccy/go-json"
 )
 
-// GuildRoleUpdate Is sent when a guild role is created.
+// GuildRoleUpdate Is sent when a guild role is updated.
 type GuildRoleUpdate struct {
 	Data *discord.GuildRoleUpdateEventFields `json:"d"`
 }

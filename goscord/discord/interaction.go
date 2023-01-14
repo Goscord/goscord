@@ -1,6 +1,9 @@
 package discord
 
-import "github.com/Goscord/goscord/goscord/discord/embed"
+import (
+	"github.com/Goscord/goscord/goscord/discord/embed"
+	"github.com/goccy/go-json"
+)
 
 type ApplicationCommandType int
 
@@ -173,7 +176,7 @@ type Interaction struct {
 	Id             string                `json:"id"`
 	ApplicationId  string                `json:"application_id"`
 	Type           InteractionType       `json:"type"`
-	Data           InteractionData       `json:"data,omitempty"`
+	Data           InteractionData       `json:"data"`
 	GuildId        string                `json:"guild_id,omitempty"`
 	ChannelId      string                `json:"channel_id,omitempty"`
 	Member         *GuildMember          `json:"member"`
@@ -204,7 +207,7 @@ func (i *Interaction) UnmarshalJSON(data []byte) error {
 
 	*i = Interaction(tmp.rawInteraction)
 
-	switch tmp.Type {
+	switch i.Type {
 	case InteractionTypeApplicationCommand, InteractionTypeApplicationCommandAutocomplete:
 		v := ApplicationCommandData{}
 
@@ -239,15 +242,15 @@ func (i *Interaction) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (i Interaction) MessageComponentData() MessageComponentData {
+func (i *Interaction) MessageComponentData() MessageComponentData {
 	return i.Data.(MessageComponentData)
 }
 
-func (i Interaction) ApplicationCommandData() ApplicationCommandData {
+func (i *Interaction) ApplicationCommandData() ApplicationCommandData {
 	return i.Data.(ApplicationCommandData)
 }
 
-func (i Interaction) ModalSubmitData() ModalSubmitData {
+func (i *Interaction) ModalSubmitData() ModalSubmitData {
 	return i.Data.(ModalSubmitData)
 }
 

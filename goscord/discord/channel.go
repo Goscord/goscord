@@ -175,37 +175,37 @@ type AllowedMentions struct {
 }
 
 type Message struct {
-	Id                string             `json:"id"`
-	ChannelId         string             `json:"channel_id"`
-	GuildId           string             `json:"guild_id,omitempty"`
-	Author            *User              `json:"author"`
-	Member            *GuildMember       `json:"member"`
-	Content           string             `json:"content"`
-	Timestamp         *time.Time         `json:"timestamp"`
-	EditedTimestamp   *time.Time         `json:"edited_timestamp"`
-	Tts               bool               `json:"tts"`
-	MentionEveryone   bool               `json:"mention_everyone"`
-	Mentions          []*User            `json:"mentions"`
-	MentionRoles      []string           `json:"mention_roles"`
-	MentionChannels   []*Channel         `json:"mention_channels,omitempty"`
-	Attachments       []*Attachment      `json:"attachments"`
-	Embeds            []*embed.Embed     `json:"embeds"`
-	Reactions         []*Reaction        `json:"reactions"`
-	Nonce             interface{}        `json:"nonce,omitempty"` // integer or string
-	Pinned            bool               `json:"pinned"`
-	WebhookId         string             `json:"webhook_id,omitempty"`
-	Type              MessageType        `json:"type"`
-	Activity          *MessageActivity   `json:"activity,omitempty"`
-	Application       *Application       `json:"application,omitempty"`
-	ApplicationId     string             `json:"application_id,omitempty"`
-	MessageReference  *MessageReference  `json:"message_reference,omitempty"`
-	Flags             MessageFlag        `json:"flags,omitempty"`
-	ReferencedMessage *Message           `json:"referenced_message,omitempty"`
-	Interaction       *Interaction       `json:"interaction,omitempty"`
-	Thread            *Channel           `json:"thread,omitempty"`
-	Components        []MessageComponent `json:"-"`
-	StickerItems      []*StickerItem     `json:"sticker_items,omitempty"`
-	Position          int                `json:"position,omitempty"`
+	Id                string              `json:"id"`
+	ChannelId         string              `json:"channel_id"`
+	GuildId           string              `json:"guild_id,omitempty"`
+	Author            *User               `json:"author"`
+	Member            *GuildMember        `json:"member"`
+	Content           string              `json:"content"`
+	Timestamp         *time.Time          `json:"timestamp"`
+	EditedTimestamp   *time.Time          `json:"edited_timestamp"`
+	Tts               bool                `json:"tts"`
+	MentionEveryone   bool                `json:"mention_everyone"`
+	Mentions          []*User             `json:"mentions"`
+	MentionRoles      []string            `json:"mention_roles"`
+	MentionChannels   []*Channel          `json:"mention_channels,omitempty"`
+	Attachments       []*Attachment       `json:"attachments"`
+	Embeds            []*embed.Embed      `json:"embeds"`
+	Reactions         []*Reaction         `json:"reactions"`
+	Nonce             interface{}         `json:"nonce,omitempty"` // integer or string
+	Pinned            bool                `json:"pinned"`
+	WebhookId         string              `json:"webhook_id,omitempty"`
+	Type              MessageType         `json:"type"`
+	Activity          *MessageActivity    `json:"activity,omitempty"`
+	Application       *Application        `json:"application,omitempty"`
+	ApplicationId     string              `json:"application_id,omitempty"`
+	MessageReference  *MessageReference   `json:"message_reference,omitempty"`
+	Flags             MessageFlag         `json:"flags,omitempty"`
+	ReferencedMessage *Message            `json:"referenced_message,omitempty"`
+	Interaction       *MessageInteraction `json:"interaction,omitempty"`
+	Thread            *Channel            `json:"thread,omitempty"`
+	Components        []MessageComponent  `json:"-"`
+	StickerItems      []*StickerItem      `json:"sticker_items,omitempty"`
+	Position          int                 `json:"position,omitempty"`
 }
 
 type rawMessage Message

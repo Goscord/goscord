@@ -201,7 +201,7 @@ type Message struct {
 	MessageReference  *MessageReference  `json:"message_reference,omitempty"`
 	Flags             MessageFlag        `json:"flags,omitempty"`
 	ReferencedMessage *Message           `json:"referenced_message,omitempty"`
-	Interaction       *Interaction       `json:"rawInteraction,omitempty"`
+	Interaction       *Interaction       `json:"interaction,omitempty"`
 	Thread            *Channel           `json:"thread,omitempty"`
 	Components        []MessageComponent `json:"-"`
 	StickerItems      []*StickerItem     `json:"sticker_items,omitempty"`

@@ -1,9 +1,6 @@
 package discord
 
-import (
-	"github.com/Goscord/goscord/goscord/discord/embed"
-	"github.com/goccy/go-json"
-)
+import "github.com/Goscord/goscord/goscord/discord/embed"
 
 type ApplicationCommandType int
 
@@ -117,7 +114,21 @@ func (o ApplicationCommandInteractionDataOption) Bool() bool {
 	return o.Value.(bool)
 }
 
-// ToDo : User and Role helper functions
+/* ToDo : Moove to a new folder to avoid import cycle
+func (o ApplicationCommandInteractionDataOption) ChannelValue(s *gateway.Session) *Channel {
+	if o.Type != ApplicationCommandOptionChannel {
+		return nil
+	}
+
+	chanID := o.Value.(string)
+	channel, err := s.State().Channel(chanID)
+	if err == nil {
+		return channel
+	}
+
+	return &Channel{Id: chanID}
+}
+*/
 
 type ApplicationCommandOption struct {
 	Type                     ApplicationCommandOptionType      `json:"type"`

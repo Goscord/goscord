@@ -150,12 +150,12 @@ type InteractionCallbackType int
 
 const (
 	InteractionCallbackTypePong                                 = 1 // ack a ping
-	InteractionCallbackTypeChannelWithSource                    = 4 // respond to an interaction with a message
-	InteractionCallbackTypeDeferredChannelMessageWithSource     = 5 // ACK an interaction and edit a response later, the user sees a loading state
-	InteractionCallbackTypeDeferredUpdateMessage                = 6 // for components, ACK an interaction and edit the original message later; the user does not see a loading state
+	InteractionCallbackTypeChannelWithSource                    = 4 // respond to an rawInteraction with a message
+	InteractionCallbackTypeDeferredChannelMessageWithSource     = 5 // ACK an rawInteraction and edit a response later, the user sees a loading state
+	InteractionCallbackTypeDeferredUpdateMessage                = 6 // for components, ACK an rawInteraction and edit the original message later; the user does not see a loading state
 	InteractionCallbackTypeUpdateMessage                        = 7 // for components, edit the message the component was attached to
 	InteractionCallbackTypeApplicationCommandAutocompleteResult = 8 // for autocomplete, return the results of the autocomplete
-	InteractionCallbackTypeModal                                = 9 // respond to an interaction with a popup modal
+	InteractionCallbackTypeModal                                = 9 // respond to an rawInteraction with a popup modal
 )
 
 type Interaction struct {
@@ -175,10 +175,10 @@ type Interaction struct {
 	GuildLocale    Locale                `json:"guild_locale,omitempty"`
 }
 
-type interaction Interaction
+type rawInteraction Interaction
 
 type unmarshalableInteraction struct {
-	interaction
+	rawInteraction
 	Data json.RawMessage `json:"data"`
 }
 
@@ -191,7 +191,7 @@ func (i *Interaction) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	*i = Interaction(tmp.interaction)
+	*i = Interaction(tmp.rawInteraction)
 
 	switch tmp.Type {
 	case InteractionTypeApplicationCommand, InteractionTypeApplicationCommandAutocomplete:

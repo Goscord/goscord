@@ -202,14 +202,14 @@ func (ch *InteractionHandler) DeleteFollowupMessage(applicationId, interactionTo
 func formatInteractionResponse(content interface{}) (*bytes.Buffer, error) {
 	b := new(bytes.Buffer)
 
-	content = &discord.InteractionResponse{}
-	content.(*discord.InteractionResponse).Type = discord.InteractionCallbackTypeChannelWithSource
+	res := &discord.InteractionResponse{}
+	res.Type = discord.InteractionCallbackTypeChannelWithSource
 
 	switch ccontent := content.(type) {
 	case string:
-		content.(*discord.InteractionResponse).Data = &discord.InteractionCallbackMessage{Content: ccontent}
+		res.Data = &discord.InteractionCallbackMessage{Content: ccontent}
 
-		jsonb, err := json.Marshal(content)
+		jsonb, err := json.Marshal(res)
 		if err != nil {
 			return nil, err
 		}
@@ -217,9 +217,9 @@ func formatInteractionResponse(content interface{}) (*bytes.Buffer, error) {
 		b = bytes.NewBuffer(jsonb)
 
 	case *embed.Embed:
-		content.(*discord.InteractionResponse).Data = &discord.InteractionCallbackMessage{Embeds: []*embed.Embed{ccontent}}
+		res.Data = &discord.InteractionCallbackMessage{Embeds: []*embed.Embed{ccontent}}
 
-		jsonb, err := json.Marshal(content)
+		jsonb, err := json.Marshal(res)
 		if err != nil {
 			return nil, err
 		}
@@ -229,9 +229,11 @@ func formatInteractionResponse(content interface{}) (*bytes.Buffer, error) {
 	case *discord.InteractionCallbackMessage:
 	case *discord.InteractionCallbackAutocomplete:
 	case *discord.InteractionCallbackModal:
-		content.(*discord.InteractionResponse).Data = ccontent
+		res.Data = ccontent
 
-		jsonb, err := json.Marshal(content)
+		// cast types
+
+		jsonb, err := json.Marshal(res)
 		if err != nil {
 			return nil, err
 		}
@@ -239,7 +241,7 @@ func formatInteractionResponse(content interface{}) (*bytes.Buffer, error) {
 		b = bytes.NewBuffer(jsonb)
 
 	default:
-		return nil, errors.New("invalid content type")
+		return nil, errors.New("invalid res type")
 	}
 
 	return b, nil

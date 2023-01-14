@@ -2,7 +2,6 @@ package discord
 
 import (
 	"github.com/Goscord/goscord/goscord/discord/embed"
-	"log"
 	"time"
 
 	"github.com/goccy/go-json"
@@ -202,31 +201,32 @@ type Message struct {
 	MessageReference  *MessageReference  `json:"message_reference,omitempty"`
 	Flags             MessageFlag        `json:"flags,omitempty"`
 	ReferencedMessage *Message           `json:"referenced_message,omitempty"`
-	Interaction       *Interaction       `json:"interaction,omitempty"`
+	Interaction       *Interaction       `json:"rawInteraction,omitempty"`
 	Thread            *Channel           `json:"thread,omitempty"`
-	Components        []MessageComponent `json:"components,omitempty"`
+	Components        []MessageComponent `json:"-"`
 	StickerItems      []*StickerItem     `json:"sticker_items,omitempty"`
-	Stickers          []*Sticker         `json:"stickers,omitempty"`
 	Position          int                `json:"position,omitempty"`
 }
+
+type rawMessage Message
 
 // UnmarshalJSON ...
 func (m *Message) UnmarshalJSON(data []byte) error {
 	var v struct {
-		Message       Message                         `json:"-"`
-		RawComponents []unmarshalableMessageComponent `json:"components"`
+		rawMessage
+		Components []unmarshalableMessageComponent `json:"components"`
 	}
 
 	err := json.Unmarshal(data, &v)
 	if err != nil {
-		log.Println("ERROR")
 		return err
 	}
 
-	*m = Message(v.Message)
+	*m = Message(v.rawMessage)
 
-	m.Components = make([]MessageComponent, len(v.RawComponents))
-	for i, v := range v.RawComponents {
+	m.Components = []MessageComponent{}
+
+	for i, v := range v.Components {
 		m.Components[i] = v.MessageComponent
 	}
 

@@ -32,10 +32,13 @@ const (
 	TextInputParagraph
 )
 
-type MessageComponent interface{}
+type MessageComponent interface {
+	json.Marshaler
+}
 
 type unmarshalableMessageComponent struct {
 	MessageComponent
+	json.Unmarshaler
 }
 
 func (u *unmarshalableMessageComponent) UnmarshalJSON(data []byte) error {

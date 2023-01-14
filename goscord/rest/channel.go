@@ -38,16 +38,17 @@ func (ch *ChannelHandler) GetChannel(channelId string) (*discord.Channel, error)
 	return channel, nil
 }
 
-// Send / reply to a message
+// GetMessage gets a message from a channel
 func (ch *ChannelHandler) GetMessage(channelId, messageId string) (*discord.Message, error) {
-	data, err := ch.rest.Request(fmt.Sprintf(EndpointGetChannelMessage, channelId, messageId), "GET", nil, "application/json")
+	res, err := ch.rest.Request(fmt.Sprintf(EndpointGetChannelMessage, channelId, messageId), "GET", nil, "application/json")
 
 	if err != nil {
 		return nil, err
 	}
 
-	var msg *discord.Message
-	err = json.Unmarshal(data, &msg)
+	msg := new(discord.Message)
+
+	err = json.Unmarshal(res, msg)
 
 	if err != nil {
 		return nil, err

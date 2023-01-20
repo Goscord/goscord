@@ -203,7 +203,7 @@ type Message struct {
 	ReferencedMessage *Message            `json:"referenced_message,omitempty"`
 	Interaction       *MessageInteraction `json:"interaction,omitempty"`
 	Thread            *Channel            `json:"thread,omitempty"`
-	Components        []MessageComponent  `json:"-"`
+	Components        []MessageComponent  `json:"components"`
 	StickerItems      []*StickerItem      `json:"sticker_items,omitempty"`
 	Position          int                 `json:"position,omitempty"`
 }

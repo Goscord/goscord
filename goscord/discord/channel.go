@@ -224,7 +224,7 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 
 	*m = Message(v.rawMessage)
 
-	m.Components = []MessageComponent{}
+	m.Components = make([]MessageComponent, len(v.Components))
 
 	for i, v := range v.Components {
 		m.Components[i] = v.MessageComponent

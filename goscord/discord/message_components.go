@@ -88,7 +88,7 @@ func (r ActionRows) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (r *ActionRows) UnmarshalJSON(data []byte) error {
+func (r ActionRows) UnmarshalJSON(data []byte) error {
 	var v struct {
 		Components []unmarshalableMessageComponent `json:"components"`
 	}

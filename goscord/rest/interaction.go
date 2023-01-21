@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/discord/embed"
-	"log"
-
 	"github.com/goccy/go-json"
 )
 
@@ -127,8 +125,6 @@ func (ch *InteractionHandler) CreateFollowupMessage(applicationId, interactionTo
 		return nil, err
 	}
 
-	log.Println(b.String())
-
 	res, err := ch.rest.Request(fmt.Sprintf(EndpointCreateFollowupMessage, applicationId, interactionToken), "POST", b, ct)
 
 	if err != nil {
@@ -226,9 +222,7 @@ func formatInteractionResponse(content interface{}) (*bytes.Buffer, error) {
 
 		b = bytes.NewBuffer(jsonb)
 
-	case *discord.InteractionCallbackMessage:
-	case *discord.InteractionCallbackAutocomplete:
-	case *discord.InteractionCallbackModal:
+	case *discord.InteractionCallbackMessage, *discord.InteractionCallbackAutocomplete, *discord.InteractionCallbackModal:
 		res.Data = ccontent
 
 		// cast types

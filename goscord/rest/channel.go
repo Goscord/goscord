@@ -207,8 +207,8 @@ func formatMessage(content interface{}, messageId string) (*bytes.Buffer, string
 		}
 
 		w.Close()
+
 		contentType = w.FormDataContentType()
-		fmt.Println(contentType)
 
 	default:
 		return nil, "", errors.New("invalid content type")

@@ -1,12 +1,14 @@
 package gateway
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/Goscord/goscord/goscord/gateway/packet"
 	"github.com/gorilla/websocket"
 	"net"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -26,14 +28,21 @@ type VoiceConnection struct {
 	speaking     bool
 	reconnecting bool
 
-	connMu  sync.Mutex
-	conn    *websocket.Conn
+	// ws connection
+	connMu sync.Mutex
+	conn   *websocket.Conn
+
+	// udp connection
 	udpConn *net.UDPConn
 
 	// Voice connection data
 	sessionId string
 	token     string
 	endpoint  string
+	ip        string
+	port      int
+	ssrc      uint32
+	modes     []string
 
 	// recv/send channels (maybe use an io.Reader/Writer instead?)
 
@@ -142,9 +151,19 @@ func (v *VoiceConnection) handleEvent(msg []byte) {
 			return
 		}
 
+		v.Lock()
 		v.ready = true
+		v.ip = ready.Data.IP
+		v.port = ready.Data.Port
+		v.ssrc = ready.Data.SSRC
+		v.modes = ready.Data.Modes
+		v.Unlock()
 
-		// TODO: Start UDP connection shit
+		err := v.loginUDP()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
 	case packet.OpVoiceHello:
 		var hello packet.VoiceHello
@@ -156,8 +175,73 @@ func (v *VoiceConnection) handleEvent(msg []byte) {
 
 		go v.startHeartbeat(v.conn, v.close, interval)
 
+	case packet.OpVoiceSessionDescription:
+		// TODO: Retrieve encryption key
+
 		// TODO: Handle other voice event
 	}
+}
+
+func (v *VoiceConnection) loginUDP() error {
+	v.Lock()
+	defer v.Unlock()
+
+	if v.conn == nil {
+		return errors.New("nil connection")
+	}
+
+	if v.udpConn != nil {
+		return errors.New("udp connection already exists")
+	}
+
+	if v.close == nil {
+		return errors.New("nil close channel")
+	}
+
+	if v.endpoint == "" {
+		return errors.New("empty endpoint")
+	}
+
+	host := v.ip + ":" + strconv.Itoa(v.port)
+	addr, err := net.ResolveUDPAddr("udp", host)
+	if err != nil {
+		return err
+	}
+
+	v.udpConn, err = net.DialUDP("udp", nil, addr)
+	if err != nil {
+		return err
+	}
+
+	buf := make([]byte, 70)
+	binary.BigEndian.PutUint32(buf, v.ssrc)
+	_, err = v.udpConn.Write(buf)
+	if err != nil {
+		return err
+	}
+
+	buf = make([]byte, 70)
+	bufLen, _, err := v.udpConn.ReadFromUDP(buf)
+	if err != nil {
+		return err
+	}
+
+	if bufLen < 70 {
+		return errors.New("invalid udp response")
+	}
+
+	// read ip and port from ip discovery packet
+	ip := string(buf[4:20])
+	port := binary.BigEndian.Uint16(buf[68:70])
+
+	fmt.Println("UDP IP:", ip)
+	fmt.Println("UDP Port:", port)
+
+	// TODO: Send UDP data to Discord
+
+	// TODO: Start UDP heartbeat
+
+	return nil
 }
 
 func (v *VoiceConnection) startHeartbeat(wsConn *websocket.Conn, close <-chan struct{}, i time.Duration) {

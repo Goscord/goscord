@@ -49,55 +49,155 @@ type VoiceConnection struct {
 	close chan struct{}
 }
 
-func (v *VoiceConnection) login() error { return nil }
+func (v *VoiceConnection) login() error {
+	v.RLock()
+	sessionId := v.sessionId
+	endpoint := v.endpoint
+	guildId := v.GuildId
+	userId := v.UserId
+	token := v.token
+	v.RUnlock()
 
-func (v *VoiceConnection) handleEvent(msg []byte) {
-	pk, err := packet.NewPacket(msg)
+	v.connMu.Lock()
+	defer v.connMu.Unlock()
 
-	if err != nil {
-		return
+	attempt := 0
+	for {
+		if sessionId != "" {
+			break
+		}
+
+		if attempt > 20 {
+			return errors.New("failed to login to voice")
+		}
+
+		<-time.After(50 * time.Millisecond)
+
+		attempt++
 	}
 
-	switch pk.Opcode {
-	case packet.OpVoiceReady:
-		var ready packet.VoiceReady
-		if err := json.Unmarshal(msg, &ready); err != nil {
-			return
-		}
+	conn, _, err := websocket.DefaultDialer.Dial("wss://"+endpoint+"/?v=4", nil)
+	if err != nil {
+		return errors.New("cannot connect to voice websocket server")
+	}
 
-		v.Lock()
-		v.ready = true
-		v.ip = ready.Data.IP
-		v.port = ready.Data.Port
-		v.ssrc = ready.Data.SSRC
-		v.modes = ready.Data.Modes
-		v.Unlock()
+	v.conn = conn
 
-		err := v.loginUdp()
+	payload := packet.NewVoiceIdentify(guildId, userId, sessionId, token)
+	if err := v.conn.WriteJSON(payload); err != nil {
+		return err
+	}
+
+	v.Lock()
+	cclose := make(chan struct{})
+	v.close = cclose
+	v.Unlock()
+
+	go v.listen(conn, cclose)
+
+	return nil
+}
+
+func (v *VoiceConnection) listen(conn *websocket.Conn, close chan struct{}) {
+	for {
+		_, msg, err := conn.ReadMessage()
 		if err != nil {
+			if websocket.IsCloseError(err, 4014) {
+				v.Lock()
+				v.conn = nil
+				v.Unlock()
+
+				for i := 0; i < 5; i++ {
+					<-time.After(1 * time.Second)
+
+					v.connMu.Lock()
+					reconnected := v.conn != nil
+					v.connMu.Unlock()
+					if !reconnected {
+						continue
+					}
+					return
+				}
+
+				v.session.Lock()
+				delete(v.session.VoiceConnections, v.GuildId)
+				v.session.Unlock()
+
+				v.Close()
+
+				return
+			}
+
+			v.connMu.Lock()
+			sameConnection := v.conn == conn
+			v.connMu.Unlock()
+
+			if sameConnection {
+				go v.reconnect()
+			}
+
 			return
 		}
 
-	case packet.OpVoiceHello:
-		var hello packet.VoiceHello
-		if err := json.Unmarshal(msg, &hello); err != nil {
+		select {
+		case <-close:
 			return
+		default:
+			pk, err := packet.NewPacket(msg)
+
+			if err != nil {
+				return
+			}
+
+			switch pk.Opcode {
+			case packet.OpVoiceReady:
+				var ready packet.VoiceReady
+				if err := json.Unmarshal(msg, &ready); err != nil {
+					return
+				}
+
+				v.Lock()
+				v.ready = true
+				v.ip = ready.Data.IP
+				v.port = ready.Data.Port
+				v.ssrc = ready.Data.SSRC
+				v.modes = ready.Data.Modes
+				v.Unlock()
+
+				/*err := v.loginUdp()
+				if err != nil {
+					return
+				}*/
+
+			case packet.OpVoiceHello:
+				var hello packet.VoiceHello
+				if err := json.Unmarshal(msg, &hello); err != nil {
+					return
+				}
+
+				interval := time.Duration(hello.Data.HeartbeatInterval) // little hack cuz discord sends a float64
+
+				v.RLock()
+				c := v.close
+				v.RUnlock()
+
+				v.connMu.Lock()
+				conn := v.conn
+				v.connMu.Unlock()
+
+				go v.startHeartbeat(conn, c, interval)
+
+			case packet.OpVoiceSessionDescription:
+				// TODO: Retrieve encryption key
+
+				// TODO: Handle other voice event
+			}
+
 		}
-
-		interval := time.Duration(hello.Data.HeartbeatInterval) // little hack cuz discord sends a float64
-
-		v.RLock()
-		go v.startHeartbeat(v.conn, v.close, interval)
-		v.RUnlock()
-
-	case packet.OpVoiceSessionDescription:
-		// TODO: Retrieve encryption key
-
-		// TODO: Handle other voice event
 	}
 }
 
-func (v *VoiceConnection) loginUdp() error {
+func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 	v.RLock()
 	defer v.RUnlock()
 
@@ -159,7 +259,7 @@ func (v *VoiceConnection) loginUdp() error {
 	return nil
 }
 
-func (v *VoiceConnection) heartbeatUdp(udpConn *net.UDPConn, close <-chan struct{}) {
+func (v *VoiceConnection) heartbeatUdp(udpConn *net.UDPConn, close <-chan struct{}) { // TODO: make this work
 	if udpConn == nil || close == nil {
 		return
 	}
@@ -189,12 +289,10 @@ func (v *VoiceConnection) heartbeatUdp(udpConn *net.UDPConn, close <-chan struct
 	}
 }
 
-func (v *VoiceConnection) startHeartbeat(wsConn *websocket.Conn, close <-chan struct{}, i time.Duration) {
-	if close == nil || wsConn == nil {
+func (v *VoiceConnection) startHeartbeat(conn *websocket.Conn, c <-chan struct{}, i time.Duration) {
+	if c == nil || conn == nil {
 		return
 	}
-
-	var _ error
 
 	ticker := time.NewTicker(i * time.Millisecond)
 	defer ticker.Stop()
@@ -209,7 +307,7 @@ func (v *VoiceConnection) startHeartbeat(wsConn *websocket.Conn, close <-chan st
 		case <-ticker.C:
 			// nothing
 
-		case <-close:
+		case <-c:
 			return
 		}
 	}
@@ -238,13 +336,14 @@ func (v *VoiceConnection) wait() error {
 }
 
 func (v *VoiceConnection) reconnect() {
-	v.Lock()
+	v.RLock()
 	if v.reconnecting {
-		v.Unlock()
+		v.RUnlock()
 
 		return
 	}
 
+	v.Lock()
 	v.reconnecting = true
 	v.Unlock()
 
@@ -264,19 +363,27 @@ func (v *VoiceConnection) reconnect() {
 			wait = 600
 		}
 
-		if v.session.Status() != StatusReady {
+		v.RLock()
+		session := v.session
+		guildId := v.GuildId
+		channelId := v.ChannelId
+		mute := v.mute
+		deaf := v.deaf
+		v.RUnlock()
+
+		if session.Status() != StatusReady {
 			// TODO: Log error
 			continue
 		}
 
-		_, err := v.session.JoinVoiceChannel(v.GuildId, v.ChannelId, v.mute, v.deaf)
+		_, err := session.JoinVoiceChannel(guildId, channelId, mute, deaf)
 		if err == nil {
 			// TODO: Log success
 			return
 		}
 
-		payload := packet.NewVoiceStateUpdate(v.GuildId, "", false, false)
-		v.session.Send(payload)
+		payload := packet.NewVoiceStateUpdate(guildId, "", false, false)
+		session.Send(payload)
 	}
 }
 

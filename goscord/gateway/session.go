@@ -420,8 +420,6 @@ func (s *Session) reconnect() {
 		err := s.Login()
 
 		if err == nil {
-			// ToDo : Reconnect to voice connections
-
 			fmt.Println("Reconnected")
 
 			return

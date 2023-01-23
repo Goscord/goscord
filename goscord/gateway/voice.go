@@ -49,93 +49,7 @@ type VoiceConnection struct {
 	close chan struct{}
 }
 
-func (v *VoiceConnection) login() error {
-	v.Lock()
-	defer v.Unlock()
-
-	i := 0
-	for {
-		if v.sessionId != "" {
-			break
-		}
-
-		if i > 20 {
-			return fmt.Errorf("cannot resolve session id")
-		}
-
-		time.Sleep(50 * time.Millisecond)
-
-		i++
-	}
-
-	conn, _, err := websocket.DefaultDialer.Dial("wss://"+v.endpoint+"/?v=4", nil)
-	if err != nil {
-		return errors.New("cannot connect to packet server: " + err.Error())
-	}
-
-	v.conn = conn
-
-	voiceIdentify := packet.NewVoiceIdentify(v.GuildId, v.UserId, v.sessionId, v.token)
-	if err := v.Send(voiceIdentify); err != nil {
-		return errors.New("cannot send identify packet: " + err.Error())
-	}
-
-	v.close = make(chan struct{})
-
-	go v.listen(v.conn, v.close)
-
-	return nil
-}
-
-func (v *VoiceConnection) listen(conn *websocket.Conn, close <-chan struct{}) {
-	for {
-		_, message, err := v.conn.ReadMessage()
-		if err != nil {
-			if websocket.IsCloseError(err, 4014) {
-				v.Lock()
-				v.conn = nil
-				v.Unlock()
-
-				for i := 0; i < 5; i++ {
-					<-time.After(1 * time.Second)
-
-					v.RLock()
-					reconnected := v.conn != nil
-					v.RUnlock()
-					if !reconnected {
-						continue
-					}
-					return
-				}
-
-				v.session.Lock()
-				delete(v.session.VoiceConnections, v.GuildId)
-				v.session.Unlock()
-
-				v.Close()
-
-				return
-			}
-
-			v.RLock()
-			sameConnection := v.conn == conn
-			v.RUnlock()
-
-			if sameConnection {
-				go v.reconnect()
-			}
-
-			return
-		}
-
-		select {
-		case <-close:
-			return
-		default:
-			go v.handleEvent(message)
-		}
-	}
-}
+func (v *VoiceConnection) login() error { return nil }
 
 func (v *VoiceConnection) handleEvent(msg []byte) {
 	pk, err := packet.NewPacket(msg)
@@ -159,9 +73,8 @@ func (v *VoiceConnection) handleEvent(msg []byte) {
 		v.modes = ready.Data.Modes
 		v.Unlock()
 
-		err := v.loginUDP()
+		err := v.loginUdp()
 		if err != nil {
-			fmt.Println(err)
 			return
 		}
 
@@ -173,7 +86,9 @@ func (v *VoiceConnection) handleEvent(msg []byte) {
 
 		interval := time.Duration(hello.Data.HeartbeatInterval) // little hack cuz discord sends a float64
 
+		v.RLock()
 		go v.startHeartbeat(v.conn, v.close, interval)
+		v.RUnlock()
 
 	case packet.OpVoiceSessionDescription:
 		// TODO: Retrieve encryption key
@@ -182,9 +97,9 @@ func (v *VoiceConnection) handleEvent(msg []byte) {
 	}
 }
 
-func (v *VoiceConnection) loginUDP() error {
-	v.Lock()
-	defer v.Unlock()
+func (v *VoiceConnection) loginUdp() error {
+	v.RLock()
+	defer v.RUnlock()
 
 	if v.conn == nil {
 		return errors.New("nil connection")
@@ -239,9 +154,39 @@ func (v *VoiceConnection) loginUDP() error {
 		return errors.New("cannot send select protocol packet: " + err.Error())
 	}
 
-	// TODO: Try to heartbeat UDP
+	go v.heartbeatUdp(v.udpConn, v.close)
 
 	return nil
+}
+
+func (v *VoiceConnection) heartbeatUdp(udpConn *net.UDPConn, close <-chan struct{}) {
+	if udpConn == nil || close == nil {
+		return
+	}
+
+	payload := make([]byte, 8)
+
+	ticker := time.NewTicker(3 * time.Second)
+	defer ticker.Stop()
+
+	for {
+
+		binary.LittleEndian.PutUint32(payload, 0x80)
+		binary.LittleEndian.PutUint32(payload, 0xC8)
+
+		_, err := udpConn.Write(payload)
+		if err != nil {
+			return
+		}
+
+		select {
+		case <-ticker.C:
+			// loop
+
+		case <-close:
+			return
+		}
+	}
 }
 
 func (v *VoiceConnection) startHeartbeat(wsConn *websocket.Conn, close <-chan struct{}, i time.Duration) {
@@ -255,7 +200,7 @@ func (v *VoiceConnection) startHeartbeat(wsConn *websocket.Conn, close <-chan st
 	defer ticker.Stop()
 
 	for {
-		if err := v.Send(packet.NewVoiceHeartbeat(time.Now().UnixNano())); err != nil {
+		if err := v.Send(packet.NewVoiceHeartbeat(time.Now().UnixMilli())); err != nil {
 			// TODO: Log error
 			return
 		}
@@ -283,18 +228,16 @@ func (v *VoiceConnection) wait() error {
 		}
 
 		if i > 10 {
-			return fmt.Errorf("cannot resolve voice connection")
+			return fmt.Errorf("voice connection timed out")
 		}
 
-		time.Sleep(1 * time.Second)
+		<-time.After(1 * time.Second)
 
 		i++
 	}
 }
 
 func (v *VoiceConnection) reconnect() {
-	fmt.Println("reconnecting") // TODO: Remove debug
-
 	v.Lock()
 	if v.reconnecting {
 		v.Unlock()
@@ -314,7 +257,6 @@ func (v *VoiceConnection) reconnect() {
 	v.Close()
 
 	wait := time.Duration(1)
-
 	for {
 		<-time.After(wait * time.Second)
 		wait *= 2
@@ -322,57 +264,27 @@ func (v *VoiceConnection) reconnect() {
 			wait = 600
 		}
 
-		if v.session.Status() < StatusReady || v.session.conn == nil {
+		if v.session.Status() != StatusReady {
+			// TODO: Log error
 			continue
 		}
 
 		_, err := v.session.JoinVoiceChannel(v.GuildId, v.ChannelId, v.mute, v.deaf)
 		if err == nil {
+			// TODO: Log success
 			return
 		}
 
-		payload := packet.NewVoiceStateUpdate(v.GuildId, "", true, true)
-
+		payload := packet.NewVoiceStateUpdate(v.GuildId, "", false, false)
 		v.session.Send(payload)
 	}
 }
 
-func (v *VoiceConnection) Close() {
-	v.Lock()
-	defer v.Unlock()
+func (v *VoiceConnection) Speaking(speaking bool) error { return nil }
 
-	v.ready = false
-	v.speaking = false
+func (v *VoiceConnection) Disconnect() error { return nil }
 
-	if v.close != nil {
-		close(v.close)
-		v.close = nil
-	}
-
-	if v.udpConn != nil {
-		if err := v.udpConn.Close(); err != nil {
-			// TODO: Log error
-		}
-
-		v.udpConn = nil
-	}
-
-	if v.conn != nil {
-		v.connMu.Lock()
-		if err := v.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "")); err != nil {
-			// TODO: Log error
-		}
-		v.connMu.Unlock()
-
-		time.Sleep(1 * time.Second)
-
-		if err := v.conn.Close(); err != nil {
-			// TODO: Log error
-		}
-
-		v.conn = nil
-	}
-}
+func (v *VoiceConnection) Close() {}
 
 func (s *VoiceConnection) Send(v interface{}) error {
 	s.connMu.Lock()

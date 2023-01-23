@@ -1,6 +1,8 @@
 package gateway
 
-import "github.com/Goscord/goscord/goscord/gateway/event"
+import (
+	"github.com/Goscord/goscord/goscord/gateway/event"
+)
 
 type VoiceServerUpdateHandler struct{}
 
@@ -18,7 +20,7 @@ func (_ *VoiceServerUpdateHandler) Handle(s *Session, data []byte) {
 	if !ok {
 		return
 	}
-	
+
 	voice.Close()
 
 	voice.Lock()

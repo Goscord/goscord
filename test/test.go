@@ -13,19 +13,15 @@ import (
 func main() {
 	// Create client instance
 	client := goscord.New(&gateway.Options{
-		Token: "ODMxNTgzNTY2ODg2MjA3NTE4.GNmlGo.lJKp4NywTb0-YqFRG8X3Wsjhhtffw3Ww61eVoM",
-		Intents: gateway.IntentGuilds |
-			gateway.IntentGuildMembers |
-			gateway.IntentDirectMessages |
-			gateway.IntentGuildMessages |
-			gateway.IntentMessageContent,
+		Token:   "ODMxNTgzNTY2ODg2MjA3NTE4.G__-m6.WExLly-pqc6Bj0-Y5dRT4ASn0PMVgmFGxVCSBs",
+		Intents: gateway.IntentsNonPrivileged,
 	})
 
 	// Load events
 	_ = client.On("ready", OnReady(client))
 	_ = client.On("interactionCreate", CommandHandler(client))
 
-	// Login client
+	// login client
 	if err := client.Login(); err != nil {
 		panic(err)
 	}
@@ -48,14 +44,7 @@ func OnReady(client *gateway.Session) func() {
 			Name:        "test",
 			Type:        discord.ApplicationCommandChat,
 			Description: "test command",
-			Options: []*discord.ApplicationCommandOption{
-				{
-					Name:        "message_id",
-					Type:        discord.ApplicationCommandOptionString,
-					Description: "Message ID",
-					Required:    true,
-				},
-			},
+			Options:     make([]*discord.ApplicationCommandOption, 0),
 		}
 		_, _ = client.Application.RegisterCommand(client.Me().Id, "", appCmd)
 	}
@@ -72,14 +61,11 @@ func CommandHandler(client *gateway.Session) func(*discord.Interaction) {
 			return
 		}
 
-		// Get message by ID
-		msg, err := client.Channel.GetMessage(interaction.ChannelId, interaction.Data.(discord.ApplicationCommandData).Options[0].Value.(string))
+		_, err := client.JoinVoiceChannel("1001943780766797885", "1062789982617608313", false, false)
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		fmt.Println(msg)
-
-		client.Interaction.CreateResponse(interaction.Id, interaction.Token, fmt.Sprintf("Embed: %d", len(msg.Embeds)))
+		client.Interaction.CreateResponse(interaction.Id, interaction.Token, ":+1:")
 	}
 }

@@ -314,7 +314,7 @@ func (v *VoiceConnection) startHeartbeat(conn *websocket.Conn, c <-chan struct{}
 }
 
 func (v *VoiceConnection) wait() error {
-	i := 0
+	attempt := 0
 
 	for {
 		v.RLock()
@@ -325,13 +325,13 @@ func (v *VoiceConnection) wait() error {
 			return nil
 		}
 
-		if i > 10 {
+		if attempt > 10 {
 			return fmt.Errorf("voice connection timed out")
 		}
 
-		<-time.After(1 * time.Second)
+		<-time.After(500 * time.Millisecond)
 
-		i++
+		attempt++
 	}
 }
 
@@ -389,9 +389,78 @@ func (v *VoiceConnection) reconnect() {
 
 func (v *VoiceConnection) Speaking(speaking bool) error { return nil }
 
-func (v *VoiceConnection) Disconnect() error { return nil }
+func (v *VoiceConnection) Disconnect() (err error) {
+	v.RLock()
+	sessionId := v.sessionId
+	guildId := v.GuildId
+	v.RUnlock()
 
-func (v *VoiceConnection) Close() {}
+	if sessionId != "" {
+		payload := packet.NewVoiceStateUpdate(guildId, "", false, false)
+		err = v.session.Send(payload)
+
+		v.Lock()
+		v.sessionId = ""
+		v.Unlock()
+	}
+
+	v.Close()
+
+	v.session.Lock()
+	delete(v.session.VoiceConnections, guildId)
+	v.session.Unlock()
+
+	return
+}
+
+func (v *VoiceConnection) Close() {
+	v.Lock()
+	v.ready = false
+	v.speaking = false
+	v.Unlock()
+
+	v.RLock()
+	c := v.close
+	udpConn := v.udpConn
+	v.RUnlock()
+
+	if c != nil {
+		v.Lock()
+		close(v.close)
+		v.close = nil
+		v.Unlock()
+	}
+
+	if udpConn != nil {
+		err := udpConn.Close()
+		if err != nil {
+			// TODO: Log error
+		}
+
+		v.Lock()
+		v.udpConn = nil
+		v.Unlock()
+	}
+
+	v.connMu.Lock()
+	defer v.connMu.Unlock()
+
+	if v.conn != nil {
+		err := v.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+		if err != nil {
+			// TODO: Log error
+		}
+
+		<-time.After(1 * time.Second)
+
+		err = v.conn.Close()
+		if err != nil {
+			// TODO: Log error
+		}
+
+		v.conn = nil
+	}
+}
 
 func (s *VoiceConnection) Send(v interface{}) error {
 	s.connMu.Lock()

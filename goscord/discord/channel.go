@@ -2,7 +2,6 @@ package discord
 
 import (
 	"github.com/Goscord/goscord/goscord/discord/embed"
-	"log"
 	"time"
 
 	"github.com/goccy/go-json"
@@ -42,31 +41,34 @@ const (
 type MessageType int
 
 const (
-	Default MessageType = iota
-	RecipientAdd
-	RecipientRemove
-	Call
-	ChannelNameChange
-	ChannelIconChange
-	ChannelPinnedMessage
-	UserJoin
-	GuildBoost
-	GuildBoostTier1
-	GuildBoostTier2
-	GuildBoostTier3
-	ChannelFollowAdd
-	GuildDiscoveryAdd
-	GuildDiscoveryDisqualified
-	GuildDiscoveryRequalified
-	GuildDiscoveryGracePeriodInitialWarning
-	GuildDiscoveryGracePeriodFinalWarning
-	ThreadCreated
-	Reply
-	ChatInputCommand
-	ThreadStarterMessage
-	GuildInviteReminder
-	ContextMenuCommand
-	AutoModerationAction
+	MessageTypeDefault MessageType = iota
+	MessageTypeRecipientAdd
+	MessageTypeRecipientRemove
+	MessageTypeCall
+	MessageTypeChannelNameChange
+	MessageTypeChannelIconChange
+	MessageTypeChannelPinnedMessage
+	MessageTypeUserJoin
+	MessageTypeGuildBoost
+	MessageTypeGuildBoostTier1
+	MessageTypeGuildBoostTier2
+	MessageTypeGuildBoostTier3
+	MessageTypeChannelFollowAdd
+	MessageTypeGuildDiscoveryAdd
+	MessageTypeGuildDiscoveryDisqualified
+	MessageTypeGuildDiscoveryRequalified
+	MessageTypeGuildDiscoveryGracePeriodInitialWarning
+	MessageTypeGuildDiscoveryGracePeriodFinalWarning
+	MessageTypeThreadCreated
+	MessageTypeReply
+	MessageTypeChatInputCommand
+	MessageTypeThreadStarterMessage
+	MessageTypeGuildInviteReminder
+	MessageTypeContextMenuCommand
+	MessageTypeAutoModerationAction
+	MessageTypeRoleSubscription
+	MessageTypeInteractionPremiumUpsell
+	MessageTypeGuildApplicationPremiumSubscription = 32
 )
 
 type ChannelType int
@@ -144,6 +146,7 @@ type ThreadMember struct {
 	UserId        string     `json:"user_id,omitempty"`
 	JoinTimestamp *time.Time `json:"join_timestamp"`
 	Flags         int        `json:"flags"`
+	GuildId       string     `json:"guild_id,omitempty"`
 }
 
 type Attachment struct {
@@ -172,57 +175,58 @@ type AllowedMentions struct {
 }
 
 type Message struct {
-	Id                string             `json:"id"`
-	ChannelId         string             `json:"channel_id"`
-	GuildId           string             `json:"guild_id,omitempty"`
-	Author            *User              `json:"author"`
-	Member            *GuildMember       `json:"member"`
-	Content           string             `json:"content"`
-	Timestamp         *time.Time         `json:"timestamp"`
-	EditedTimestamp   *time.Time         `json:"edited_timestamp"`
-	Tts               bool               `json:"tts"`
-	MentionEveryone   bool               `json:"mention_everyone"`
-	Mentions          []*User            `json:"mentions"`
-	MentionRoles      []string           `json:"mention_roles"`
-	MentionChannels   []*Channel         `json:"mention_channels,omitempty"`
-	Attachments       []*Attachment      `json:"attachments"`
-	Embeds            []*embed.Embed     `json:"embeds"`
-	Reactions         []*Reaction        `json:"reactions"`
-	Nonce             interface{}        `json:"nonce,omitempty"` // integer or string
-	Pinned            bool               `json:"pinned"`
-	WebhookId         string             `json:"webhook_id,omitempty"`
-	Type              MessageType        `json:"type"`
-	Activity          *MessageActivity   `json:"activity,omitempty"`
-	Application       *Application       `json:"application,omitempty"`
-	ApplicationId     string             `json:"application_id,omitempty"`
-	MessageReference  *MessageReference  `json:"message_reference,omitempty"`
-	Flags             MessageFlag        `json:"flags,omitempty"`
-	ReferencedMessage *Message           `json:"referenced_message,omitempty"`
-	Interaction       *Interaction       `json:"interaction,omitempty"`
-	Thread            *Channel           `json:"thread,omitempty"`
-	Components        []MessageComponent `json:"components,omitempty"`
-	StickerItems      []*StickerItem     `json:"sticker_items,omitempty"`
-	Stickers          []*Sticker         `json:"stickers,omitempty"`
-	Position          int                `json:"position,omitempty"`
+	Id                string              `json:"id"`
+	ChannelId         string              `json:"channel_id"`
+	GuildId           string              `json:"guild_id,omitempty"`
+	Author            *User               `json:"author"`
+	Member            *GuildMember        `json:"member"`
+	Content           string              `json:"content"`
+	Timestamp         *time.Time          `json:"timestamp"`
+	EditedTimestamp   *time.Time          `json:"edited_timestamp"`
+	Tts               bool                `json:"tts"`
+	MentionEveryone   bool                `json:"mention_everyone"`
+	Mentions          []*User             `json:"mentions"`
+	MentionRoles      []string            `json:"mention_roles"`
+	MentionChannels   []*Channel          `json:"mention_channels,omitempty"`
+	Attachments       []*Attachment       `json:"attachments"`
+	Embeds            []*embed.Embed      `json:"embeds"`
+	Reactions         []*Reaction         `json:"reactions"`
+	Nonce             interface{}         `json:"nonce,omitempty"` // integer or string
+	Pinned            bool                `json:"pinned"`
+	WebhookId         string              `json:"webhook_id,omitempty"`
+	Type              MessageType         `json:"type"`
+	Activity          *MessageActivity    `json:"activity,omitempty"`
+	Application       *Application        `json:"application,omitempty"`
+	ApplicationId     string              `json:"application_id,omitempty"`
+	MessageReference  *MessageReference   `json:"message_reference,omitempty"`
+	Flags             MessageFlag         `json:"flags,omitempty"`
+	ReferencedMessage *Message            `json:"referenced_message,omitempty"`
+	Interaction       *MessageInteraction `json:"interaction,omitempty"`
+	Thread            *Channel            `json:"thread,omitempty"`
+	Components        []MessageComponent  `json:"components"`
+	StickerItems      []*StickerItem      `json:"sticker_items,omitempty"`
+	Position          int                 `json:"position,omitempty"`
 }
+
+type rawMessage Message
 
 // UnmarshalJSON ...
 func (m *Message) UnmarshalJSON(data []byte) error {
 	var v struct {
-		Message       Message                         `json:"-"`
-		RawComponents []unmarshalableMessageComponent `json:"components"`
+		rawMessage
+		Components []unmarshalableMessageComponent `json:"components"`
 	}
 
 	err := json.Unmarshal(data, &v)
 	if err != nil {
-		log.Println("ERROR")
 		return err
 	}
 
-	*m = Message(v.Message)
+	*m = Message(v.rawMessage)
 
-	m.Components = make([]MessageComponent, len(v.RawComponents))
-	for i, v := range v.RawComponents {
+	m.Components = make([]MessageComponent, len(v.Components))
+
+	for i, v := range v.Components {
 		m.Components[i] = v.MessageComponent
 	}
 
@@ -242,12 +246,12 @@ type Channel struct {
 	Bitrate                    int                   `json:"bitrate,omitempty"`
 	UserLimit                  int                   `json:"user_limit,omitempty"`
 	RateLimitPerUser           int                   `json:"rate_limit_per_user,omitempty"`
-	Recipients                 []User                `json:"recipients,omitempty"`
+	Recipients                 []*User               `json:"recipients,omitempty"`
 	Icon                       string                `json:"icon,omitempty"`
 	OwnerId                    string                `json:"owner_id,omitempty"`
 	ApplicationId              string                `json:"application_id,omitempty"`
 	ParentId                   string                `json:"parent_id,omitempty"`
-	LastPinTimestamp           **time.Time           `json:"last_pin_timestamp,omitempty"`
+	LastPinTimestamp           *time.Time            `json:"last_pin_timestamp,omitempty"`
 	RtcRegion                  string                `json:"rtc_region,omitempty"` // 	voice region id for the voice channel, automatic when set to null
 	VideoQualityMode           VideoQuality          `json:"video_quality_mode,omitempty"`
 	MessageCount               int                   `json:"message_count,omitempty"`
@@ -258,4 +262,28 @@ type Channel struct {
 	Permissions                BitwisePermissionFlag `json:"permissions,string,omitempty"`
 	Flags                      ChannelFlags          `json:"flags,omitempty"`
 	TotalMessageSent           int                   `json:"total_message_sent,omitempty"`
+}
+
+// ChannelPinsUpdateEventFields is used by the CHANNEL_PINS_UPDATE event
+type ChannelPinsUpdateEventFields struct {
+	GuildId          string     `json:"guild_id,omitempty"`
+	ChannelId        string     `json:"channel_id"`
+	LastPinTimestamp *time.Time `json:"last_pin_timestamp,omitempty"`
+}
+
+// ThreadListSyncEventFields is used by the THREAD_LIST_SYNC event
+type ThreadListSyncEventFields struct {
+	GuildId    string   `json:"guild_id"`
+	ChannelIds []string `json:"channel_ids,omitempty"`
+	Threads    []*Channel
+	Members    []*ThreadMember
+}
+
+// ThreadMembersUpdateEventFields is used by the THREAD_MEMBERS_UPDATE event
+type ThreadMembersUpdateEventFields struct {
+	Id                string          `json:"id"`
+	GuildId           string          `json:"guild_id"`
+	MemberCount       int             `json:"member_count"`
+	AddedMembers      []*ThreadMember `json:"added_members,omitempty"`
+	RemovedMembersIds []string        `json:"removed_member_ids,omitempty"`
 }

@@ -5,106 +5,81 @@ import (
 	"github.com/Goscord/goscord/goscord"
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/gateway"
-	"strings"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
-var client *gateway.Session
-
 func main() {
-	fmt.Println("Testing...")
-
-	client = goscord.New(&gateway.Options{
-		Token:   "",
-		Intents: gateway.IntentGuilds,
+	// Create client instance
+	client := goscord.New(&gateway.Options{
+		Token: "ODMxNTgzNTY2ODg2MjA3NTE4.GNmlGo.lJKp4NywTb0-YqFRG8X3Wsjhhtffw3Ww61eVoM",
+		Intents: gateway.IntentGuilds |
+			gateway.IntentGuildMembers |
+			gateway.IntentDirectMessages |
+			gateway.IntentGuildMessages |
+			gateway.IntentMessageContent,
 	})
 
-	client.On("ready", OnReady)
-	client.On("guildMemberAdd", OnGuildMemberAdd)
-	client.On("interactionCreate", OnInteractionCreate)
+	// Load events
+	_ = client.On("ready", OnReady(client))
+	_ = client.On("interactionCreate", CommandHandler(client))
 
+	// Login client
 	if err := client.Login(); err != nil {
 		panic(err)
 	}
 
-	select {}
+	// Wait here until term signal
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	<-sc
+
+	// Cleanly close down the Discord session
+	client.Close()
 }
 
-func OnReady() {
-	fmt.Println("Logged in as " + client.Me().Tag())
+func OnReady(client *gateway.Session) func() {
+	return func() {
+		fmt.Println("Logged in as ", client.Me().Tag())
 
-	appCmd := &discord.ApplicationCommand{
-		Name:        "ping",
-		Type:        discord.ApplicationCommandChat,
-		Description: "Pong pong pong!",
-	}
-
-	_, _ = client.Application.RegisterCommand(client.Me().Id, "", appCmd)
-
-	_ = client.SetActivity(&discord.Activity{Name: "Goscord's devs working on the lib rn", Type: discord.ActivityWatching})
-	_ = client.SetStatus(discord.StatusTypeIdle)
-}
-
-func OnInteractionCreate(i *discord.Interaction) {
-	if i.Type == discord.InteractionTypeMessageComponent {
-		data := i.MessageComponentData()
-
-		if data.CustomId == "test_btn_pong" {
-			client.Interaction.CreateResponse(i.Id, i.Token, &discord.InteractionCallbackMessage{Content: "Pong!"})
-		}
-
-		if data.CustomId == "test_text" {
-			client.Interaction.CreateResponse(i.Id, i.Token, &discord.InteractionCallbackMessage{Content: fmt.Sprintf("You choose : %s", strings.Join(data.Values, ", "))})
-		}
-	}
-
-	if i.Type == discord.InteractionTypeApplicationCommand {
-		if i.ApplicationCommandData().Name == "ping" {
-			if err := client.Interaction.CreateResponse(i.Id, i.Token, &discord.InteractionCallbackMessage{
-				Content: "Pong!",
-				Components: []discord.MessageComponent{
-					&discord.ActionRows{
-						Components: []discord.MessageComponent{
-							discord.Button{
-								CustomId: "test_btn_pong",
-								Style:    discord.ButtonStyleSuccess,
-								Label:    "Pong",
-							},
-						},
-					},
-					&discord.ActionRows{
-						Components: []discord.MessageComponent{
-							discord.SelectMenu{
-								CustomId:    "test_text",
-								PlaceHolder: "feur",
-								MinValues:   1,
-								MaxValues:   1,
-								Options: []*discord.SelectOption{
-									{
-										Description: "lmao u good",
-										Label:       "Yes",
-										Value:       "yes",
-									},
-									{
-										Description: "lmao u bad",
-										Label:       "No",
-										Value:       "No",
-									},
-								},
-							},
-						},
-					},
+		// Register slash commands
+		appCmd := &discord.ApplicationCommand{
+			Name:        "test",
+			Type:        discord.ApplicationCommandChat,
+			Description: "test command",
+			Options: []*discord.ApplicationCommandOption{
+				{
+					Name:        "message_id",
+					Type:        discord.ApplicationCommandOptionString,
+					Description: "Message ID",
+					Required:    true,
 				},
-			}); err != nil {
-				fmt.Println(err)
-			}
+			},
 		}
+		_, _ = client.Application.RegisterCommand(client.Me().Id, "", appCmd)
 	}
 }
 
-func OnGuildMemberAdd(a *discord.GuildMember) {
-	if c, ok := client.State().Channel("1001943782016688292"); ok == nil {
-		client.Channel.SendMessage(c.Id, "Welcome to the server <@"+a.User.Id+"> !")
-	} else {
-		fmt.Println("Could not find channel")
+func CommandHandler(client *gateway.Session) func(*discord.Interaction) {
+	return func(interaction *discord.Interaction) {
+		if interaction.Member == nil {
+			return
+		}
+
+		// Check if the command is "test"
+		if interaction.Data.(discord.ApplicationCommandData).Name != "test" {
+			return
+		}
+
+		// Get message by ID
+		msg, err := client.Channel.GetMessage(interaction.ChannelId, interaction.Data.(discord.ApplicationCommandData).Options[0].Value.(string))
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		fmt.Println(msg)
+
+		client.Interaction.CreateResponse(interaction.Id, interaction.Token, fmt.Sprintf("Embed: %d", len(msg.Embeds)))
 	}
 }

@@ -6,12 +6,12 @@ import (
 	"github.com/goccy/go-json"
 )
 
-type GuildEmojisUpdate struct {
-	Data *discord.GuildEmojisUpdateEventFields `json:"d"`
+type ThreadMemberUpdate struct {
+	Data *discord.ThreadMember `json:"d"`
 }
 
-func NewGuildEmojisUpdate(rest *rest.Client, data []byte) (*GuildEmojisUpdate, error) {
-	pk := new(GuildEmojisUpdate)
+func NewThreadMemberUpdate(rest *rest.Client, data []byte) (*ThreadMemberUpdate, error) {
+	pk := new(ThreadMemberUpdate)
 
 	err := json.Unmarshal(data, pk)
 

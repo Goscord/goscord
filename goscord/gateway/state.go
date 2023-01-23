@@ -290,6 +290,117 @@ func (s *State) Member(guildID string, userID string) (*discord.GuildMember, err
 	return nil, errors.New("guild member not found")
 }
 
+// EMOJIS
+
+func (s *State) AddEmoji(guildId string, emoji *discord.Emoji) error {
+	guild, err := s.Guild(guildId)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	for i, e := range guild.Emojis {
+		if e.Id == emoji.Id {
+			guild.Emojis[i] = emoji
+
+			return nil
+		}
+	}
+
+	guild.Emojis = append(guild.Emojis, emoji)
+
+	return nil
+}
+
+func (s *State) Emoji(guildId, emojiId string) (*discord.Emoji, error) {
+	guild, err := s.Guild(guildId)
+	if err != nil {
+		return nil, err
+	}
+
+	s.RLock()
+	defer s.RUnlock()
+
+	for _, e := range guild.Emojis {
+		if e.Id == emojiId {
+			return e, nil
+		}
+	}
+
+	return nil, errors.New("emoji not found")
+}
+
+func (s *State) AddEmojis(guildId string, emojis []*discord.Emoji) error {
+	for _, e := range emojis {
+		if err := s.AddEmoji(guildId, e); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *State) AddRole(guildId string, role *discord.Role) error {
+	guild, err := s.Guild(guildId)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	for i, r := range guild.Roles {
+		if r.Id == role.Id {
+			guild.Roles[i] = role
+
+			return nil
+		}
+	}
+
+	guild.Roles = append(guild.Roles, role)
+
+	return nil
+}
+
+func (s *State) RemoveRole(guildId, roleId string) error {
+	guild, err := s.Guild(guildId)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	for i, r := range guild.Roles {
+		if r.Id == roleId {
+			guild.Roles = append(guild.Roles[:i], guild.Roles[i+1:]...)
+			return nil
+		}
+	}
+
+	return errors.New("role not found")
+}
+
+func (s *State) Role(guildId, roleId string) (*discord.Role, error) {
+	guild, err := s.Guild(guildId)
+	if err != nil {
+		return nil, err
+	}
+
+	s.RLock()
+	defer s.RUnlock()
+
+	for _, r := range guild.Roles {
+		if r.Id == roleId {
+			return r, nil
+		}
+	}
+
+	return nil, errors.New("role not found")
+}
+
 func (s *State) Guilds() map[string]*discord.Guild {
 	s.RLock()
 	defer s.RUnlock()

@@ -273,3 +273,54 @@ type Guild struct {
 	StageInstances []*Channel        `json:"stage_instances"` // ToDo : Change to StageInstance
 	//GuildScheduledEvents []*GuildScheduledEvent  `json:"guild_scheduled_events"`
 }
+
+// GuildEmojisUpdateEventFields is the fields for the GUILD_EMOJIS_UPDATE event
+type GuildEmojisUpdateEventFields struct {
+	GuildId string   `json:"guild_id"`
+	Emojis  []*Emoji `json:"emojis"`
+}
+
+type GuildMemberRemoveEventFields struct {
+	GuildId string `json:"guild_id"`
+	User    *User  `json:"user"`
+}
+
+// GuildStickersUpdateEventFields is the fields for the GUILD_STICKERS_UPDATE event
+type GuildStickersUpdateEventFields struct {
+	GuildId  string     `json:"guild_id"`
+	Stickers []*Sticker `json:"stickers"`
+}
+
+// GuildIntegrationsUpdateEventFields is the fields for the GUILD_INTEGRATIONS_UPDATE event
+type GuildIntegrationsUpdateEventFields struct {
+	GuildId string `json:"guild_id"`
+}
+
+// GuildMembersChunkEventFields is the fields for the GUILD_MEMBERS_CHUNK event
+type GuildMembersChunkEventFields struct {
+	GuildId    string            `json:"guild_id"`
+	Members    []*GuildMember    `json:"members"`
+	ChunkIndex int               `json:"chunk_index"`
+	ChunkCount int               `json:"chunk_count"`
+	NotFound   []string          `json:"not_found,omitempty"`
+	Presences  []*PresenceUpdate `json:"presences,omitempty"`
+	Nonce      string            `json:"nonce,omitempty"`
+}
+
+// GuildRoleCreateEventFields is the fields for the GUILD_ROLE_CREATE event
+type GuildRoleCreateEventFields struct {
+	GuildId string `json:"guild_id"`
+	Role    *Role  `json:"role"`
+}
+
+// GuildRoleUpdateEventFields is the fields for the GUILD_ROLE_UPDATE event
+type GuildRoleUpdateEventFields struct {
+	GuildId string `json:"guild_id"`
+	Role    *Role  `json:"role"`
+}
+
+// GuildRoleDeleteEventFields is the fields for the GUILD_ROLE_DELETE event
+type GuildRoleDeleteEventFields struct {
+	GuildId string `json:"guild_id"`
+	RoleId  string `json:"role_id"`
+}

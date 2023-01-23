@@ -98,8 +98,35 @@ func NewSession(options *Options) *Session {
 
 func (s *Session) registerHandlers() {
 	s.handlers = map[string]EventHandler{
-		event.EventReady:             &ReadyHandler{},
-		event.EventResumed:           &ResumedHandler{},
+		event.EventReady:   &ReadyHandler{},
+		event.EventResumed: &ResumedHandler{},
+		// Application events
+		event.EventApplicationCommandPermissionsUpdate: &ApplicationCommandPermissionsUpdateHandler{},
+		// AutoModeration events
+		event.EventAutoModerationRuleCreate:      &AutoModerationRuleCreateHandler{},
+		event.EventAutoModerationRuleDelete:      &AutoModerationRuleDeleteHandler{},
+		event.EventAutoModerationRuleUpdate:      &AutoModerationRuleUpdateHandler{},
+		event.EventAutoModerationActionExecution: &AutoModerationActionExecutionHandler{},
+		event.EventChannelCreate:                 &ChannelCreateHandler{},
+		event.EventChannelUpdate:                 &ChannelUpdateHandler{},
+		event.EventChannelDelete:                 &ChannelDeleteHandler{},
+		event.EventChannelPinsUpdate:             &ChannelPinsUpdateHandler{},
+		event.EventThreadCreate:                  &ThreadCreateHandler{},
+		event.EventThreadUpdate:                  &ThreadUpdateHandler{},
+		event.EventThreadDelete:                  &ThreadDeleteHandler{},
+		event.EventThreadListSync:                &ThreadListSyncHandler{},
+		event.EventThreadMemberUpdate:            &ThreadMemberUpdateHandler{},
+		event.EventThreadMembersUpdate:           &ThreadMembersUpdateHandler{},
+		event.EventGuildStickersUpdate:           &GuildStickersUpdateHandler{},
+		event.EventGuildIntegrationsUpdate:       &GuildIntegrationsUpdateHandler{},
+		event.EventGuildMemberAdd:                &GuildMemberAddHandler{},
+		event.EventGuildMemberRemove:             &GuildMemberRemoveHandler{},
+		event.EventGuildMemberUpdate:             &GuildMemberUpdateHandler{},
+		event.EventGuildMembersChunk:             &GuildMembersChunkHandler{},
+		event.EventGuildRoleCreate:               &GuildRoleCreateHandler{},
+		event.EventGuildRoleUpdate:               &GuildRoleUpdateHandler{},
+		event.EventGuildRoleDelete:               &GuildRoleDeleteHandler{},
+
 		event.EventGuildCreate:       &GuildCreateHandler{},
 		event.EventGuildUpdate:       &GuildUpdateHandler{},
 		event.EventGuildDelete:       &GuildDeleteHandler{},
@@ -107,11 +134,7 @@ func (s *Session) registerHandlers() {
 		event.EventGuildBanRemove:    &GuildBanRemoveHandler{},
 		event.EventGuildEmojisUpdate: &GuildEmojisUpdateHandler{},
 		event.EventMessageCreate:     &MessageCreateHandler{},
-		event.EventChannelCreate:     &ChannelCreateHandler{},
-		event.EventChannelUpdate:     &ChannelUpdateHandler{},
-		event.EventChannelDelete:     &ChannelDeleteHandler{},
 		event.EventPresenceUpdate:    &PresenceUpdateHandler{},
-		event.EventGuildMemberAdd:    &GuildMemberAddHandler{},
 		event.EventInteractionCreate: &InteractionCreateHandler{},
 	}
 }

@@ -8,8 +8,7 @@ import (
 type ApplicationCommandType int
 
 const (
-	_                      ApplicationCommandType = iota
-	ApplicationCommandChat                        // slash command
+	ApplicationCommandChat = iota + 1 // slash command
 	ApplicationCommandUser
 	ApplicationCommandMessage
 )
@@ -17,8 +16,7 @@ const (
 type ApplicationCommandOptionType int
 
 const (
-	_ ApplicationCommandOptionType = iota
-	ApplicationCommandOptionSubCommand
+	ApplicationCommandOptionSubCommand = iota + 1
 	ApplicationCommandOptionSubCommandGroup
 	ApplicationCommandOptionString
 	ApplicationCommandOptionInteger
@@ -75,7 +73,7 @@ type ApplicationCommandPermissionsList struct {
 type GuildApplicationCommandPermissions struct {
 	Id            string                           `json:"id"`
 	ApplicationId string                           `json:"application_id"`
-	GuilddId      string                           `json:"guild_id"`
+	GuildId       string                           `json:"guild_id"`
 	Permissions   []*ApplicationCommandPermissions `json:"permissions"`
 }
 
@@ -119,7 +117,21 @@ func (o ApplicationCommandInteractionDataOption) Bool() bool {
 	return o.Value.(bool)
 }
 
-// ToDo : User and Role helper functions
+/* ToDo : Moove to a new folder to avoid import cycle
+func (o ApplicationCommandInteractionDataOption) ChannelValue(s *gateway.Session) *Channel {
+	if o.Type != ApplicationCommandOptionChannel {
+		return nil
+	}
+
+	chanID := o.Value.(string)
+	channel, err := s.State().Channel(chanID)
+	if err == nil {
+		return channel
+	}
+
+	return &Channel{Id: chanID}
+}
+*/
 
 type ApplicationCommandOption struct {
 	Type                     ApplicationCommandOptionType      `json:"type"`
@@ -141,8 +153,7 @@ type ApplicationCommandOption struct {
 type InteractionType int
 
 const (
-	_ InteractionType = iota
-	InteractionTypePing
+	InteractionTypePing = iota + 1
 	InteractionTypeApplicationCommand
 	InteractionTypeMessageComponent
 	InteractionTypeApplicationCommandAutocomplete
@@ -153,19 +164,19 @@ type InteractionCallbackType int
 
 const (
 	InteractionCallbackTypePong                                 = 1 // ack a ping
-	InteractionCallbackTypeChannelWithSource                    = 4 // respond to an interaction with a message
-	InteractionCallbackTypeDeferredChannelMessageWithSource     = 5 // ACK an interaction and edit a response later, the user sees a loading state
-	InteractionCallbackTypeDeferredUpdateMessage                = 6 // for components, ACK an interaction and edit the original message later; the user does not see a loading state
+	InteractionCallbackTypeChannelWithSource                    = 4 // respond to an rawInteraction with a message
+	InteractionCallbackTypeDeferredChannelMessageWithSource     = 5 // ACK an rawInteraction and edit a response later, the user sees a loading state
+	InteractionCallbackTypeDeferredUpdateMessage                = 6 // for components, ACK an rawInteraction and edit the original message later; the user does not see a loading state
 	InteractionCallbackTypeUpdateMessage                        = 7 // for components, edit the message the component was attached to
 	InteractionCallbackTypeApplicationCommandAutocompleteResult = 8 // for autocomplete, return the results of the autocomplete
-	InteractionCallbackTypeModal                                = 9 // respond to an interaction with a popup modal
+	InteractionCallbackTypeModal                                = 9 // respond to an rawInteraction with a popup modal
 )
 
 type Interaction struct {
 	Id             string                `json:"id"`
 	ApplicationId  string                `json:"application_id"`
 	Type           InteractionType       `json:"type"`
-	Data           InteractionData       `json:"data,omitempty"`
+	Data           InteractionData       `json:"data"`
 	GuildId        string                `json:"guild_id,omitempty"`
 	ChannelId      string                `json:"channel_id,omitempty"`
 	Member         *GuildMember          `json:"member"`
@@ -178,10 +189,10 @@ type Interaction struct {
 	GuildLocale    Locale                `json:"guild_locale,omitempty"`
 }
 
-type interaction Interaction
+type rawInteraction Interaction
 
 type unmarshalableInteraction struct {
-	interaction
+	rawInteraction
 	Data json.RawMessage `json:"data"`
 }
 
@@ -194,9 +205,9 @@ func (i *Interaction) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	*i = Interaction(tmp.interaction)
+	*i = Interaction(tmp.rawInteraction)
 
-	switch tmp.Type {
+	switch i.Type {
 	case InteractionTypeApplicationCommand, InteractionTypeApplicationCommandAutocomplete:
 		v := ApplicationCommandData{}
 
@@ -231,15 +242,15 @@ func (i *Interaction) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (i Interaction) MessageComponentData() MessageComponentData {
+func (i *Interaction) MessageComponentData() MessageComponentData {
 	return i.Data.(MessageComponentData)
 }
 
-func (i Interaction) ApplicationCommandData() ApplicationCommandData {
+func (i *Interaction) ApplicationCommandData() ApplicationCommandData {
 	return i.Data.(ApplicationCommandData)
 }
 
-func (i Interaction) ModalSubmitData() ModalSubmitData {
+func (i *Interaction) ModalSubmitData() ModalSubmitData {
 	return i.Data.(ModalSubmitData)
 }
 

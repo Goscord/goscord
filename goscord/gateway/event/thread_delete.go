@@ -6,12 +6,12 @@ import (
 	"github.com/goccy/go-json"
 )
 
-type GuildEmojisUpdate struct {
-	Data *discord.GuildEmojisUpdateEventFields `json:"d"`
+type ThreadDelete struct {
+	Data *discord.Channel `json:"d"`
 }
 
-func NewGuildEmojisUpdate(rest *rest.Client, data []byte) (*GuildEmojisUpdate, error) {
-	pk := new(GuildEmojisUpdate)
+func NewThreadDelete(rest *rest.Client, data []byte) (*ThreadDelete, error) {
+	pk := new(ThreadDelete)
 
 	err := json.Unmarshal(data, pk)
 

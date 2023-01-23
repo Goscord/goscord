@@ -1,6 +1,6 @@
 package discord
 
-type BitwisePermissionFlag uint64
+type BitwisePermissionFlag int64
 
 const (
 	BitwisePermissionFlagCreateInstantInvite BitwisePermissionFlag = 1 << iota

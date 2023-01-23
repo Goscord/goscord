@@ -6,12 +6,12 @@ import (
 	"github.com/goccy/go-json"
 )
 
-type GuildEmojisUpdate struct {
-	Data *discord.GuildEmojisUpdateEventFields `json:"d"`
+type AutoModerationRuleCreate struct {
+	Data *discord.AutoModerationRule `json:"d"`
 }
 
-func NewGuildEmojisUpdate(rest *rest.Client, data []byte) (*GuildEmojisUpdate, error) {
-	pk := new(GuildEmojisUpdate)
+func NewAutoModerationRuleCreate(rest *rest.Client, data []byte) (*AutoModerationRuleCreate, error) {
+	pk := new(AutoModerationRuleCreate)
 
 	err := json.Unmarshal(data, pk)
 

@@ -7,7 +7,7 @@ import (
 )
 
 type GuildMemberRemove struct {
-	Data *discord.User `json:"d"`
+	Data *discord.GuildMemberRemoveEventFields `json:"d"`
 }
 
 func NewGuildMemberRemove(rest *rest.Client, data []byte) (*GuildMemberRemove, error) {

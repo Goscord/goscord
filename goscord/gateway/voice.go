@@ -234,12 +234,12 @@ func (v *VoiceConnection) loginUDP() error {
 	ip := string(buf[4:20])
 	port := binary.BigEndian.Uint16(buf[68:70])
 
-	fmt.Println("UDP IP:", ip)
-	fmt.Println("UDP Port:", port)
+	voiceSelect := packet.NewVoiceSelectProtocol(ip, port)
+	if err := v.Send(voiceSelect); err != nil {
+		return errors.New("cannot send select protocol packet: " + err.Error())
+	}
 
-	// TODO: Send UDP data to Discord
-
-	// TODO: Start UDP heartbeat
+	// TODO: Try to heartbeat UDP
 
 	return nil
 }

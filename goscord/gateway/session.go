@@ -56,6 +56,9 @@ type Session struct {
 	lastHeartbeatSent time.Time
 	lastSequence      int64
 
+	// voice conn
+	VoiceConnections map[string]*VoiceConnection
+
 	// Rest handlers
 	Application *rest.ApplicationHandler
 	Channel     *rest.ChannelHandler
@@ -79,6 +82,9 @@ func NewSession(options *Options) *Session {
 	s.bus = ev.New().(*ev.EventBus)
 	s.state = NewState(s)
 	s.status = StatusUnconnected
+
+	// voice conn
+	s.VoiceConnections = make(map[string]*VoiceConnection)
 
 	s.Application = rest.NewApplicationHandler(s.rest)
 	s.Channel = rest.NewChannelHandler(s.rest)
@@ -136,9 +142,46 @@ func (s *Session) registerHandlers() {
 		event.EventMessageCreate:     &MessageCreateHandler{},
 		event.EventPresenceUpdate:    &PresenceUpdateHandler{},
 		event.EventInteractionCreate: &InteractionCreateHandler{},
+		event.EventVoiceStateUpdate:  &VoiceStateUpdateHandler{},
+		event.EventVoiceServerUpdate: &VoiceServerUpdateHandler{},
 	}
 }
 
+// JoinVoiceChannel joins a voice channel.
+func (s *Session) JoinVoiceChannel(guildId, channelId string, muted, deafened bool) (*VoiceConnection, error) {
+	s.RLock()
+	vConn, _ := s.VoiceConnections[guildId]
+	s.RUnlock()
+
+	if vConn == nil {
+		vConn = &VoiceConnection{}
+		s.Lock()
+		s.VoiceConnections[guildId] = vConn
+		s.Unlock()
+	}
+
+	vConn.Lock()
+	vConn.GuildId = guildId
+	vConn.ChannelId = channelId
+	vConn.deaf = deafened
+	vConn.mute = muted
+	vConn.session = s
+	vConn.Unlock()
+
+	voiceStateUpdate := packet.NewVoiceStateUpdate(guildId, channelId, muted, deafened)
+	if err := s.Send(voiceStateUpdate); err != nil {
+		return nil, err
+	}
+
+	if err := vConn.wait(); err != nil {
+		vConn.Close()
+		return nil, err
+	}
+
+	return vConn, nil
+}
+
+// Login connects the session to the gateway.
 func (s *Session) Login() error {
 	s.connMu.Lock()
 	defer s.connMu.Unlock()

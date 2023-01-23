@@ -1,7 +1,6 @@
 package gateway
 
 import (
-	"fmt"
 	"github.com/Goscord/goscord/goscord/gateway/event"
 )
 
@@ -13,8 +12,6 @@ func (_ *VoiceServerUpdateHandler) Handle(s *Session, data []byte) {
 	if err != nil {
 		return
 	}
-
-	fmt.Println("VoiceServerUpdateHandler")
 
 	s.RLock()
 	voice, ok := s.VoiceConnections[ev.Data.GuildId]

@@ -155,6 +155,7 @@ func (s *Session) JoinVoiceChannel(guildId, channelId string, muted, deafened bo
 
 	if vConn == nil {
 		vConn = &VoiceConnection{}
+
 		s.Lock()
 		s.VoiceConnections[guildId] = vConn
 		s.Unlock()

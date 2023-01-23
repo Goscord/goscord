@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/Goscord/goscord/goscord/gateway/packet"
 	"github.com/gorilla/websocket"
+	"go.uber.org/atomic"
 	"net"
 	"strconv"
 	"sync"
@@ -17,7 +18,7 @@ type VoiceConnection struct {
 	sync.RWMutex
 
 	session *Session
-	ready   bool
+	ready   atomic.Bool
 
 	UserId    string
 	GuildId   string
@@ -63,6 +64,10 @@ func (v *VoiceConnection) login() error {
 
 	attempt := 0
 	for {
+		v.RLock()
+		sessionId := v.sessionId
+		v.RUnlock()
+
 		if sessionId != "" {
 			break
 		}
@@ -76,7 +81,7 @@ func (v *VoiceConnection) login() error {
 		attempt++
 	}
 
-	conn, _, err := websocket.DefaultDialer.Dial("wss://"+endpoint+"/?v=4", nil)
+	conn, _, err := websocket.DefaultDialer.Dial("wss://"+endpoint, nil)
 	if err != nil {
 		return errors.New("cannot connect to voice websocket server")
 	}
@@ -84,7 +89,7 @@ func (v *VoiceConnection) login() error {
 	v.conn = conn
 
 	payload := packet.NewVoiceIdentify(guildId, userId, sessionId, token)
-	if err := v.conn.WriteJSON(payload); err != nil {
+	if err := conn.WriteJSON(payload); err != nil {
 		return err
 	}
 
@@ -116,6 +121,7 @@ func (v *VoiceConnection) listen(conn *websocket.Conn, close chan struct{}) {
 					if !reconnected {
 						continue
 					}
+
 					return
 				}
 
@@ -142,12 +148,15 @@ func (v *VoiceConnection) listen(conn *websocket.Conn, close chan struct{}) {
 		select {
 		case <-close:
 			return
+
 		default:
 			pk, err := packet.NewPacket(msg)
 
 			if err != nil {
 				return
 			}
+
+			fmt.Println("[VOICE] Opcode: ", pk.Opcode)
 
 			switch pk.Opcode {
 			case packet.OpVoiceReady:
@@ -156,18 +165,19 @@ func (v *VoiceConnection) listen(conn *websocket.Conn, close chan struct{}) {
 					return
 				}
 
+				v.ready.Store(true)
+
 				v.Lock()
-				v.ready = true
 				v.ip = ready.Data.IP
 				v.port = ready.Data.Port
 				v.ssrc = ready.Data.SSRC
 				v.modes = ready.Data.Modes
 				v.Unlock()
 
-				/*err := v.loginUdp()
+				err := v.loginUdp()
 				if err != nil {
 					return
-				}*/
+				}
 
 			case packet.OpVoiceHello:
 				var hello packet.VoiceHello
@@ -198,45 +208,58 @@ func (v *VoiceConnection) listen(conn *websocket.Conn, close chan struct{}) {
 }
 
 func (v *VoiceConnection) loginUdp() error { // TODO: make this work
-	v.RLock()
-	defer v.RUnlock()
+	v.connMu.Lock()
+	conn := v.conn
+	v.connMu.Unlock()
 
-	if v.conn == nil {
+	v.RLock()
+	udpConn := v.udpConn
+	c := v.close
+	endpoint := v.endpoint
+	vIp := v.ip
+	vPort := v.port
+	v.RUnlock()
+
+	if conn == nil {
 		return errors.New("nil connection")
 	}
 
-	if v.udpConn != nil {
+	if udpConn != nil {
 		return errors.New("udp connection already exists")
 	}
 
-	if v.close == nil {
+	if c == nil {
 		return errors.New("nil close channel")
 	}
 
-	if v.endpoint == "" {
+	if endpoint == "" {
 		return errors.New("empty endpoint")
 	}
 
-	host := v.ip + ":" + strconv.Itoa(v.port)
+	host := vIp + ":" + strconv.Itoa(vPort)
 	addr, err := net.ResolveUDPAddr("udp", host)
 	if err != nil {
 		return err
 	}
 
-	v.udpConn, err = net.DialUDP("udp", nil, addr)
+	udpConn, err = net.DialUDP("udp", nil, addr)
 	if err != nil {
 		return err
 	}
 
+	v.Lock()
+	v.udpConn = udpConn
+	v.Unlock()
+
 	buf := make([]byte, 70)
 	binary.BigEndian.PutUint32(buf, v.ssrc)
-	_, err = v.udpConn.Write(buf)
+	_, err = udpConn.Write(buf)
 	if err != nil {
 		return err
 	}
 
 	buf = make([]byte, 70)
-	bufLen, _, err := v.udpConn.ReadFromUDP(buf)
+	bufLen, _, err := udpConn.ReadFromUDP(buf)
 	if err != nil {
 		return err
 	}
@@ -254,7 +277,7 @@ func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 		return errors.New("cannot send select protocol packet: " + err.Error())
 	}
 
-	go v.heartbeatUdp(v.udpConn, v.close)
+	go v.heartbeatUdp(udpConn, c)
 
 	return nil
 }
@@ -314,25 +337,25 @@ func (v *VoiceConnection) startHeartbeat(conn *websocket.Conn, c <-chan struct{}
 }
 
 func (v *VoiceConnection) wait() error {
-	attempt := 0
+	var attempt int = 1
+	var err error
 
 	for {
-		v.RLock()
-		ready := v.ready
-		v.RUnlock()
-
-		if ready {
-			return nil
+		if v.ready.Load() {
+			break
 		}
 
 		if attempt > 10 {
-			return fmt.Errorf("voice connection timed out")
+			err = errors.New("voice connection timed out")
+			break
 		}
 
-		<-time.After(500 * time.Millisecond)
+		<-time.After(1 * time.Second)
 
 		attempt++
 	}
+
+	return err
 }
 
 func (v *VoiceConnection) reconnect() {
@@ -414,8 +437,9 @@ func (v *VoiceConnection) Disconnect() (err error) {
 }
 
 func (v *VoiceConnection) Close() {
+	v.ready.Store(false)
+
 	v.Lock()
-	v.ready = false
 	v.speaking = false
 	v.Unlock()
 

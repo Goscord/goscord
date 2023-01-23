@@ -13,6 +13,8 @@ type VoiceStateUpdate struct {
 func NewVoiceStateUpdate(guildId, channelId string, selfMuted, selfDeaf bool) *VoiceStateUpdate {
 	voice := &VoiceStateUpdate{}
 
+	voice.Opcode = OpVoiceStateUpdate
+
 	voice.Data.GuildId = guildId
 	voice.Data.ChannelId = channelId
 	voice.Data.SelfMute = selfMuted

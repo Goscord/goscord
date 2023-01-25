@@ -44,10 +44,13 @@ func (_ *VoiceStateUpdateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	err = s.State().UpdateVoiceState(ev)
-	if err != nil {
-		fmt.Println(err)
-	}
+	fmt.Println("VOICE STATE UPDATE", ev.Data)
+
+	/*
+		err = s.State().UpdateVoiceState(ev)
+		if err != nil {
+			fmt.Println(err)
+		}*/
 
 	s.RLock()
 	voice, ok := s.VoiceConnections[ev.Data.GuildId]

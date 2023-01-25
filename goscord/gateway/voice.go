@@ -12,6 +12,7 @@ import (
 	"golang.org/x/crypto/nacl/secretbox"
 	"net"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -62,11 +63,7 @@ type VoiceConnection struct {
 
 func (v *VoiceConnection) login() error {
 	v.RLock()
-	sessionId := v.sessionId
 	endpoint := v.endpoint
-	guildId := v.GuildId
-	userId := v.UserId
-	token := v.token
 	v.RUnlock()
 
 	v.connMu.Lock()
@@ -91,17 +88,12 @@ func (v *VoiceConnection) login() error {
 		attempt++
 	}
 
-	conn, _, err := websocket.DefaultDialer.Dial("wss://"+endpoint, nil)
+	conn, _, err := websocket.DefaultDialer.Dial("wss://"+strings.TrimSuffix(endpoint, ":80")+"/?v=4", nil)
 	if err != nil {
 		return errors.New("cannot connect to voice websocket server")
 	}
 
 	v.conn = conn
-
-	payload := packet.NewVoiceIdentify(guildId, userId, sessionId, token)
-	if err := conn.WriteJSON(payload); err != nil {
-		return err
-	}
 
 	v.Lock()
 	c := make(chan struct{})
@@ -193,6 +185,25 @@ func (v *VoiceConnection) listen(conn *websocket.Conn, c chan struct{}) {
 					return
 				}
 
+				v.RLock()
+				guildId := v.GuildId
+				userId := v.UserId
+				sessionId := v.sessionId
+				token := v.token
+				v.RUnlock()
+
+				if v.ready.Load() {
+					payload := packet.NewVoiceResume(guildId, sessionId, token)
+					if err := conn.WriteJSON(payload); err != nil {
+						return
+					}
+				} else {
+					payload := packet.NewVoiceIdentify(guildId, userId, sessionId, token)
+					if err := conn.WriteJSON(payload); err != nil {
+						return
+					}
+				}
+
 				interval := time.Duration(hello.Data.HeartbeatInterval) // little hack cuz discord sends a float64
 
 				v.RLock()
@@ -268,17 +279,6 @@ func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 		return err
 	}
 
-	payload := [12]byte{
-		0: 0x80,
-		1: 0x78,
-	}
-	binary.BigEndian.PutUint32(payload[8:12], ssrc)
-
-	v.Lock()
-	v.udpConn = udpConn
-	v.packet = payload
-	v.Unlock()
-
 	buf := make([]byte, 70)
 	binary.BigEndian.PutUint32(buf, ssrc)
 	_, err = udpConn.Write(buf)
@@ -311,7 +311,15 @@ func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 		return errors.New("cannot send select protocol packet: " + err.Error())
 	}
 
+	payload := [12]byte{
+		0: 0x80,
+		1: 0x78,
+	}
+	binary.BigEndian.PutUint32(payload[8:12], ssrc)
+
 	v.Lock()
+	v.udpConn = udpConn
+	v.packet = payload
 	v.frequency = time.NewTicker(20 * time.Millisecond)
 	v.Unlock()
 
@@ -321,6 +329,12 @@ func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 }
 
 func (v *VoiceConnection) Write(b []byte) (int, error) {
+	v.RLock()
+	udpConn := v.udpConn
+	frequency := v.frequency
+	c := v.close
+	v.RUnlock()
+
 	v.Lock()
 	binary.BigEndian.PutUint16(v.packet[2:4], v.sequence)
 	v.sequence++
@@ -332,10 +346,6 @@ func (v *VoiceConnection) Write(b []byte) (int, error) {
 	v.Unlock()
 
 	v.RLock()
-	udpConn := v.udpConn
-	frequency := v.frequency
-	c := v.close
-
 	toSend := secretbox.Seal(v.packet[:12], b, &v.nonce, &v.secretKey)
 	v.RUnlock()
 
@@ -434,9 +444,10 @@ func (v *VoiceConnection) wait() error {
 
 func (v *VoiceConnection) reconnect() {
 	v.RLock()
-	if v.reconnecting {
-		v.RUnlock()
+	reconnecting := v.reconnecting
+	v.RUnlock()
 
+	if reconnecting {
 		return
 	}
 
@@ -494,24 +505,17 @@ func (v *VoiceConnection) Speaking(speaking bool) error {
 	v.connMu.Unlock()
 
 	if conn == nil {
-		return errors.New("voice connection is not ready")
+		return errors.New("voice connection not ready")
 	}
 
 	payload := packet.NewVoiceSpeaking(speaking, ssrc)
 	err := conn.WriteJSON(payload)
 
-	if err != nil {
-		v.Lock()
-		v.speaking = false
-		v.Unlock()
-		return err
-	}
-
 	v.Lock()
 	v.speaking = speaking
 	v.Unlock()
 
-	return nil
+	return err
 }
 
 func (v *VoiceConnection) Disconnect() (err error) {

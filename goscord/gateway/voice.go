@@ -16,6 +16,8 @@ import (
 	"time"
 )
 
+const frameSize uint32 = 960
+
 type VoiceConnection struct {
 	sync.RWMutex
 
@@ -38,24 +40,22 @@ type VoiceConnection struct {
 	// udp connection
 	udpConn *net.UDPConn
 
-	// Voice connection data
+	// voice connection data
 	sessionId string
 	token     string
 	endpoint  string
 	ip        string
 	port      int
 	ssrc      uint32
-	modes     []string
+	modes     []string // TODO: Maybe remove?
 	secretKey [32]byte
 
-	// send cache
+	// send data
+	frequency *time.Ticker
 	packet    [12]byte
 	sequence  uint16
 	timestamp uint32
 	nonce     [24]byte
-
-	// recv/send channels
-	SendChan chan []byte
 
 	close chan struct{}
 }
@@ -104,16 +104,16 @@ func (v *VoiceConnection) login() error {
 	}
 
 	v.Lock()
-	cclose := make(chan struct{})
-	v.close = cclose
+	c := make(chan struct{})
+	v.close = c
 	v.Unlock()
 
-	go v.listen(conn, cclose)
+	go v.listen(conn, c)
 
 	return nil
 }
 
-func (v *VoiceConnection) listen(conn *websocket.Conn, close chan struct{}) {
+func (v *VoiceConnection) listen(conn *websocket.Conn, c chan struct{}) {
 	for {
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
@@ -156,7 +156,7 @@ func (v *VoiceConnection) listen(conn *websocket.Conn, close chan struct{}) {
 		}
 
 		select {
-		case <-close:
+		case <-c:
 			return
 
 		default:
@@ -211,24 +211,11 @@ func (v *VoiceConnection) listen(conn *websocket.Conn, close chan struct{}) {
 					return
 				}
 
+				v.ready.Store(true)
+
 				v.Lock()
 				v.secretKey = sessionDescription.Data.SecretKey
 				v.Unlock()
-
-				v.RLock()
-				udpConn := v.udpConn
-				c := v.close
-				sendChan := v.SendChan
-				v.RUnlock()
-
-				if sendChan == nil {
-					v.Lock()
-					v.SendChan = make(chan []byte, 2)
-					sendChan = v.SendChan
-					v.Unlock()
-				}
-
-				go v.startOpusSending(udpConn, c, sendChan, 48000, 960)
 
 			case packet.OpVoiceSpeaking:
 				// TODO: Handle speaking event
@@ -285,7 +272,6 @@ func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 		0: 0x80,
 		1: 0x78,
 	}
-
 	binary.BigEndian.PutUint32(payload[8:12], ssrc)
 
 	v.Lock()
@@ -325,91 +311,52 @@ func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 		return errors.New("cannot send select protocol packet: " + err.Error())
 	}
 
+	v.Lock()
+	v.frequency = time.NewTicker(20 * time.Millisecond)
+	v.Unlock()
+
 	go v.heartbeatUdp(udpConn, c)
 
 	return nil
 }
 
-func (v *VoiceConnection) startOpusSending(udpConn *net.UDPConn, c <-chan struct{}, opus <-chan []byte, rate, size int) {
-	if udpConn == nil || c == nil {
-		return
+func (v *VoiceConnection) Write(b []byte) (int, error) {
+	v.Lock()
+	binary.BigEndian.PutUint16(v.packet[2:4], v.sequence)
+	v.sequence++
+
+	binary.BigEndian.PutUint32(v.packet[4:8], v.timestamp)
+	v.timestamp += frameSize
+
+	copy(v.nonce[:12], v.packet[:])
+	v.Unlock()
+
+	v.RLock()
+	udpConn := v.udpConn
+	frequency := v.frequency
+	c := v.close
+
+	toSend := secretbox.Seal(v.packet[:12], b, &v.nonce, &v.secretKey)
+	v.RUnlock()
+
+	select {
+	case <-frequency.C:
+		// loop
+
+	case <-c:
+		return 0, errors.New("voice connection closed")
 	}
 
-	v.ready.Store(true)
-
-	defer func() {
-		v.ready.Store(false)
-	}()
-
-	var sequence uint16
-	var timestamp uint32
-	var recvbuf []byte
-	var ok bool
-
-	ticker := time.NewTicker(time.Millisecond * time.Duration(size/(rate/1000)))
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-c:
-			return
-
-		case recvbuf, ok = <-opus:
-			if !ok {
-				return
-			}
-		}
-
-		v.RLock()
-		speaking := v.speaking
-		v.RUnlock()
-
-		if !speaking {
-			err := v.Speaking(true)
-			if err != nil {
-				// TODO: Log error
-			}
-		}
-
-		v.Lock()
-		binary.BigEndian.PutUint16(v.packet[2:4], sequence)
-		binary.BigEndian.PutUint32(v.packet[4:8], timestamp)
-
-		copy(v.nonce[:12], v.packet[:])
-
-		sendbuf := secretbox.Seal(v.packet[:12], recvbuf, &v.nonce, &v.secretKey)
-		v.Unlock()
-
-		select {
-		case <-c:
-			return
-		case <-ticker.C:
-			// loop
-		}
-
-		_, err := udpConn.Write(sendbuf)
-
-		if err != nil {
-			// TODO: Log error
-			return
-		}
-
-		if (sequence) == 0xFFFF {
-			sequence = 0
-		} else {
-			sequence++
-		}
-
-		if (timestamp + uint32(size)) >= 0xFFFFFFFF {
-			timestamp = 0
-		} else {
-			timestamp += uint32(size)
-		}
+	_, err := udpConn.Write(toSend)
+	if err != nil {
+		return 0, err
 	}
+
+	return len(b), nil
 }
 
-func (v *VoiceConnection) heartbeatUdp(udpConn *net.UDPConn, close <-chan struct{}) {
-	if udpConn == nil || close == nil {
+func (v *VoiceConnection) heartbeatUdp(udpConn *net.UDPConn, c <-chan struct{}) {
+	if udpConn == nil || c == nil {
 		return
 	}
 
@@ -433,7 +380,7 @@ func (v *VoiceConnection) heartbeatUdp(udpConn *net.UDPConn, close <-chan struct
 		case <-ticker.C:
 			// loop
 
-		case <-close:
+		case <-c:
 			return
 		}
 	}
@@ -455,7 +402,7 @@ func (v *VoiceConnection) startHeartbeat(conn *websocket.Conn, c <-chan struct{}
 
 		select {
 		case <-ticker.C:
-			// nothing
+			// loop
 
 		case <-c:
 			return
@@ -606,6 +553,8 @@ func (v *VoiceConnection) Close() {
 
 	if c != nil {
 		v.Lock()
+		v.frequency.Stop()
+
 		close(v.close)
 		v.close = nil
 		v.Unlock()

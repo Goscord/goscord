@@ -3,6 +3,7 @@ package gateway
 import (
 	"errors"
 	"github.com/Goscord/goscord/goscord/discord"
+	"github.com/Goscord/goscord/goscord/gateway/event"
 	"sync"
 )
 
@@ -399,6 +400,53 @@ func (s *State) Role(guildId, roleId string) (*discord.Role, error) {
 	}
 
 	return nil, errors.New("role not found")
+}
+
+func (s *State) UpdateVoiceState(ev *event.VoiceStateUpdate) error {
+	guild, err := s.Guild(ev.Data.GuildId)
+	if err != nil {
+		return err
+	}
+
+	s.Lock()
+	defer s.Unlock()
+
+	if ev.Data.ChannelId == "" {
+		for i, state := range guild.VoiceStates {
+			if state.UserId == ev.Data.UserId {
+				guild.VoiceStates = append(guild.VoiceStates[:i], guild.VoiceStates[i+1:]...)
+
+				return nil
+			}
+		}
+	} else {
+		for i, state := range guild.VoiceStates {
+			if state.UserId == ev.Data.UserId {
+				guild.VoiceStates[i] = ev.Data
+
+				return nil
+			}
+		}
+
+		guild.VoiceStates = append(guild.VoiceStates, ev.Data)
+	}
+
+	return nil
+}
+
+func (s *State) VoiceState(guildId, userId string) (*discord.VoiceState, error) {
+	guild, err := s.Guild(guildId)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, state := range guild.VoiceStates {
+		if state.UserId == userId {
+			return state, nil
+		}
+	}
+
+	return nil, errors.New("voice state not found")
 }
 
 func (s *State) Guilds() map[string]*discord.Guild {

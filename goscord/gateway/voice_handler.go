@@ -43,6 +43,11 @@ func (_ *VoiceStateUpdateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
+	err = s.State().UpdateVoiceState(ev)
+	if err != nil {
+		return
+	}
+
 	s.RLock()
 	voice, ok := s.VoiceConnections[ev.Data.GuildId]
 	s.RUnlock()

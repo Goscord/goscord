@@ -7,5 +7,5 @@ type VoiceReady struct {
 		IP    string   `json:"ip"`
 		Port  int      `json:"port"`
 		Modes []string `json:"modes"`
-	} `json:"d,omitempty"`
+	} `json:"d"`
 }

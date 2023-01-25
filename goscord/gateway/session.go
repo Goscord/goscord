@@ -150,10 +150,10 @@ func (s *Session) registerHandlers() {
 // JoinVoiceChannel joins a voice channel.
 func (s *Session) JoinVoiceChannel(guildId, channelId string, muted, deafened bool) (*VoiceConnection, error) {
 	s.RLock()
-	vConn, _ := s.VoiceConnections[guildId]
+	vConn, ok := s.VoiceConnections[guildId]
 	s.RUnlock()
 
-	if vConn == nil {
+	if !ok {
 		vConn = &VoiceConnection{}
 
 		s.Lock()
@@ -422,6 +422,14 @@ func (s *Session) reconnect() {
 
 		if err == nil {
 			fmt.Println("Reconnected")
+
+			s.RLock()
+			voiceConnections := s.VoiceConnections
+			s.RUnlock()
+
+			for _, v := range voiceConnections {
+				v.reconnect()
+			}
 
 			return
 		}

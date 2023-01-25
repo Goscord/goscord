@@ -1,6 +1,7 @@
 package gateway
 
 import (
+	"bytes"
 	"encoding/binary"
 	"encoding/json"
 	"errors"
@@ -8,6 +9,7 @@ import (
 	"github.com/Goscord/goscord/goscord/gateway/packet"
 	"github.com/gorilla/websocket"
 	"go.uber.org/atomic"
+	"golang.org/x/crypto/nacl/secretbox"
 	"net"
 	"strconv"
 	"sync"
@@ -44,8 +46,16 @@ type VoiceConnection struct {
 	port      int
 	ssrc      uint32
 	modes     []string
+	secretKey [32]byte
 
-	// recv/send channels (maybe use an io.Reader/Writer instead?)
+	// send cache
+	packet    [12]byte
+	sequence  uint16
+	timestamp uint32
+	nonce     [24]byte
+
+	// recv/send channels
+	SendChan chan []byte
 
 	close chan struct{}
 }
@@ -165,8 +175,6 @@ func (v *VoiceConnection) listen(conn *websocket.Conn, close chan struct{}) {
 					return
 				}
 
-				v.ready.Store(true)
-
 				v.Lock()
 				v.ip = ready.Data.IP
 				v.port = ready.Data.Port
@@ -198,7 +206,32 @@ func (v *VoiceConnection) listen(conn *websocket.Conn, close chan struct{}) {
 				go v.startHeartbeat(conn, c, interval)
 
 			case packet.OpVoiceSessionDescription:
-				// TODO: Retrieve encryption key
+				var sessionDescription packet.VoiceSessionDescription
+				if err := json.Unmarshal(msg, &sessionDescription); err != nil {
+					return
+				}
+
+				v.Lock()
+				v.secretKey = sessionDescription.Data.SecretKey
+				v.Unlock()
+
+				v.RLock()
+				udpConn := v.udpConn
+				c := v.close
+				sendChan := v.SendChan
+				v.RUnlock()
+
+				if sendChan == nil {
+					v.Lock()
+					v.SendChan = make(chan []byte, 2)
+					sendChan = v.SendChan
+					v.Unlock()
+				}
+
+				go v.startOpusSending(udpConn, c, sendChan, 48000, 960)
+
+			case packet.OpVoiceSpeaking:
+				// TODO: Handle speaking event
 
 				// TODO: Handle other voice event
 			}
@@ -216,6 +249,7 @@ func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 	udpConn := v.udpConn
 	c := v.close
 	endpoint := v.endpoint
+	ssrc := v.ssrc
 	vIp := v.ip
 	vPort := v.port
 	v.RUnlock()
@@ -247,12 +281,20 @@ func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 		return err
 	}
 
+	payload := [12]byte{
+		0: 0x80,
+		1: 0x78,
+	}
+
+	binary.BigEndian.PutUint32(payload[8:12], ssrc)
+
 	v.Lock()
 	v.udpConn = udpConn
+	v.packet = payload
 	v.Unlock()
 
 	buf := make([]byte, 70)
-	binary.BigEndian.PutUint32(buf, v.ssrc)
+	binary.BigEndian.PutUint32(buf, ssrc)
 	_, err = udpConn.Write(buf)
 	if err != nil {
 		return err
@@ -269,11 +311,17 @@ func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 	}
 
 	// read ip and port from ip discovery packet
-	ip := string(buf[4:20])
+	ipBuf := buf[4:68]
+	nullPos := bytes.Index(ipBuf, []byte{'\x00'})
+	if nullPos < 0 {
+		return errors.New("invalid ip")
+	}
+
+	ip := string(ipBuf[:nullPos])
 	port := binary.BigEndian.Uint16(buf[68:70])
 
 	voiceSelect := packet.NewVoiceSelectProtocol(ip, port)
-	if err := v.Send(voiceSelect); err != nil {
+	if err := conn.WriteJSON(voiceSelect); err != nil {
 		return errors.New("cannot send select protocol packet: " + err.Error())
 	}
 
@@ -282,20 +330,99 @@ func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 	return nil
 }
 
-func (v *VoiceConnection) heartbeatUdp(udpConn *net.UDPConn, close <-chan struct{}) { // TODO: make this work
+func (v *VoiceConnection) startOpusSending(udpConn *net.UDPConn, c <-chan struct{}, opus <-chan []byte, rate, size int) {
+	if udpConn == nil || c == nil {
+		return
+	}
+
+	v.ready.Store(true)
+
+	defer func() {
+		v.ready.Store(false)
+	}()
+
+	var sequence uint16
+	var timestamp uint32
+	var recvbuf []byte
+	var ok bool
+
+	ticker := time.NewTicker(time.Millisecond * time.Duration(size/(rate/1000)))
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-c:
+			return
+
+		case recvbuf, ok = <-opus:
+			if !ok {
+				return
+			}
+		}
+
+		v.RLock()
+		speaking := v.speaking
+		v.RUnlock()
+
+		if !speaking {
+			err := v.Speaking(true)
+			if err != nil {
+				// TODO: Log error
+			}
+		}
+
+		v.Lock()
+		binary.BigEndian.PutUint16(v.packet[2:4], sequence)
+		binary.BigEndian.PutUint32(v.packet[4:8], timestamp)
+
+		copy(v.nonce[:12], v.packet[:])
+
+		sendbuf := secretbox.Seal(v.packet[:12], recvbuf, &v.nonce, &v.secretKey)
+		v.Unlock()
+
+		select {
+		case <-c:
+			return
+		case <-ticker.C:
+			// loop
+		}
+
+		_, err := udpConn.Write(sendbuf)
+
+		if err != nil {
+			// TODO: Log error
+			return
+		}
+
+		if (sequence) == 0xFFFF {
+			sequence = 0
+		} else {
+			sequence++
+		}
+
+		if (timestamp + uint32(size)) >= 0xFFFFFFFF {
+			timestamp = 0
+		} else {
+			timestamp += uint32(size)
+		}
+	}
+}
+
+func (v *VoiceConnection) heartbeatUdp(udpConn *net.UDPConn, close <-chan struct{}) {
 	if udpConn == nil || close == nil {
 		return
 	}
 
 	payload := make([]byte, 8)
 
+	var sequence uint64
+
 	ticker := time.NewTicker(3 * time.Second)
 	defer ticker.Stop()
 
 	for {
-
-		binary.LittleEndian.PutUint32(payload, 0x80)
-		binary.LittleEndian.PutUint32(payload, 0xC8)
+		binary.LittleEndian.PutUint64(payload, sequence)
+		sequence++
 
 		_, err := udpConn.Write(payload)
 		if err != nil {
@@ -321,7 +448,7 @@ func (v *VoiceConnection) startHeartbeat(conn *websocket.Conn, c <-chan struct{}
 	defer ticker.Stop()
 
 	for {
-		if err := v.Send(packet.NewVoiceHeartbeat(time.Now().UnixMilli())); err != nil {
+		if err := conn.WriteJSON(packet.NewVoiceHeartbeat(time.Now().UnixMilli())); err != nil {
 			// TODO: Log error
 			return
 		}
@@ -410,17 +537,46 @@ func (v *VoiceConnection) reconnect() {
 	}
 }
 
-func (v *VoiceConnection) Speaking(speaking bool) error { return nil }
+func (v *VoiceConnection) Speaking(speaking bool) error {
+	v.RLock()
+	ssrc := v.ssrc
+	v.RUnlock()
+
+	v.connMu.Lock()
+	conn := v.conn
+	v.connMu.Unlock()
+
+	if conn == nil {
+		return errors.New("voice connection is not ready")
+	}
+
+	payload := packet.NewVoiceSpeaking(speaking, ssrc)
+	err := conn.WriteJSON(payload)
+
+	if err != nil {
+		v.Lock()
+		v.speaking = false
+		v.Unlock()
+		return err
+	}
+
+	v.Lock()
+	v.speaking = speaking
+	v.Unlock()
+
+	return nil
+}
 
 func (v *VoiceConnection) Disconnect() (err error) {
 	v.RLock()
 	sessionId := v.sessionId
 	guildId := v.GuildId
+	session := v.session
 	v.RUnlock()
 
 	if sessionId != "" {
-		payload := packet.NewVoiceStateUpdate(guildId, "", false, false)
-		err = v.session.Send(payload)
+		voiceStateUpdate := packet.NewVoiceStateUpdate(guildId, "", false, false)
+		err = session.Send(voiceStateUpdate)
 
 		v.Lock()
 		v.sessionId = ""
@@ -429,9 +585,9 @@ func (v *VoiceConnection) Disconnect() (err error) {
 
 	v.Close()
 
-	v.session.Lock()
+	session.Lock()
 	delete(v.session.VoiceConnections, guildId)
-	v.session.Unlock()
+	session.Unlock()
 
 	return
 }
@@ -486,9 +642,4 @@ func (v *VoiceConnection) Close() {
 	}
 }
 
-func (s *VoiceConnection) Send(v interface{}) error {
-	s.connMu.Lock()
-	defer s.connMu.Unlock()
-
-	return s.conn.WriteJSON(v)
-}
+func (v *VoiceConnection) Ready() bool { return v.ready.Load() }

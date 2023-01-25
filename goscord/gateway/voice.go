@@ -422,24 +422,20 @@ func (v *VoiceConnection) startHeartbeat(conn *websocket.Conn, c <-chan struct{}
 
 func (v *VoiceConnection) wait() error {
 	var attempt int = 1
-	var err error
 
 	for {
 		if v.ready.Load() {
-			break
+			return nil
 		}
 
 		if attempt > 10 {
-			err = errors.New("voice connection timed out")
-			break
+			return errors.New("voice connection timed out")
 		}
 
 		<-time.After(1 * time.Second)
 
 		attempt++
 	}
-
-	return err
 }
 
 func (v *VoiceConnection) reconnect() {

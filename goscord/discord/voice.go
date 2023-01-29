@@ -25,3 +25,10 @@ type VoiceRegion struct {
 	Deprecated bool   `json:"deprecated"`
 	Custom     bool   `json:"custom"`
 }
+
+// VoiceServerUpdateEventFields is the fields used by the VOICE_SERVER_UPDATE event.
+type VoiceServerUpdateEventFields struct {
+	Token    string `json:"token"`
+	GuildId  string `json:"guild_id"`
+	Endpoint string `json:"endpoint"`
+}

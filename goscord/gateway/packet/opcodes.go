@@ -12,6 +12,18 @@ const (
 	OpInvalidSession      = 9
 	OpHello               = 10
 	OpHeartbeatAck        = 11
+
+	OpVoiceIdentify           = 0
+	OpVoiceSelectProtocol     = 1
+	OpVoiceReady              = 2
+	OpVoiceHeartbeat          = 3
+	OpVoiceSessionDescription = 4
+	OpVoiceSpeaking           = 5
+	OpVoiceHeartbeatAck       = 6
+	OpVoiceResume             = 7
+	OpVoiceHello              = 8
+	OpVoiceResumed            = 9
+	OpVoiceClientDisconnect   = 13
 )
 
 type CloseEventCode int

@@ -18,7 +18,7 @@ func NewInteractionHandler(rest *Client) *InteractionHandler {
 }
 
 // CreateResponse creates a response to an interaction
-func (ch *InteractionHandler) CreateResponse(interactionId, interactionToken string, content interface{}) error {
+func (ch *InteractionHandler) CreateResponse(interactionId, interactionToken string, content any) error {
 	b, err := formatInteractionResponse(content)
 
 	if err != nil {
@@ -83,7 +83,7 @@ func (ch *InteractionHandler) GetOriginalResponse(applicationId, interactionToke
 }
 
 // EditOriginalResponse EditResponse edits the response of an interaction
-func (ch *InteractionHandler) EditOriginalResponse(applicationId, interactionToken string, content interface{}) (*discord.Message, error) {
+func (ch *InteractionHandler) EditOriginalResponse(applicationId, interactionToken string, content any) (*discord.Message, error) {
 	b, ct, err := formatMessage(content, "")
 
 	if err != nil {
@@ -118,7 +118,7 @@ func (ch *InteractionHandler) DeleteOriginalResponse(applicationId, interactionT
 }
 
 // CreateFollowupMessage creates a followup message for an Interaction
-func (ch *InteractionHandler) CreateFollowupMessage(applicationId, interactionToken string, content interface{}) (*discord.Message, error) {
+func (ch *InteractionHandler) CreateFollowupMessage(applicationId, interactionToken string, content any) (*discord.Message, error) {
 	b, ct, err := formatMessage(content, "")
 
 	if err != nil {
@@ -160,7 +160,7 @@ func (ch *InteractionHandler) GetFollowupMessage(applicationId, interactionToken
 }
 
 // EditFollowupMessage edits the followup message of an interaction
-func (ch *InteractionHandler) EditFollowupMessage(applicationId, interactionToken, messageId string, content interface{}) (*discord.Message, error) {
+func (ch *InteractionHandler) EditFollowupMessage(applicationId, interactionToken, messageId string, content any) (*discord.Message, error) {
 	b, ct, err := formatMessage(content, "")
 
 	if err != nil {
@@ -195,7 +195,7 @@ func (ch *InteractionHandler) DeleteFollowupMessage(applicationId, interactionTo
 }
 
 // formatMessage formats the message to be sent to the API it avoids code duplication. ToDo : Create a custom type for it
-func formatInteractionResponse(content interface{}) (*bytes.Buffer, error) {
+func formatInteractionResponse(content any) (*bytes.Buffer, error) {
 	b := new(bytes.Buffer)
 
 	res := &discord.InteractionResponse{}

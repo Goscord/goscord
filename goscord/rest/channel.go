@@ -57,7 +57,7 @@ func (ch *ChannelHandler) GetMessage(channelId, messageId string) (*discord.Mess
 	return msg, nil
 }
 
-func (ch *ChannelHandler) SendMessage(channelId string, content interface{}) (*discord.Message, error) {
+func (ch *ChannelHandler) SendMessage(channelId string, content any) (*discord.Message, error) {
 	b, contentType, err := formatMessage(content, "")
 
 	if err != nil {
@@ -81,7 +81,7 @@ func (ch *ChannelHandler) SendMessage(channelId string, content interface{}) (*d
 	return msg, nil
 }
 
-func (ch *ChannelHandler) ReplyMessage(channelId, messageId string, content interface{}) (*discord.Message, error) {
+func (ch *ChannelHandler) ReplyMessage(channelId, messageId string, content any) (*discord.Message, error) {
 	b, contentType, err := formatMessage(content, messageId)
 
 	if err != nil {
@@ -105,7 +105,7 @@ func (ch *ChannelHandler) ReplyMessage(channelId, messageId string, content inte
 	return msg, nil
 }
 
-func (ch *ChannelHandler) Edit(channelId, messageId string, content interface{}) (*discord.Message, error) {
+func (ch *ChannelHandler) Edit(channelId, messageId string, content any) (*discord.Message, error) {
 	b, contentType, err := formatMessage(content, "")
 
 	if err != nil {
@@ -146,8 +146,8 @@ func (ch *ChannelHandler) CrosspostMessage(channelId, messageId string) (*discor
 	return &msg, nil
 }
 
-// formatMessage formats the message to be sent to the API it avoids code duplication. // ToDo : Create a custom type for it
-func formatMessage(content interface{}, messageId string) (*bytes.Buffer, string, error) {
+// formatMessage formats the message to be sent to the API it avoids code duplication. // ToDo : Create a custom type for it, use generics when available
+func formatMessage(content any, messageId string) (*bytes.Buffer, string, error) {
 	b := new(bytes.Buffer)
 	contentType := "application/json"
 
@@ -211,7 +211,7 @@ func formatMessage(content interface{}, messageId string) (*bytes.Buffer, string
 		contentType = w.FormDataContentType()
 
 	default:
-		return nil, "", errors.New("invalid content type")
+		return nil, "", errors.New("invalid content type, must be string, *embed.Embed, *discord.Message or []*os.File")
 	}
 
 	return b, contentType, nil

@@ -13,7 +13,7 @@ import (
 func main() {
 	// Create client instance
 	client := goscord.New(&gateway.Options{
-		Token:   "ODMxNTgzNTY2ODg2MjA3NTE4.G__-m6.WExLly-pqc6Bj0-Y5dRT4ASn0PMVgmFGxVCSBs",
+		Token:   "ODMxNTgzNTY2ODg2MjA3NTE4.GgbLY8.31ex-lz5ShNJvaRgQjMFEHUrBYe1xhd0aV7nRs",
 		Intents: gateway.IntentsNonPrivileged,
 	})
 

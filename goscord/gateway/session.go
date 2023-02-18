@@ -562,10 +562,7 @@ func (s *Session) Status() Status {
 
 // On registers a callback for an event type.
 func (s *Session) On(ev event.EventType, fn any) error {
-	s.Lock()
-	defer s.Unlock()
-
-	return s.bus.SubscribeAsync(ev.String(), fn, false)
+	return s.Bus().SubscribeAsync(ev.String(), fn, false)
 }
 
 // Publish publishes an event to the event bus.

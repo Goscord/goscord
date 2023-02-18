@@ -5,6 +5,7 @@ import (
 	"github.com/Goscord/goscord/goscord"
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/gateway"
+	"github.com/Goscord/goscord/goscord/gateway/event"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,13 +14,13 @@ import (
 func main() {
 	// Create client instance
 	client := goscord.New(&gateway.Options{
-		Token:   "ODMxNTgzNTY2ODg2MjA3NTE4.GgbLY8.31ex-lz5ShNJvaRgQjMFEHUrBYe1xhd0aV7nRs",
+		Token:   "",
 		Intents: gateway.IntentsNonPrivileged,
 	})
 
 	// Load events
-	_ = client.On("ready", OnReady(client))
-	_ = client.On("interactionCreate", CommandHandler(client))
+	_ = client.On(event.EventReady, OnReady(client))
+	_ = client.On(event.EventInteractionCreate, CommandHandler(client))
 
 	// login client
 	if err := client.Login(); err != nil {

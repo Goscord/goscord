@@ -21,11 +21,11 @@ func (_ *ReadyHandler) Handle(s *Session, data []byte) {
 		s.State().AddGuild(guild)
 	}
 
-	s.Bus().Publish("ready")
+	s.Publish(event.EventReady)
 }
 
 type ResumedHandler struct{}
 
 func (_ *ResumedHandler) Handle(s *Session, _ []byte) {
-	s.bus.Publish("resumed")
+	s.Publish(event.EventResumed)
 }

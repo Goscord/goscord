@@ -328,6 +328,7 @@ func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 	return nil
 }
 
+// Write sends a frame of audio to the voice connection.
 func (v *VoiceConnection) Write(b []byte) (int, error) {
 	v.RLock()
 	udpConn := v.udpConn
@@ -491,6 +492,7 @@ func (v *VoiceConnection) reconnect() {
 	}
 }
 
+// Speaking sets the speaking state of the voice connection.
 func (v *VoiceConnection) Speaking(speaking bool) error {
 	v.RLock()
 	ssrc := v.ssrc
@@ -514,6 +516,7 @@ func (v *VoiceConnection) Speaking(speaking bool) error {
 	return err
 }
 
+// Disconnect disconnects the bot from the voice channel and closes the voice connection.
 func (v *VoiceConnection) Disconnect() (err error) {
 	v.RLock()
 	sessionId := v.sessionId
@@ -539,6 +542,7 @@ func (v *VoiceConnection) Disconnect() (err error) {
 	return
 }
 
+// Close closes the voice connection.
 func (v *VoiceConnection) Close() {
 	v.ready.Store(false)
 
@@ -591,4 +595,5 @@ func (v *VoiceConnection) Close() {
 	}
 }
 
+// Ready returns whether the voice connection is ready.
 func (v *VoiceConnection) Ready() bool { return v.ready.Load() }

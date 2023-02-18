@@ -30,7 +30,7 @@ func (_ *VoiceServerUpdateHandler) Handle(s *Session, data []byte) {
 	voice.Unlock()
 
 	if err := voice.login(); err == nil {
-		s.Bus().Publish("voiceServerUpdate", ev.Data)
+		s.Publish(event.EventVoiceServerUpdate, ev.Data)
 	}
 }
 
@@ -64,5 +64,5 @@ func (_ *VoiceStateUpdateHandler) Handle(s *Session, data []byte) {
 		voice.Unlock()
 	}
 
-	s.Bus().Publish("voiceStateUpdate", ev.Data)
+	s.Publish(event.EventVoiceStateUpdate, ev.Data)
 }

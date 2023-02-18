@@ -11,5 +11,5 @@ func (_ *ApplicationCommandPermissionsUpdateHandler) Handle(s *Session, data []b
 		return
 	}
 
-	s.Bus().Publish("applicationCommandPermissionsUpdate", ev.Data)
+	s.Publish(event.EventApplicationCommandPermissionsUpdate, ev.Data)
 }

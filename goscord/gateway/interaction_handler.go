@@ -11,5 +11,5 @@ func (_ *InteractionCreateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.Bus().Publish("interactionCreate", ev.Data)
+	s.Publish(event.EventInteractionCreate, ev.Data)
 }

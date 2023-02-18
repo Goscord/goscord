@@ -13,7 +13,7 @@ func (_ *AutoModerationRuleCreateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.Bus().Publish("autoModerationRuleCreate", ev.Data)
+	s.Publish(event.EventAutoModerationRuleCreate, ev.Data)
 }
 
 type AutoModerationRuleDeleteHandler struct{}
@@ -25,7 +25,7 @@ func (_ *AutoModerationRuleDeleteHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.Bus().Publish("autoModerationRuleDelete", ev.Data)
+	s.Publish(event.EventAutoModerationRuleDelete, ev.Data)
 }
 
 type AutoModerationRuleUpdateHandler struct{}
@@ -37,7 +37,7 @@ func (_ *AutoModerationRuleUpdateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.Bus().Publish("autoModerationRuleUpdate", ev.Data)
+	s.Publish(event.EventAutoModerationRuleUpdate, ev.Data)
 }
 
 type AutoModerationActionExecutionHandler struct{}
@@ -49,5 +49,5 @@ func (_ *AutoModerationActionExecutionHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.Bus().Publish("autoModerationActionExecution", ev.Data)
+	s.Publish(event.EventAutoModerationActionExecution, ev.Data)
 }

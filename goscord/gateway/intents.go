@@ -1,7 +1,10 @@
 package gateway
 
+// Intents is a bitfield of intents used to specify the gateway events you want to receive.
+type Intents int
+
 const (
-	IntentGuilds int = 1 << iota
+	IntentGuilds Intents = 1 << iota
 	IntentGuildMembers
 	IntentGuildBans
 	IntentGuildEmojisAndStickers

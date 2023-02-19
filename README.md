@@ -1,7 +1,20 @@
-# Goscord
-Goscord is a [Go](https://golang.org/) package that provides high level bindings to the [Discord](https://discord.com/) API.  
+<p align="center">
+  <a href="https://goscord.dev">
+    <img src="./resource/logo.png" height="128">
+    <h1 align="center">Goscord</h1>
+  </a>
+</p>
 
-You can join our community on our [Discord server](https://discord.gg/6Np8sbyHXt).  
+<p align="center">Goscord is a package for <a href="https://golang.org">Golang</a> that provides high level bindings to the <a href="https://discord.com">Discord</a> API.</p>
+
+<p align="center">
+  <a href="https://discord.gg/6Np8sbyHXt">
+    <img src="https://badgen.net/badge/icon/Discord?icon=discord&label">
+  </a>
+  <a href="https://goscord.dev">
+    <img src="https://badgen.net/badge/icon/Website?icon=chrome&label">
+  </a>
+</p>
 
 ## Getting Started
 ### Installing

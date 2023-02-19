@@ -22,7 +22,7 @@
 # Init the module:
 go mod init <url> 
 
-# Install Goscord :
+# Install Goscord:
 go get -u github.com/Goscord/goscord
 ```
 

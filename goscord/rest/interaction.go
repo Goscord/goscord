@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Goscord/goscord/goscord/discord"
-	"github.com/Goscord/goscord/goscord/discord/embed"
 	"github.com/goccy/go-json"
 )
 
@@ -212,8 +211,8 @@ func formatInteractionResponse(content any) (*bytes.Buffer, error) {
 
 		b = bytes.NewBuffer(jsonb)
 
-	case *embed.Embed:
-		res.Data = &discord.InteractionCallbackMessage{Embeds: []*embed.Embed{ccontent}}
+	case *discord.Embed:
+		res.Data = &discord.InteractionCallbackMessage{Embeds: []*discord.Embed{ccontent}}
 
 		jsonb, err := json.Marshal(res)
 		if err != nil {

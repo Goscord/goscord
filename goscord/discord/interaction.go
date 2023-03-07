@@ -1,7 +1,6 @@
 package discord
 
 import (
-	"github.com/Goscord/goscord/goscord/discord/embed"
 	"github.com/goccy/go-json"
 )
 
@@ -338,7 +337,7 @@ type InteractionResponse struct {
 type InteractionCallbackMessage struct {
 	Tts             bool               `json:"tts,omitempty"`
 	Content         string             `json:"content,omitempty"`
-	Embeds          []*embed.Embed     `json:"embeds,omitempty"`
+	Embeds          []*Embed           `json:"embeds,omitempty"`
 	AllowedMentions *AllowedMentions   `json:"allowed_mentions,omitempty"`
 	Flags           MessageFlag        `json:"flags,omitempty"`
 	Components      []MessageComponent `json:"components,omitempty"` // ToDo : make this cleaner

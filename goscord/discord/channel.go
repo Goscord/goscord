@@ -1,7 +1,6 @@
 package discord
 
 import (
-	"github.com/Goscord/goscord/goscord/discord/embed"
 	"time"
 
 	"github.com/goccy/go-json"
@@ -189,7 +188,7 @@ type Message struct {
 	MentionRoles      []string            `json:"mention_roles"`
 	MentionChannels   []*Channel          `json:"mention_channels,omitempty"`
 	Attachments       []*Attachment       `json:"attachments"`
-	Embeds            []*embed.Embed      `json:"embeds"`
+	Embeds            []*Embed            `json:"embeds"`
 	Reactions         []*Reaction         `json:"reactions"`
 	Nonce             interface{}         `json:"nonce,omitempty"` // integer or string
 	Pinned            bool                `json:"pinned"`

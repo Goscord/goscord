@@ -224,7 +224,7 @@ func formatMessage(content any, messageId string) (*bytes.Buffer, string, error)
 		contentType = w.FormDataContentType()
 
 	default:
-		return nil, "", errors.New("invalid content type, must be string, *builder.Embed, *discord.Message, []*discord.FileData")
+		return nil, "", errors.New("invalid content type, must be string, *builder.Embed, *discord.Message, *builder.MessageBuilder")
 	}
 
 	return b, contentType, nil

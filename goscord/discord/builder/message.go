@@ -16,6 +16,7 @@ type MessageBuilder struct {
 	content string
 	embeds  []*discord.Embed
 	files   []*FileData
+	flags   discord.MessageFlag
 }
 
 // NewMessageBuilder creates a new MessageBuilder
@@ -53,6 +54,18 @@ func (b *MessageBuilder) AddFile(name string, reader io.Reader) *MessageBuilder 
 	return b
 }
 
+// SetFlags sets the flags of the message (e.g. ephemeral)
+func (b *MessageBuilder) SetFlags(flags discord.MessageFlag) *MessageBuilder {
+	b.flags = flags
+	return b
+}
+
+// AddFlag adds a flag to the message (e.g. ephemeral)
+func (b *MessageBuilder) AddFlag(flag discord.MessageFlag) *MessageBuilder {
+	b.flags |= flag
+	return b
+}
+
 // Content returns the content of the message
 func (b *MessageBuilder) Content() string {
 	return b.content
@@ -73,5 +86,6 @@ func (b *MessageBuilder) Build() *discord.Message {
 	return &discord.Message{
 		Content: b.content,
 		Embeds:  b.embeds,
+		Flags:   b.flags,
 	}
 }

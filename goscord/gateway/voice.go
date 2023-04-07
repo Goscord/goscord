@@ -410,7 +410,7 @@ func (v *VoiceConnection) startHeartbeat(conn *websocket.Conn, c <-chan struct{}
 	defer ticker.Stop()
 
 	for {
-		if err := conn.WriteJSON(packet.NewVoiceHeartbeat(time.Now().UnixMilli())); err != nil {
+		if err := conn.WriteJSON(packet.NewVoiceHeartbeat(time.Now().Unix())); err != nil {
 			// TODO: Log error
 			return
 		}

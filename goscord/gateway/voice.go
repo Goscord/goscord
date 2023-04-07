@@ -1,7 +1,6 @@
 package gateway
 
 import (
-	"bytes"
 	"encoding/binary"
 	"encoding/json"
 	"errors"
@@ -279,32 +278,37 @@ func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 		return err
 	}
 
-	buf := make([]byte, 70)
+	buf := make([]byte, 74)
+	binary.BigEndian.PutUint16(buf, 1)
+	binary.BigEndian.PutUint16(buf[2:], 70)
 	binary.BigEndian.PutUint32(buf, ssrc)
+
 	_, err = udpConn.Write(buf)
 	if err != nil {
 		return err
 	}
 
-	buf = make([]byte, 70)
+	buf = make([]byte, 74)
 	bufLen, _, err := udpConn.ReadFromUDP(buf)
 	if err != nil {
 		return err
 	}
 
-	if bufLen < 70 {
+	if bufLen < 74 {
 		return errors.New("invalid udp response")
 	}
 
 	// read ip and port from ip discovery packet
-	ipBuf := buf[4:68]
-	nullPos := bytes.Index(ipBuf, []byte{'\x00'})
-	if nullPos < 0 {
-		return errors.New("invalid ip")
+	var ip string
+	for i := 8; i < len(buf)-2; i++ {
+		if buf[i] == 0 {
+			break
+		}
+
+		ip += string(buf[i])
 	}
 
-	ip := string(ipBuf[:nullPos])
-	port := binary.BigEndian.Uint16(buf[68:70])
+	port := binary.BigEndian.Uint16(buf[len(buf)-2:])
 
 	voiceSelect := packet.NewVoiceSelectProtocol(ip, port)
 	if err := conn.WriteJSON(voiceSelect); err != nil {

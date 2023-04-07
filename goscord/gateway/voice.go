@@ -422,7 +422,7 @@ func (v *VoiceConnection) startHeartbeat(conn *websocket.Conn, c <-chan struct{}
 }
 
 func (v *VoiceConnection) wait() error {
-	var attempt int = 1
+	attempt := 0
 
 	for {
 		if v.ready.Load() {
@@ -557,7 +557,9 @@ func (v *VoiceConnection) Close() {
 
 	if c != nil {
 		v.Lock()
-		v.frequency.Stop()
+		if v.frequency != nil {
+			v.frequency.Stop()
+		}
 
 		close(v.close)
 		v.close = nil

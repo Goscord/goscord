@@ -281,7 +281,7 @@ func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 	buf := make([]byte, 74)
 	binary.BigEndian.PutUint16(buf, 1)
 	binary.BigEndian.PutUint16(buf[2:], 70)
-	binary.BigEndian.PutUint32(buf, ssrc)
+	binary.BigEndian.PutUint32(buf[4:], ssrc)
 
 	_, err = udpConn.Write(buf)
 	if err != nil {

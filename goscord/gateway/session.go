@@ -183,12 +183,7 @@ func (s *Session) JoinVoiceChannel(guildId, channelId string, muted, deafened bo
 }
 
 func (s *Session) JoinVoiceChannelIncomplete(guildId, channelId string, muted, deafened bool) error {
-	voiceStateUpdate := packet.NewVoiceStateUpdate(guildId, channelId, muted, deafened)
-	if err := s.Send(voiceStateUpdate); err != nil {
-		return err
-	}
-
-	return nil
+	return s.Send(packet.NewVoiceStateUpdate(guildId, channelId, muted, deafened))
 }
 
 // Login connects the session to the gateway.

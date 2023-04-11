@@ -87,7 +87,7 @@ func (v *VoiceConnection) login() error {
 		attempt++
 	}
 
-	conn, _, err := websocket.DefaultDialer.Dial("wss://"+strings.TrimSuffix(endpoint, ":80")+"/?v=4", nil)
+	conn, _, err := websocket.DefaultDialer.Dial("wss://"+strings.TrimSuffix(endpoint, ":80"), nil)
 	if err != nil {
 		return errors.New("cannot connect to voice websocket server")
 	}

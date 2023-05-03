@@ -45,7 +45,7 @@ type Session struct {
 	// ws conn
 	connMu   sync.Mutex
 	conn     *websocket.Conn
-	handlers map[string]EventHandler
+	handlers map[event.EventType]EventHandler
 
 	// Discord gateway fields
 	sessionID         string
@@ -102,7 +102,7 @@ func NewSession(options *Options) *Session {
 }
 
 func (s *Session) registerHandlers() {
-	s.handlers = map[string]EventHandler{
+	s.handlers = map[event.EventType]EventHandler{
 		event.EventReady:   &ReadyHandler{},
 		event.EventResumed: &ResumedHandler{},
 		// Application events
@@ -179,6 +179,10 @@ func (s *Session) JoinVoiceChannel(guildId, channelId string, muted, deafened bo
 	}
 
 	return vConn, nil
+}
+
+func (s *Session) JoinVoiceChannelIncomplete(guildId, channelId string, muted, deafened bool) error {
+	return s.Send(packet.NewVoiceStateUpdate(guildId, channelId, muted, deafened))
 }
 
 // Login connects the session to the gateway.
@@ -298,7 +302,7 @@ loop:
 				s.status = StatusIdentifying
 				s.connMu.Unlock()
 
-				identify := packet.NewIdentify(token, intents)
+				identify := packet.NewIdentify(token, int(intents))
 
 				if err = s.Send(identify); err != nil {
 					return
@@ -323,7 +327,7 @@ loop:
 			if e != "" {
 				s.connMu.Lock()
 				s.lastSequence = pk.Sequence
-				handler, exists := s.handlers[e]
+				handler, exists := s.handlers[event.EventType(e)]
 				s.connMu.Unlock()
 
 				if exists {
@@ -443,6 +447,7 @@ func (s *Session) reconnect() {
 	}
 }
 
+// Send sends a packet to the gateway.
 func (s *Session) Send(v interface{}) error {
 	s.connMu.Lock()
 	defer s.connMu.Unlock()
@@ -450,6 +455,7 @@ func (s *Session) Send(v interface{}) error {
 	return s.conn.WriteJSON(v)
 }
 
+// SetActivity sets the activity of the session.
 func (s *Session) SetActivity(activity *discord.Activity) error {
 	s.Lock()
 	s.presence.Data.Activities[0] = activity
@@ -461,6 +467,7 @@ func (s *Session) SetActivity(activity *discord.Activity) error {
 	return s.Send(s.presence)
 }
 
+// SetStatus sets the status of the session.
 func (s *Session) SetStatus(status discord.StatusType) error {
 	s.Lock()
 	s.presence.Data.Status = status
@@ -472,6 +479,7 @@ func (s *Session) SetStatus(status discord.StatusType) error {
 	return s.Send(s.presence)
 }
 
+// UpdatePresence updates the status and activity of the session.
 func (s *Session) UpdatePresence(status *packet.PresenceUpdate) error {
 	s.Lock()
 	s.presence = status
@@ -480,6 +488,7 @@ func (s *Session) UpdatePresence(status *packet.PresenceUpdate) error {
 	return s.Send(status)
 }
 
+// Latency returns the latency of the session.
 func (s *Session) Latency() time.Duration {
 	s.connMu.Lock()
 	lastHeartbeatAck := s.lastHeartbeatAck
@@ -489,10 +498,12 @@ func (s *Session) Latency() time.Duration {
 	return lastHeartbeatAck.Sub(lastHeartbeatSent)
 }
 
+// Close closes the session.
 func (s *Session) Close() {
 	s.CloseWithCode(websocket.CloseNormalClosure, "Shutting down")
 }
 
+// CloseWithCode closes the session with a specific close code and message.
 func (s *Session) CloseWithCode(code int, message string) {
 	s.connMu.Lock()
 	heartbeatTicker := s.heartbeatTicker
@@ -507,7 +518,7 @@ func (s *Session) CloseWithCode(code int, message string) {
 	defer s.connMu.Unlock()
 
 	if s.conn != nil {
-		s.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message))
+		_ = s.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(code, message))
 
 		_ = s.conn.Close()
 
@@ -520,6 +531,7 @@ func (s *Session) CloseWithCode(code int, message string) {
 	}
 }
 
+// Bus returns the event bus of the session.
 func (s *Session) Bus() *ev.EventBus {
 	s.RLock()
 	defer s.RUnlock()
@@ -527,6 +539,7 @@ func (s *Session) Bus() *ev.EventBus {
 	return s.bus
 }
 
+// Me returns the current user of the session.
 func (s *Session) Me() *discord.User {
 	s.RLock()
 	defer s.RUnlock()
@@ -534,6 +547,7 @@ func (s *Session) Me() *discord.User {
 	return s.user
 }
 
+// State returns the current state of the session.
 func (s *Session) State() *State {
 	s.RLock()
 	defer s.RUnlock()
@@ -541,6 +555,7 @@ func (s *Session) State() *State {
 	return s.state
 }
 
+// Status returns the current status of the session.
 func (s *Session) Status() Status {
 	s.RLock()
 	defer s.RUnlock()
@@ -548,9 +563,12 @@ func (s *Session) Status() Status {
 	return s.status
 }
 
-func (s *Session) On(ev string, fn interface{}) error {
-	s.Lock()
-	defer s.Unlock()
+// On registers a callback for an event type.
+func (s *Session) On(ev event.EventType, fn any) error {
+	return s.Bus().SubscribeAsync(ev.String(), fn, false)
+}
 
-	return s.bus.SubscribeAsync(ev, fn, false)
+// Publish publishes an event to the event bus.
+func (s *Session) Publish(ev event.EventType, args ...any) {
+	s.Bus().Publish(ev.String(), args...)
 }

@@ -3,7 +3,7 @@ package packet
 type VoiceStateUpdate struct {
 	Packet
 	Data struct {
-		GuildId   string  `json:"guild_id"`
+		GuildId   *string `json:"guild_id"`
 		ChannelId *string `json:"channel_id"`
 		SelfMute  bool    `json:"self_mute"`
 		SelfDeaf  bool    `json:"self_deaf"`
@@ -15,7 +15,7 @@ func NewVoiceStateUpdate(guildId, channelId string, selfMuted, selfDeaf bool) *V
 
 	voice.Opcode = OpVoiceStateUpdate
 
-	voice.Data.GuildId = guildId
+	voice.Data.GuildId = &guildId
 
 	if channelId == "" {
 		voice.Data.ChannelId = nil

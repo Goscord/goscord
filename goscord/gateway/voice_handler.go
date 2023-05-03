@@ -29,9 +29,9 @@ func (_ *VoiceServerUpdateHandler) Handle(s *Session, data []byte) {
 	voice.endpoint = ev.Data.Endpoint
 	voice.Unlock()
 
-	if err := voice.login(); err == nil {
-		s.Bus().Publish("voiceServerUpdate", ev.Data)
-	}
+	s.Publish(event.EventVoiceServerUpdate, ev.Data)
+
+	_ = voice.login()
 }
 
 type VoiceStateUpdateHandler struct{}
@@ -64,5 +64,5 @@ func (_ *VoiceStateUpdateHandler) Handle(s *Session, data []byte) {
 		voice.Unlock()
 	}
 
-	s.Bus().Publish("voiceStateUpdate", ev.Data)
+	s.Publish(event.EventVoiceStateUpdate, ev.Data)
 }

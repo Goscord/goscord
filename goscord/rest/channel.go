@@ -167,11 +167,11 @@ func formatMessage(content any, messageId string) (*bytes.Buffer, string, error)
 
 		b = bytes.NewBuffer(jsonb)
 
-	case *embed.Embed:
+	case *discord.Embed:
 		if messageId != "" {
-			content = &discord.Message{Embeds: []*embed.Embed{ccontent}, MessageReference: &discord.MessageReference{MessageId: messageId}}
+			content = &discord.Message{Embeds: []*discord.Embed{ccontent}, MessageReference: &discord.MessageReference{MessageId: messageId}}
 		} else {
-			content = &discord.Message{Embeds: []*embed.Embed{ccontent}}
+			content = &discord.Message{Embeds: []*discord.Embed{ccontent}}
 		}
 
 		jsonb, err := json.Marshal(content)
@@ -191,19 +191,34 @@ func formatMessage(content any, messageId string) (*bytes.Buffer, string, error)
 
 		b = bytes.NewBuffer(jsonb)
 
-	case []*os.File:
+	case *builder.MessageBuilder:
 		w := multipart.NewWriter(b)
 
-		for i, file := range ccontent {
-			fw, err := w.CreateFormFile(fmt.Sprintf("attachment-%d", i), file.Name())
+		for i, file := range ccontent.Files() {
+			fw, err := w.CreateFormFile(fmt.Sprintf("attachment-%d", i), file.Name)
 			if err != nil {
 				return nil, "", err
 			}
 
-			_, err = io.Copy(fw, file)
+			_, err = io.Copy(fw, file.Reader)
 			if err != nil {
 				return nil, "", err
 			}
+		}
+
+		jsonb, err := json.Marshal(ccontent.Build())
+		if err != nil {
+			return nil, "", err
+		}
+
+		fw, err := w.CreateFormField("payload_json")
+		if err != nil {
+			return nil, "", err
+		}
+
+		_, err = fw.Write(jsonb)
+		if err != nil {
+			return nil, "", err
 		}
 
 		w.Close()
@@ -211,7 +226,7 @@ func formatMessage(content any, messageId string) (*bytes.Buffer, string, error)
 		contentType = w.FormDataContentType()
 
 	default:
-		return nil, "", errors.New("invalid content type, must be string, *embed.Embed, *discord.Message or []*os.File")
+		return nil, "", errors.New("invalid content type, must be string, *builder.Embed, *discord.Message, *builder.MessageBuilder")
 	}
 
 	return b, contentType, nil

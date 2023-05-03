@@ -16,6 +16,7 @@ type State struct {
 	members  map[string]map[string]*discord.GuildMember
 }
 
+// NewState creates a new state
 func NewState(session *Session) *State {
 	return &State{
 		session:  session,
@@ -27,6 +28,7 @@ func NewState(session *Session) *State {
 
 // GUILDS
 
+// AddGuild adds a guild to the state
 func (s *State) AddGuild(guild *discord.Guild) {
 	s.Lock()
 	defer s.Unlock()
@@ -102,6 +104,7 @@ func (s *State) registerMembers(guild *discord.Guild) {
 	s.members[guild.Id] = members
 }
 
+// RemoveGuild removes a guild from the state
 func (s *State) RemoveGuild(guild *discord.Guild) error {
 	_, err := s.Guild(guild.Id)
 	if err != nil {
@@ -116,6 +119,7 @@ func (s *State) RemoveGuild(guild *discord.Guild) error {
 	return nil
 }
 
+// Guild returns a guild from the state
 func (s *State) Guild(guildID string) (*discord.Guild, error) {
 	s.RLock()
 	defer s.RUnlock()
@@ -129,6 +133,7 @@ func (s *State) Guild(guildID string) (*discord.Guild, error) {
 
 // CHANNELS
 
+// AddChannel adds a channel to the state
 func (s *State) AddChannel(channel *discord.Channel) {
 	s.Lock()
 	defer s.Unlock()
@@ -160,6 +165,7 @@ func (s *State) AddChannel(channel *discord.Channel) {
 	s.channels[channel.Id] = channel
 }
 
+// RemoveChannel removes a channel from the state
 func (s *State) RemoveChannel(channel *discord.Channel) {
 	_, err := s.Channel(channel.Id)
 	if err != nil {
@@ -202,6 +208,7 @@ func (s *State) RemoveChannel(channel *discord.Channel) {
 	delete(s.channels, channel.Id)
 }
 
+// Channel returns a channel from the state
 func (s *State) Channel(id string) (*discord.Channel, error) {
 	s.RLock()
 	defer s.RUnlock()
@@ -215,6 +222,7 @@ func (s *State) Channel(id string) (*discord.Channel, error) {
 
 // MEMBERS
 
+// AddMember adds a member to the state
 func (s *State) AddMember(guildID string, member *discord.GuildMember) {
 	s.Lock()
 	defer s.Unlock()
@@ -242,6 +250,7 @@ func (s *State) AddMember(guildID string, member *discord.GuildMember) {
 	}
 }
 
+// RemoveMember removes a member from the state
 func (s *State) RemoveMember(guildId string, memberId string) {
 	guild, err := s.Guild(guildId)
 	if err != nil {
@@ -272,6 +281,7 @@ func (s *State) RemoveMember(guildId string, memberId string) {
 	}
 }
 
+// Member returns a member from the state
 func (s *State) Member(guildID string, userID string) (*discord.GuildMember, error) {
 	s.RLock()
 	defer s.RUnlock()
@@ -293,6 +303,7 @@ func (s *State) Member(guildID string, userID string) (*discord.GuildMember, err
 
 // EMOJIS
 
+// AddEmoji adds an emoji to the state
 func (s *State) AddEmoji(guildId string, emoji *discord.Emoji) error {
 	guild, err := s.Guild(guildId)
 	if err != nil {
@@ -315,6 +326,7 @@ func (s *State) AddEmoji(guildId string, emoji *discord.Emoji) error {
 	return nil
 }
 
+// Emoji returns an emoji from the state
 func (s *State) Emoji(guildId, emojiId string) (*discord.Emoji, error) {
 	guild, err := s.Guild(guildId)
 	if err != nil {
@@ -333,6 +345,7 @@ func (s *State) Emoji(guildId, emojiId string) (*discord.Emoji, error) {
 	return nil, errors.New("emoji not found")
 }
 
+// AddEmojis adds emojis to the state
 func (s *State) AddEmojis(guildId string, emojis []*discord.Emoji) error {
 	for _, e := range emojis {
 		if err := s.AddEmoji(guildId, e); err != nil {
@@ -343,6 +356,7 @@ func (s *State) AddEmojis(guildId string, emojis []*discord.Emoji) error {
 	return nil
 }
 
+// AddRole adds a role to the state
 func (s *State) AddRole(guildId string, role *discord.Role) error {
 	guild, err := s.Guild(guildId)
 	if err != nil {
@@ -365,6 +379,7 @@ func (s *State) AddRole(guildId string, role *discord.Role) error {
 	return nil
 }
 
+// RemoveRole removes a role from the state
 func (s *State) RemoveRole(guildId, roleId string) error {
 	guild, err := s.Guild(guildId)
 	if err != nil {
@@ -384,6 +399,7 @@ func (s *State) RemoveRole(guildId, roleId string) error {
 	return errors.New("role not found")
 }
 
+// Role returns a role from the state
 func (s *State) Role(guildId, roleId string) (*discord.Role, error) {
 	guild, err := s.Guild(guildId)
 	if err != nil {
@@ -402,6 +418,7 @@ func (s *State) Role(guildId, roleId string) (*discord.Role, error) {
 	return nil, errors.New("role not found")
 }
 
+// UpdateVoiceState updates a voice state in the state
 func (s *State) UpdateVoiceState(ev *event.VoiceStateUpdate) error {
 	guild, err := s.Guild(ev.Data.GuildId)
 	if err != nil {
@@ -434,6 +451,7 @@ func (s *State) UpdateVoiceState(ev *event.VoiceStateUpdate) error {
 	return nil
 }
 
+// VoiceState returns a voice state from the state
 func (s *State) VoiceState(guildId, userId string) (*discord.VoiceState, error) {
 	guild, err := s.Guild(guildId)
 	if err != nil {
@@ -449,6 +467,7 @@ func (s *State) VoiceState(guildId, userId string) (*discord.VoiceState, error) 
 	return nil, errors.New("voice state not found")
 }
 
+// Guilds returns all guilds from the state
 func (s *State) Guilds() map[string]*discord.Guild {
 	s.RLock()
 	defer s.RUnlock()
@@ -456,6 +475,7 @@ func (s *State) Guilds() map[string]*discord.Guild {
 	return s.guilds
 }
 
+// Channels returns all channels from the state
 func (s *State) Channels() map[string]*discord.Channel {
 	s.RLock()
 	defer s.RUnlock()
@@ -463,6 +483,7 @@ func (s *State) Channels() map[string]*discord.Channel {
 	return s.channels
 }
 
+// Members returns all members from the state
 func (s *State) Members() map[string]map[string]*discord.GuildMember {
 	s.RLock()
 	defer s.RUnlock()

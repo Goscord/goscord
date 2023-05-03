@@ -15,7 +15,7 @@ func (_ *PresenceUpdateHandler) Handle(s *Session, Data []byte) {
 
 	// ToDo : Add a method in state to track presences
 
-	s.Bus().Publish("presenceUpdate", ev.Data)
+	s.Publish(event.EventPresenceUpdate, ev.Data)
 }
 
 type GuildCreateHandler struct{}
@@ -29,7 +29,7 @@ func (_ *GuildCreateHandler) Handle(s *Session, data []byte) {
 
 	s.State().AddGuild(ev.Data)
 
-	s.Bus().Publish("guildCreate", ev.Data)
+	s.Publish(event.EventGuildCreate, ev.Data)
 }
 
 type GuildUpdateHandler struct{}
@@ -43,7 +43,7 @@ func (_ *GuildUpdateHandler) Handle(s *Session, data []byte) {
 
 	s.State().AddGuild(ev.Data)
 
-	s.Bus().Publish("guildUpdate", ev.Data)
+	s.Publish(event.EventGuildUpdate, ev.Data)
 }
 
 type GuildDeleteHandler struct{}
@@ -55,9 +55,9 @@ func (_ *GuildDeleteHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.State().RemoveGuild(ev.Data)
+	_ = s.State().RemoveGuild(ev.Data)
 
-	s.Bus().Publish("guildDelete", ev.Data)
+	s.Publish(event.EventGuildDelete, ev.Data)
 }
 
 type GuildBanAddHandler struct{}
@@ -76,7 +76,7 @@ func (_ *GuildBanAddHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.Bus().Publish("guildBanAdd", guild, user)
+	s.Publish(event.EventGuildBanAdd, guild, user)
 }
 
 type GuildBanRemoveHandler struct{}
@@ -95,7 +95,7 @@ func (_ *GuildBanRemoveHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.Bus().Publish("guildBanRemove", guild, user)
+	s.Publish(event.EventGuildBanRemove, guild, user)
 }
 
 type GuildEmojisUpdateHandler struct{}
@@ -114,7 +114,7 @@ func (_ *GuildEmojisUpdateHandler) Handle(s *Session, data []byte) {
 
 	guild.Emojis = ev.Data.Emojis
 
-	s.Bus().Publish("guildEmojisUpdate", ev.Data)
+	s.Publish(event.EventGuildEmojisUpdate, guild)
 }
 
 type GuildStickersUpdateHandler struct{}
@@ -128,7 +128,7 @@ func (_ *GuildStickersUpdateHandler) Handle(s *Session, data []byte) {
 
 	// ToDo : Cache stickers?
 
-	s.Bus().Publish("guildStickersUpdate", ev.Data)
+	s.Publish(event.EventGuildStickersUpdate, ev.Data)
 }
 
 type GuildIntegrationsUpdateHandler struct{}
@@ -140,7 +140,9 @@ func (_ *GuildIntegrationsUpdateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.Bus().Publish("guildIntegrationsUpdate", ev.Data)
+	// ToDo : Cache integrations?
+
+	s.Publish(event.EventGuildIntegrationsUpdate, ev.Data)
 }
 
 type GuildMemberAddHandler struct{}
@@ -156,7 +158,7 @@ func (_ *GuildMemberAddHandler) Handle(s *Session, data []byte) {
 
 	s.State().AddMember(ev.Data.GuildId, ev.Data)
 
-	s.Bus().Publish("guildMemberAdd", ev.Data)
+	s.Publish(event.EventGuildMemberAdd, ev.Data)
 }
 
 type GuildMemberRemoveHandler struct{}
@@ -172,7 +174,7 @@ func (_ *GuildMemberRemoveHandler) Handle(s *Session, data []byte) {
 
 	s.State().RemoveMember(ev.Data.GuildId, ev.Data.User.Id)
 
-	s.Bus().Publish("guildMemberRemove", ev.Data)
+	s.Publish(event.EventGuildMemberRemove, ev.Data)
 }
 
 type GuildMemberUpdateHandler struct{}
@@ -186,7 +188,7 @@ func (_ *GuildMemberUpdateHandler) Handle(s *Session, data []byte) {
 
 	s.State().AddMember(ev.Data.GuildId, ev.Data)
 
-	s.Bus().Publish("guildMemberUpdate", ev.Data)
+	s.Publish(event.EventGuildMemberUpdate, ev.Data)
 }
 
 type GuildMembersChunkHandler struct{}
@@ -202,7 +204,7 @@ func (_ *GuildMembersChunkHandler) Handle(s *Session, data []byte) {
 		s.State().AddMember(ev.Data.GuildId, member)
 	}
 
-	s.Bus().Publish("guildMembersChunk", ev.Data)
+	s.Publish(event.EventGuildMembersChunk, ev.Data)
 }
 
 type GuildRoleCreateHandler struct{}
@@ -220,7 +222,7 @@ func (_ *GuildRoleCreateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.Bus().Publish("guildRoleCreate", ev.Data)
+	s.Publish(event.EventGuildRoleCreate, ev.Data)
 }
 
 type GuildRoleUpdateHandler struct{}
@@ -238,7 +240,7 @@ func (_ *GuildRoleUpdateHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.Bus().Publish("guildRoleUpdate", ev.Data)
+	s.Publish(event.EventGuildRoleUpdate, ev.Data)
 }
 
 type GuildRoleDeleteHandler struct{}
@@ -256,5 +258,5 @@ func (_ *GuildRoleDeleteHandler) Handle(s *Session, data []byte) {
 		return
 	}
 
-	s.Bus().Publish("guildRoleDelete", ev.Data)
+	s.Publish(event.EventGuildRoleDelete, ev.Data)
 }

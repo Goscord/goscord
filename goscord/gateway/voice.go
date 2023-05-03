@@ -1,7 +1,6 @@
 package gateway
 
 import (
-	"bytes"
 	"encoding/binary"
 	"encoding/json"
 	"errors"
@@ -88,7 +87,7 @@ func (v *VoiceConnection) login() error {
 		attempt++
 	}
 
-	conn, _, err := websocket.DefaultDialer.Dial("wss://"+strings.TrimSuffix(endpoint, ":80")+"/?v=4", nil)
+	conn, _, err := websocket.DefaultDialer.Dial("wss://"+strings.TrimSuffix(endpoint, ":80"), nil)
 	if err != nil {
 		return errors.New("cannot connect to voice websocket server")
 	}
@@ -279,32 +278,37 @@ func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 		return err
 	}
 
-	buf := make([]byte, 70)
-	binary.BigEndian.PutUint32(buf, ssrc)
+	buf := make([]byte, 74)
+	binary.BigEndian.PutUint16(buf, 1)
+	binary.BigEndian.PutUint16(buf[2:], 70)
+	binary.BigEndian.PutUint32(buf[4:], ssrc)
+
 	_, err = udpConn.Write(buf)
 	if err != nil {
 		return err
 	}
 
-	buf = make([]byte, 70)
+	buf = make([]byte, 74)
 	bufLen, _, err := udpConn.ReadFromUDP(buf)
 	if err != nil {
 		return err
 	}
 
-	if bufLen < 70 {
+	if bufLen < 74 {
 		return errors.New("invalid udp response")
 	}
 
 	// read ip and port from ip discovery packet
-	ipBuf := buf[4:68]
-	nullPos := bytes.Index(ipBuf, []byte{'\x00'})
-	if nullPos < 0 {
-		return errors.New("invalid ip")
+	var ip string
+	for i := 8; i < len(buf)-2; i++ {
+		if buf[i] == 0 {
+			break
+		}
+
+		ip += string(buf[i])
 	}
 
-	ip := string(ipBuf[:nullPos])
-	port := binary.BigEndian.Uint16(buf[68:70])
+	port := binary.BigEndian.Uint16(buf[len(buf)-2:])
 
 	voiceSelect := packet.NewVoiceSelectProtocol(ip, port)
 	if err := conn.WriteJSON(voiceSelect); err != nil {
@@ -328,6 +332,7 @@ func (v *VoiceConnection) loginUdp() error { // TODO: make this work
 	return nil
 }
 
+// Write sends a frame of audio to the voice connection.
 func (v *VoiceConnection) Write(b []byte) (int, error) {
 	v.RLock()
 	udpConn := v.udpConn
@@ -405,7 +410,7 @@ func (v *VoiceConnection) startHeartbeat(conn *websocket.Conn, c <-chan struct{}
 	defer ticker.Stop()
 
 	for {
-		if err := conn.WriteJSON(packet.NewVoiceHeartbeat(time.Now().UnixMilli())); err != nil {
+		if err := conn.WriteJSON(packet.NewVoiceHeartbeat(time.Now().Unix())); err != nil {
 			// TODO: Log error
 			return
 		}
@@ -421,7 +426,7 @@ func (v *VoiceConnection) startHeartbeat(conn *websocket.Conn, c <-chan struct{}
 }
 
 func (v *VoiceConnection) wait() error {
-	var attempt int = 1
+	attempt := 0
 
 	for {
 		if v.ready.Load() {
@@ -491,6 +496,7 @@ func (v *VoiceConnection) reconnect() {
 	}
 }
 
+// Speaking sets the speaking state of the voice connection.
 func (v *VoiceConnection) Speaking(speaking bool) error {
 	v.RLock()
 	ssrc := v.ssrc
@@ -514,6 +520,7 @@ func (v *VoiceConnection) Speaking(speaking bool) error {
 	return err
 }
 
+// Disconnect disconnects the bot from the voice channel and closes the voice connection.
 func (v *VoiceConnection) Disconnect() (err error) {
 	v.RLock()
 	sessionId := v.sessionId
@@ -539,6 +546,7 @@ func (v *VoiceConnection) Disconnect() (err error) {
 	return
 }
 
+// Close closes the voice connection.
 func (v *VoiceConnection) Close() {
 	v.ready.Store(false)
 
@@ -553,7 +561,9 @@ func (v *VoiceConnection) Close() {
 
 	if c != nil {
 		v.Lock()
-		v.frequency.Stop()
+		if v.frequency != nil {
+			v.frequency.Stop()
+		}
 
 		close(v.close)
 		v.close = nil
@@ -591,4 +601,5 @@ func (v *VoiceConnection) Close() {
 	}
 }
 
+// Ready returns whether the voice connection is ready.
 func (v *VoiceConnection) Ready() bool { return v.ready.Load() }

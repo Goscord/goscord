@@ -3,7 +3,7 @@ package event
 import (
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/rest"
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 type GuildBanRemove struct {
@@ -16,7 +16,7 @@ type GuildBanRemove struct {
 func NewGuildBanRemove(rest *rest.Client, data []byte) (*GuildBanRemove, error) {
 	pk := new(GuildBanRemove)
 
-	err := json.Unmarshal(data, pk)
+	err := sonic.Unmarshal(data, pk)
 
 	if err != nil {
 		return nil, err

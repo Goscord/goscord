@@ -3,7 +3,7 @@ package event
 import (
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/rest"
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 // GuildRoleDelete Is sent when a guild role is deleted.
@@ -14,7 +14,7 @@ type GuildRoleDelete struct {
 func NewGuildRoleDelete(rest *rest.Client, data []byte) (*GuildRoleDelete, error) {
 	pk := new(GuildRoleDelete)
 
-	err := json.Unmarshal(data, pk)
+	err := sonic.Unmarshal(data, pk)
 
 	if err != nil {
 		return nil, err

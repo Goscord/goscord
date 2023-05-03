@@ -4,8 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/Goscord/goscord/goscord/discord"
-
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 type ApplicationHandler struct {
@@ -33,7 +32,7 @@ func (ch *ApplicationHandler) GetCommands(applicationId, guildId string) ([]*dis
 		return nil, err
 	}
 
-	err = json.Unmarshal(res, &commands)
+	err = sonic.Unmarshal(res, &commands)
 
 	if err != nil {
 		return nil, err
@@ -53,7 +52,7 @@ func (ch *ApplicationHandler) RegisterCommand(applicationId, guildId string, app
 		endpoint = fmt.Sprintf(EndpointCreateGuildApplicationCommand, applicationId, guildId)
 	}
 
-	data, err := json.Marshal(application)
+	data, err := sonic.Marshal(application)
 
 	if err != nil {
 		return nil, err
@@ -65,7 +64,7 @@ func (ch *ApplicationHandler) RegisterCommand(applicationId, guildId string, app
 		return nil, err
 	}
 
-	err = json.Unmarshal(res, &command)
+	err = sonic.Unmarshal(res, &command)
 
 	if err != nil {
 		return nil, err
@@ -91,7 +90,7 @@ func (ch *ApplicationHandler) GetCommand(applicationId, guildId, commandId strin
 		return nil, err
 	}
 
-	err = json.Unmarshal(res, &command)
+	err = sonic.Unmarshal(res, &command)
 
 	if err != nil {
 		return nil, err
@@ -116,7 +115,7 @@ func (ch *ApplicationHandler) EditCommand(applicationId, guildId, commandId stri
 		return nil, err
 	}
 
-	err = json.Unmarshal(res, &command)
+	err = sonic.Unmarshal(res, &command)
 
 	if err != nil {
 		return nil, err
@@ -152,7 +151,7 @@ func (ch *ApplicationHandler) GetGuildCommandPermissions(applicationId, guildId 
 		return nil, err
 	}
 
-	err = json.Unmarshal(res, &permissions)
+	err = sonic.Unmarshal(res, &permissions)
 
 	if err != nil {
 		return nil, err
@@ -171,7 +170,7 @@ func (ch *ApplicationHandler) GetCommandPermissions(applicationId, guildId, comm
 		return nil, err
 	}
 
-	err = json.Unmarshal(res, &permissions)
+	err = sonic.Unmarshal(res, &permissions)
 
 	if err != nil {
 		return nil, err
@@ -189,7 +188,7 @@ func (ch *ApplicationHandler) EditCommandPermissions(applicationId, guildId, com
 	var guildPermissions []*discord.GuildApplicationCommandPermissions
 	var err error
 
-	data, err := json.Marshal(&rawEditCommandPermissions{Permissions: permissions})
+	data, err := sonic.Marshal(&rawEditCommandPermissions{Permissions: permissions})
 
 	if err != nil {
 		return nil, err
@@ -201,7 +200,7 @@ func (ch *ApplicationHandler) EditCommandPermissions(applicationId, guildId, com
 		return nil, err
 	}
 
-	err = json.Unmarshal(res, &guildPermissions)
+	err = sonic.Unmarshal(res, &guildPermissions)
 
 	if err != nil {
 		return nil, err

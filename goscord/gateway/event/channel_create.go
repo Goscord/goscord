@@ -3,7 +3,7 @@ package event
 import (
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/rest"
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 type ChannelCreate struct {
@@ -13,7 +13,7 @@ type ChannelCreate struct {
 func NewChannelCreate(rest *rest.Client, data []byte) (*ChannelCreate, error) {
 	pk := new(ChannelCreate)
 
-	err := json.Unmarshal(data, pk)
+	err := sonic.Unmarshal(data, pk)
 
 	if err != nil {
 		return nil, err

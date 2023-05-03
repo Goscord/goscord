@@ -2,7 +2,7 @@ package event
 
 import (
 	"github.com/Goscord/goscord/goscord/rest"
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 type MessageDelete struct {
@@ -16,7 +16,7 @@ type MessageDelete struct {
 func NewMessageDelete(_ *rest.Client, data []byte) (*MessageDelete, error) {
 	pk := new(MessageDelete)
 
-	err := json.Unmarshal(data, pk)
+	err := sonic.Unmarshal(data, pk)
 
 	if err != nil {
 		return nil, err

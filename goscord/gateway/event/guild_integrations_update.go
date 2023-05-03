@@ -3,7 +3,7 @@ package event
 import (
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/rest"
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 type GuildIntegrationsUpdate struct {
@@ -13,7 +13,7 @@ type GuildIntegrationsUpdate struct {
 func NewGuildIntegrationsUpdate(rest *rest.Client, data []byte) (*GuildIntegrationsUpdate, error) {
 	pk := new(GuildIntegrationsUpdate)
 
-	err := json.Unmarshal(data, pk)
+	err := sonic.Unmarshal(data, pk)
 
 	if err != nil {
 		return nil, err

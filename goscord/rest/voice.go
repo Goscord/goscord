@@ -2,7 +2,7 @@ package rest
 
 import (
 	"github.com/Goscord/goscord/goscord/discord"
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 type VoiceHandler struct {
@@ -21,7 +21,7 @@ func (h *VoiceHandler) ListVoiceRegions() ([]*discord.VoiceRegion, error) {
 	}
 
 	var regions []*discord.VoiceRegion
-	err = json.Unmarshal(data, &regions)
+	err = sonic.Unmarshal(data, &regions)
 
 	if err != nil {
 		return nil, err

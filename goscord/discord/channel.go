@@ -2,9 +2,8 @@ package discord
 
 import (
 	"github.com/Goscord/goscord/goscord/discord/embed"
+	"github.com/bytedance/sonic"
 	"time"
-
-	"github.com/goccy/go-json"
 )
 
 type MessageActivityType int
@@ -217,7 +216,7 @@ func (m *Message) UnmarshalJSON(data []byte) error {
 		Components []unmarshalableMessageComponent `json:"components"`
 	}
 
-	err := json.Unmarshal(data, &v)
+	err := sonic.Unmarshal(data, &v)
 	if err != nil {
 		return err
 	}

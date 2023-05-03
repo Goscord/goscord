@@ -7,13 +7,12 @@ import (
 	"github.com/Goscord/goscord/goscord/gateway/event"
 	"github.com/Goscord/goscord/goscord/gateway/packet"
 	"github.com/Goscord/goscord/goscord/rest"
+	"github.com/bytedance/sonic"
 	"io"
 	"net"
 	"sync"
 	"syscall"
 	"time"
-
-	"github.com/goccy/go-json"
 
 	ev "github.com/asaskevich/EventBus"
 	"github.com/gorilla/websocket"
@@ -346,7 +345,7 @@ loop:
 		case packet.OpInvalidSession:
 			var shouldResume = false
 
-			err = json.Unmarshal(pk.Data, &shouldResume)
+			err = sonic.Unmarshal(pk.Data, &shouldResume)
 			if err != nil {
 				shouldResume = false
 			}

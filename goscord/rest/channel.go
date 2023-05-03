@@ -6,11 +6,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Goscord/goscord/goscord/discord"
-	"github.com/Goscord/goscord/goscord/discord/embed"
+	"github.com/Goscord/goscord/goscord/discord/builder"
 	"github.com/bytedance/sonic"
 	"io"
 	"mime/multipart"
-	"os"
 )
 
 type ChannelHandler struct {

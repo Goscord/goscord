@@ -1,7 +1,6 @@
 package discord
 
 import (
-	"github.com/Goscord/goscord/goscord/discord/embed"
 	"github.com/bytedance/sonic"
 	"time"
 )

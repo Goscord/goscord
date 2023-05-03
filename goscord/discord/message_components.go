@@ -1,9 +1,9 @@
 package discord
 
 import (
+	"encoding/json"
 	"fmt"
-
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 type ComponentType int
@@ -46,7 +46,7 @@ func (u *unmarshalableMessageComponent) UnmarshalJSON(data []byte) error {
 		Type ComponentType `json:"type"`
 	}
 
-	err := json.Unmarshal(data, &v)
+	err := sonic.Unmarshal(data, &v)
 	if err != nil {
 		return err
 	}
@@ -68,7 +68,7 @@ func (u *unmarshalableMessageComponent) UnmarshalJSON(data []byte) error {
 		return fmt.Errorf("unknown component type: %d", v.Type)
 	}
 
-	return json.Unmarshal(data, u.MessageComponent)
+	return sonic.Unmarshal(data, u.MessageComponent)
 }
 
 type ActionRows struct {
@@ -79,7 +79,7 @@ type ActionRows struct {
 func (r ActionRows) MarshalJSON() ([]byte, error) {
 	type actionsRow ActionRows
 
-	return json.Marshal(struct {
+	return sonic.Marshal(struct {
 		Type ComponentType `json:"type"`
 		actionsRow
 	}{
@@ -93,7 +93,7 @@ func (r ActionRows) UnmarshalJSON(data []byte) error {
 		Components []unmarshalableMessageComponent `json:"components"`
 	}
 
-	err := json.Unmarshal(data, &v)
+	err := sonic.Unmarshal(data, &v)
 	if err != nil {
 		return err
 	}
@@ -120,7 +120,7 @@ type Button struct {
 func (b Button) MarshalJSON() ([]byte, error) {
 	type button Button
 
-	return json.Marshal(struct {
+	return sonic.Marshal(struct {
 		Type ComponentType `json:"type"`
 		button
 	}{
@@ -143,7 +143,7 @@ type SelectMenu struct {
 func (sm SelectMenu) MarshalJSON() ([]byte, error) {
 	type selectMenu SelectMenu
 
-	return json.Marshal(struct {
+	return sonic.Marshal(struct {
 		Type ComponentType `json:"type"`
 		selectMenu
 	}{
@@ -167,7 +167,7 @@ type TextInput struct {
 func (ti TextInput) MarshalJSON() ([]byte, error) {
 	type textInput TextInput
 
-	return json.Marshal(struct {
+	return sonic.Marshal(struct {
 		Type ComponentType `json:"type"`
 		textInput
 	}{

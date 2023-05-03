@@ -2,13 +2,15 @@ package rest
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/Goscord/goscord/goscord/discord"
-	"github.com/Goscord/goscord/goscord/discord/builder"
-	"github.com/goccy/go-json"
+	"github.com/Goscord/goscord/goscord/discord/embed"
+	"github.com/bytedance/sonic"
 	"io"
 	"mime/multipart"
+	"os"
 )
 
 type ChannelHandler struct {
@@ -27,7 +29,7 @@ func (ch *ChannelHandler) GetChannel(channelId string) (*discord.Channel, error)
 	}
 
 	var channel *discord.Channel
-	err = json.Unmarshal(data, &channel)
+	err = sonic.Unmarshal(data, &channel)
 
 	if err != nil {
 		return nil, err
@@ -46,7 +48,7 @@ func (ch *ChannelHandler) GetMessage(channelId, messageId string) (*discord.Mess
 
 	msg := new(discord.Message)
 
-	err = json.Unmarshal(res, msg)
+	err = sonic.Unmarshal(res, msg)
 
 	if err != nil {
 		return nil, err
@@ -70,7 +72,7 @@ func (ch *ChannelHandler) SendMessage(channelId string, content any) (*discord.M
 
 	msg := new(discord.Message)
 
-	err = json.Unmarshal(res, msg)
+	err = sonic.Unmarshal(res, msg)
 
 	if err != nil {
 		return nil, err
@@ -94,7 +96,7 @@ func (ch *ChannelHandler) ReplyMessage(channelId, messageId string, content any)
 
 	msg := new(discord.Message)
 
-	err = json.Unmarshal(res, msg)
+	err = sonic.Unmarshal(res, msg)
 
 	if err != nil {
 		return nil, err
@@ -118,7 +120,7 @@ func (ch *ChannelHandler) Edit(channelId, messageId string, content any) (*disco
 
 	msg := new(discord.Message)
 
-	err = json.Unmarshal(res, msg)
+	err = sonic.Unmarshal(res, msg)
 
 	if err != nil {
 		return nil, err
@@ -135,7 +137,7 @@ func (ch *ChannelHandler) CrosspostMessage(channelId, messageId string) (*discor
 	}
 
 	var msg discord.Message
-	err = json.Unmarshal(data, &msg)
+	err = sonic.Unmarshal(data, &msg)
 
 	if err != nil {
 		return nil, err

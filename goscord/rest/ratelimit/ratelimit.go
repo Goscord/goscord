@@ -1,25 +1,37 @@
 package ratelimit
 
 import (
+	"github.com/bytedance/sonic"
+	"net/http"
 	"time"
-
-	"github.com/goccy/go-json"
 )
 
+// TODO: Implement global rate-limit
+
 type RateLimit struct {
-	Message    string        `json:"message"`
-	RetryAfter time.Duration `json:"retry_after"`
-	Global     bool          `json:"global"`
+	Message    string  `json:"message"`
+	Global     bool    `json:"global"`
+	RetryAfter float64 `json:"retry_after"`
+	Bucket     string  `json:"-"`
+
+	CreatedAt time.Time `json:"-"`
 }
 
-func NewRateLimit(data []byte) (*RateLimit, error) {
+func NewRateLimit(resp *http.Response, data []byte) (*RateLimit, error) {
 	var ratelimit *RateLimit
 
-	err := json.Unmarshal(data, &ratelimit)
+	err := sonic.Unmarshal(data, &ratelimit)
 
 	if err != nil {
 		return nil, err
 	}
 
+	ratelimit.CreatedAt = time.Now()
+	ratelimit.Bucket = resp.Header.Get("X-RateLimit-Bucket")
+
 	return ratelimit, nil
+}
+
+func (rl *RateLimit) Wait() {
+	<-time.After(time.Duration(rl.RetryAfter) * time.Second)
 }

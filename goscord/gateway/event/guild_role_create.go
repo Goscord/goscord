@@ -3,7 +3,7 @@ package event
 import (
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/rest"
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 // GuildRoleCreate Is sent when a guild role is created.
@@ -14,7 +14,7 @@ type GuildRoleCreate struct {
 func NewGuildRoleCreate(rest *rest.Client, data []byte) (*GuildRoleCreate, error) {
 	pk := new(GuildRoleCreate)
 
-	err := json.Unmarshal(data, pk)
+	err := sonic.Unmarshal(data, pk)
 
 	if err != nil {
 		return nil, err

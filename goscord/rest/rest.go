@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Goscord/goscord/goscord/rest/ratelimit"
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 	"io"
 	"net/http"
 	"strings"
@@ -13,10 +13,14 @@ import (
 
 type Client struct {
 	token string
+	rl    *ratelimit.RateLimiter
 }
 
 func NewClient(token string) *Client {
-	return &Client{token: token}
+	return &Client{
+		token: token,
+		rl:    ratelimit.NewRateLimiter(),
+	}
 }
 
 func (c *Client) Request(endpoint, method string, data io.Reader, contentType string) ([]byte, error) {
@@ -41,7 +45,9 @@ func (c *Client) Request(endpoint, method string, data io.Reader, contentType st
 		return nil, err
 	}
 
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		_ = Body.Close()
+	}(resp.Body)
 
 	var body []byte
 
@@ -52,22 +58,28 @@ func (c *Client) Request(endpoint, method string, data io.Reader, contentType st
 	}
 
 	resData := make(map[string]interface{})
-	json.Unmarshal(body, &resData)
+	_ = sonic.Unmarshal(body, &resData)
 
-	if msg, ok := resData["message"]; ok {
-		return nil, errors.New(msg.(string))
+	if resp.StatusCode != http.StatusTooManyRequests {
+		if msg, ok := resData["message"]; ok {
+			return nil, errors.New(msg.(string))
+		}
 	}
 
-	if resp.StatusCode == 429 {
-		rateLimit, err := ratelimit.NewRateLimit(body)
+	if resp.StatusCode == http.StatusTooManyRequests {
+		rl, err := ratelimit.NewRateLimit(resp, body)
 
 		if err != nil {
+			fmt.Println(err)
 			return nil, err
 		}
 
-		// ToDo : Handle rateLimit cleaner lmao
+		if c.rl.Get(rl.Bucket) == nil {
+			c.rl.Set(rl.Bucket, rl)
+		}
 
-		time.Sleep(rateLimit.RetryAfter)
+		rl = c.rl.Get(rl.Bucket)
+		rl.Wait()
 
 		body, err = c.Request(endpoint, method, data, contentType)
 	}

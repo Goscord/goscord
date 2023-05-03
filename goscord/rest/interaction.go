@@ -2,10 +2,12 @@ package rest
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/Goscord/goscord/goscord/discord"
-	"github.com/goccy/go-json"
+	"github.com/Goscord/goscord/goscord/discord/embed"
+	"github.com/bytedance/sonic"
 )
 
 type InteractionHandler struct {
@@ -72,7 +74,7 @@ func (ch *InteractionHandler) GetOriginalResponse(applicationId, interactionToke
 	}
 
 	var response *discord.Message
-	err = json.Unmarshal(res, &response)
+	err = sonic.Unmarshal(res, &response)
 
 	if err != nil {
 		return nil, err
@@ -96,7 +98,7 @@ func (ch *InteractionHandler) EditOriginalResponse(applicationId, interactionTok
 	}
 
 	var response *discord.Message
-	err = json.Unmarshal(res, &response)
+	err = sonic.Unmarshal(res, &response)
 
 	if err != nil {
 		return nil, err
@@ -131,7 +133,7 @@ func (ch *InteractionHandler) CreateFollowupMessage(applicationId, interactionTo
 	}
 
 	var message *discord.Message
-	err = json.Unmarshal(res, &message)
+	err = sonic.Unmarshal(res, &message)
 
 	if err != nil {
 		return nil, err
@@ -149,7 +151,7 @@ func (ch *InteractionHandler) GetFollowupMessage(applicationId, interactionToken
 	}
 
 	var message *discord.Message
-	err = json.Unmarshal(res, &message)
+	err = sonic.Unmarshal(res, &message)
 
 	if err != nil {
 		return nil, err
@@ -173,7 +175,7 @@ func (ch *InteractionHandler) EditFollowupMessage(applicationId, interactionToke
 	}
 
 	var message *discord.Message
-	err = json.Unmarshal(res, &message)
+	err = sonic.Unmarshal(res, &message)
 
 	if err != nil {
 		return nil, err

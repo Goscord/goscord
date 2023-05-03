@@ -3,7 +3,7 @@ package event
 import (
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/rest"
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 type VoiceStateUpdate struct {
@@ -13,7 +13,7 @@ type VoiceStateUpdate struct {
 func NewVoiceStateUpdate(rest *rest.Client, data []byte) (*VoiceStateUpdate, error) {
 	pk := new(VoiceStateUpdate)
 
-	err := json.Unmarshal(data, pk)
+	err := sonic.Unmarshal(data, pk)
 
 	if err != nil {
 		return nil, err

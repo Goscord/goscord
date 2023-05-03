@@ -3,7 +3,7 @@ package event
 import (
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/rest"
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 type PresenceUpdate struct {
@@ -25,7 +25,7 @@ type ClientStatus struct {
 func NewPresenceUpdate(_ *rest.Client, data []byte) (*PresenceUpdate, error) {
 	pk := new(PresenceUpdate)
 
-	err := json.Unmarshal(data, pk)
+	err := sonic.Unmarshal(data, pk)
 
 	if err != nil {
 		return nil, err

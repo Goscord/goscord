@@ -3,7 +3,7 @@ package event
 import (
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/rest"
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 type ThreadUpdate struct {
@@ -13,7 +13,7 @@ type ThreadUpdate struct {
 func NewThreadUpdate(rest *rest.Client, data []byte) (*ThreadUpdate, error) {
 	pk := new(ThreadUpdate)
 
-	err := json.Unmarshal(data, pk)
+	err := sonic.Unmarshal(data, pk)
 
 	if err != nil {
 		return nil, err

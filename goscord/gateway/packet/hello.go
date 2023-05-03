@@ -1,9 +1,8 @@
 package packet
 
 import (
+	"github.com/bytedance/sonic"
 	"time"
-
-	"github.com/goccy/go-json"
 )
 
 type Hello struct {
@@ -16,7 +15,7 @@ type Hello struct {
 func NewHello(data []byte) (*Hello, error) {
 	var packet Hello
 
-	err := json.Unmarshal(data, &packet)
+	err := sonic.Unmarshal(data, &packet)
 
 	if err != nil {
 		return nil, err

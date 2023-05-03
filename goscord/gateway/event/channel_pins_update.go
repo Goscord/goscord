@@ -3,7 +3,7 @@ package event
 import (
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/rest"
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 type ChannelPinsUpdate struct {
@@ -13,7 +13,7 @@ type ChannelPinsUpdate struct {
 func NewChannelPinsUpdate(rest *rest.Client, data []byte) (*ChannelPinsUpdate, error) {
 	pk := new(ChannelPinsUpdate)
 
-	err := json.Unmarshal(data, pk)
+	err := sonic.Unmarshal(data, pk)
 
 	if err != nil {
 		return nil, err

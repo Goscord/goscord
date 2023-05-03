@@ -1,6 +1,9 @@
 package packet
 
-import "github.com/goccy/go-json"
+import (
+	"encoding/json"
+	"github.com/bytedance/sonic"
+)
 
 type Packet struct {
 	Opcode   int             `json:"op"`
@@ -12,7 +15,7 @@ type Packet struct {
 func NewPacket(data []byte) (*Packet, error) {
 	var packet Packet
 
-	err := json.Unmarshal(data, &packet)
+	err := sonic.Unmarshal(data, &packet)
 
 	if err != nil {
 		return nil, err

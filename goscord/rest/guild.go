@@ -3,8 +3,7 @@ package rest
 import (
 	"fmt"
 	"github.com/Goscord/goscord/goscord/discord"
-
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 type GuildHandler struct {
@@ -23,7 +22,7 @@ func (gh *GuildHandler) GetMember(guildId, userId string) (*discord.GuildMember,
 	}
 
 	var member *discord.GuildMember
-	err = json.Unmarshal(data, &member)
+	err = sonic.Unmarshal(data, &member)
 
 	if err != nil {
 		return nil, err

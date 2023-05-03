@@ -2,7 +2,7 @@ package event
 
 import (
 	"github.com/Goscord/goscord/goscord/discord"
-	"github.com/goccy/go-json"
+	"github.com/bytedance/sonic"
 )
 
 type Ready struct {
@@ -18,7 +18,7 @@ type Ready struct {
 func NewReady(data []byte) (*Ready, error) {
 	pk := new(Ready)
 
-	err := json.Unmarshal(data, pk)
+	err := sonic.Unmarshal(data, pk)
 
 	if err != nil {
 		return nil, err

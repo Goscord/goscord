@@ -1,9 +1,8 @@
 package discord
 
 import (
+	"encoding/json"
 	"time"
-
-	"github.com/goccy/go-json"
 )
 
 type RoleTag struct {

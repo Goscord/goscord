@@ -1,7 +1,9 @@
 package discord
 
 import (
-	"github.com/goccy/go-json"
+	"encoding/json"
+	"github.com/Goscord/goscord/goscord/discord/embed"
+	"github.com/bytedance/sonic"
 )
 
 type ApplicationCommandType int
@@ -199,7 +201,7 @@ type unmarshalableInteraction struct {
 func (i *Interaction) UnmarshalJSON(data []byte) error {
 	var tmp unmarshalableInteraction
 
-	err := json.Unmarshal(data, &tmp)
+	err := sonic.Unmarshal(data, &tmp)
 	if err != nil {
 		return err
 	}
@@ -210,7 +212,7 @@ func (i *Interaction) UnmarshalJSON(data []byte) error {
 	case InteractionTypeApplicationCommand, InteractionTypeApplicationCommandAutocomplete:
 		v := ApplicationCommandData{}
 
-		err = json.Unmarshal(tmp.Data, &v)
+		err = sonic.Unmarshal(tmp.Data, &v)
 		if err != nil {
 			return err
 		}
@@ -220,7 +222,7 @@ func (i *Interaction) UnmarshalJSON(data []byte) error {
 	case InteractionTypeMessageComponent:
 		v := MessageComponentData{}
 
-		err = json.Unmarshal(tmp.Data, &v)
+		err = sonic.Unmarshal(tmp.Data, &v)
 		if err != nil {
 			return err
 		}
@@ -230,7 +232,7 @@ func (i *Interaction) UnmarshalJSON(data []byte) error {
 	case InteractionTypeModalSubmit:
 		v := ModalSubmitData{}
 
-		err = json.Unmarshal(tmp.Data, &v)
+		err = sonic.Unmarshal(tmp.Data, &v)
 		if err != nil {
 			return err
 		}
@@ -296,7 +298,7 @@ func (d *ModalSubmitData) UnmarshalJSON(data []byte) error {
 		Components []unmarshalableMessageComponent `json:"components"`
 	}
 
-	err := json.Unmarshal(data, &v)
+	err := sonic.Unmarshal(data, &v)
 	if err != nil {
 		return err
 	}

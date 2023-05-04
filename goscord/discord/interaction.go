@@ -117,21 +117,53 @@ func (o ApplicationCommandInteractionDataOption) Bool() bool {
 	return o.Value.(bool)
 }
 
-/* ToDo : Moove to a new folder to avoid import cycle
-func (o ApplicationCommandInteractionDataOption) ChannelValue(s *gateway.Session) *Channel {
+// TODO: User
+
+func (o ApplicationCommandInteractionDataOption) UserId() string {
+	if o.Type != ApplicationCommandOptionUser {
+		return ""
+	}
+
+	return o.Value.(string)
+}
+
+// TODO: Channel
+
+func (o ApplicationCommandInteractionDataOption) ChannelId() string {
 	if o.Type != ApplicationCommandOptionChannel {
+		return ""
+	}
+
+	return o.Value.(string)
+}
+
+// TODO: Role
+
+func (o ApplicationCommandInteractionDataOption) RoleId() string {
+	if o.Type != ApplicationCommandOptionRole {
+		return ""
+	}
+
+	return o.Value.(string)
+}
+
+// TODO: Mentionable
+
+func (o ApplicationCommandInteractionDataOption) Number() float64 {
+	if o.Type != ApplicationCommandOptionNumber {
+		return 0
+	}
+
+	return o.Value.(float64)
+}
+
+func (o ApplicationCommandInteractionDataOption) Attachment() *Attachment {
+	if o.Type != ApplicationCommandOptionAttachment {
 		return nil
 	}
 
-	chanID := o.Value.(string)
-	channel, err := s.State().Channel(chanID)
-	if err == nil {
-		return channel
-	}
-
-	return &Channel{Id: chanID}
+	return o.Value.(*Attachment)
 }
-*/
 
 type ApplicationCommandOption struct {
 	Type                     ApplicationCommandOptionType      `json:"type"`
@@ -259,9 +291,9 @@ type InteractionData interface {
 }
 
 type ApplicationCommandData struct {
-	ID       string                                     `json:"id"`
-	Name     string                                     `json:"name"`
-	Resolved *ResolvedData                              `json:"resolved"`
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	//Resolved *ResolvedData                              `json:"resolved"`
 	Options  []*ApplicationCommandInteractionDataOption `json:"options"`
 	TargetID string                                     `json:"target_id"`
 }

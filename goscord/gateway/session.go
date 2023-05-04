@@ -79,7 +79,7 @@ func NewSession(options *Options) *Session {
 	s.user = new(discord.User)
 	s.rest = rest.NewClient(options.Token)
 	s.bus = ev.New().(*ev.EventBus)
-	s.state = NewState(s)
+	s.state = NewState()
 	s.status = StatusUnconnected
 
 	// voice conn

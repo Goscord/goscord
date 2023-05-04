@@ -10,16 +10,14 @@ import (
 type State struct {
 	sync.RWMutex
 
-	session  *Session
 	guilds   map[string]*discord.Guild
 	channels map[string]*discord.Channel
 	members  map[string]map[string]*discord.GuildMember
 }
 
 // NewState creates a new state
-func NewState(session *Session) *State {
+func NewState() *State {
 	return &State{
-		session:  session,
 		guilds:   make(map[string]*discord.Guild),
 		channels: make(map[string]*discord.Channel),
 		members:  make(map[string]map[string]*discord.GuildMember),

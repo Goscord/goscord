@@ -143,6 +143,12 @@ func (s *Session) registerHandlers() {
 		event.EventInteractionCreate: &InteractionCreateHandler{},
 		event.EventVoiceStateUpdate:  &VoiceStateUpdateHandler{},
 		event.EventVoiceServerUpdate: &VoiceServerUpdateHandler{},
+
+		// Reaction events
+		event.EventMessageReactionAdd:         &MessageReactionAddHandler{},
+		event.EventMessageReactionRemove:      &MessageReactionRemoveHandler{},
+		event.EventMessageReactionRemoveAll:   &MessageReactionRemoveAllHandler{},
+		event.EventMessageReactionRemoveEmoji: &MessageReactionRemoveEmojiHandler{},
 	}
 }
 

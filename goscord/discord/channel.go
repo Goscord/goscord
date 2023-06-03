@@ -125,9 +125,15 @@ type MessageReference struct {
 }
 
 type Reaction struct {
-	Count int    `json:"count"`
-	Me    bool   `json:"me"`
-	Emoji *Emoji `json:"emoji"`
+	UserId          string       `json:"user_id"`
+	Type            int          `json:"type"`
+	MessageId       string       `json:"message_id"`
+	MessageAuthorId string       `json:"message_author_id"`
+	Member          *GuildMember `json:"member"`
+	Emoji           *Emoji       `json:"emoji"`
+	ChannelId       string       `json:"channel_id"`
+	Burst           bool         `json:"burst"`
+	GuildId         string       `json:"guild_id"`
 }
 
 type ThreadMetadata struct {

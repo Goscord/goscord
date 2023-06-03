@@ -138,11 +138,22 @@ func (s *Session) registerHandlers() {
 		event.EventGuildBanAdd:       &GuildBanAddHandler{},
 		event.EventGuildBanRemove:    &GuildBanRemoveHandler{},
 		event.EventGuildEmojisUpdate: &GuildEmojisUpdateHandler{},
-		event.EventMessageCreate:     &MessageCreateHandler{},
 		event.EventPresenceUpdate:    &PresenceUpdateHandler{},
 		event.EventInteractionCreate: &InteractionCreateHandler{},
 		event.EventVoiceStateUpdate:  &VoiceStateUpdateHandler{},
 		event.EventVoiceServerUpdate: &VoiceServerUpdateHandler{},
+
+		// Message events
+		event.EventMessageCreate:     &MessageCreateHandler{},
+		event.EventMessageUpdate:     &MessageUpdateHandler{},
+		event.EventMessageDelete:     &MessageDeleteHandler{},
+		event.EventMessageDeleteBulk: &MessageDeleteBulkHandler{},
+
+		// Reaction events
+		event.EventMessageReactionAdd:         &MessageReactionAddHandler{},
+		event.EventMessageReactionRemove:      &MessageReactionRemoveHandler{},
+		event.EventMessageReactionRemoveAll:   &MessageReactionRemoveAllHandler{},
+		event.EventMessageReactionRemoveEmoji: &MessageReactionRemoveEmojiHandler{},
 	}
 }
 

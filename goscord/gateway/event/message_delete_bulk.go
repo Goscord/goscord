@@ -6,12 +6,12 @@ import (
 	"github.com/bytedance/sonic"
 )
 
-type MessageDelete struct {
-	Data *discord.Message `json:"d"`
+type MessageDeleteBulk struct {
+	Data *discord.MessageDeleteBulk `json:"d"`
 }
 
-func NewMessageDelete(_ *rest.Client, data []byte) (*MessageDelete, error) {
-	pk := new(MessageDelete)
+func NewMessageDeleteBulk(_ *rest.Client, data []byte) (*MessageDeleteBulk, error) {
+	pk := new(MessageDeleteBulk)
 
 	err := sonic.Unmarshal(data, pk)
 

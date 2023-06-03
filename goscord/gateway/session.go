@@ -144,9 +144,10 @@ func (s *Session) registerHandlers() {
 		event.EventVoiceServerUpdate: &VoiceServerUpdateHandler{},
 
 		// Message events
-		event.EventMessageCreate: &MessageCreateHandler{},
-		event.EventMessageUpdate: &MessageUpdateHandler{},
-		event.EventMessageDelete: &MessageDeleteHandler{},
+		event.EventMessageCreate:     &MessageCreateHandler{},
+		event.EventMessageUpdate:     &MessageUpdateHandler{},
+		event.EventMessageDelete:     &MessageDeleteHandler{},
+		event.EventMessageDeleteBulk: &MessageDeleteBulkHandler{},
 
 		// Reaction events
 		event.EventMessageReactionAdd:         &MessageReactionAddHandler{},

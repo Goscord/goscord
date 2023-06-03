@@ -40,3 +40,16 @@ func (_ *MessageDeleteHandler) Handle(s *Session, data []byte) {
 
 	s.Publish(event.EventMessageDelete, ev.Data)
 }
+
+type MessageDeleteBulkHandler struct{}
+
+// Handle handles the message delete bulk event
+func (_ *MessageDeleteBulkHandler) Handle(s *Session, data []byte) {
+	ev, err := event.NewMessageDeleteBulk(s.rest, data)
+
+	if err != nil {
+		return
+	}
+
+	s.Publish(event.EventMessageDeleteBulk, ev.Data)
+}

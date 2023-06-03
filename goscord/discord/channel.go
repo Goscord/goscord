@@ -212,6 +212,12 @@ type Message struct {
 	Position          int                 `json:"position,omitempty"`
 }
 
+type MessageDeleteBulk struct {
+	Ids       []string `json:"ids"`
+	ChannelId string   `json:"channel_id"`
+	GuildId   string   `json:"guild_id"`
+}
+
 type rawMessage Message
 
 // UnmarshalJSON ...

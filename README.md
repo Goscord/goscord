@@ -37,8 +37,8 @@ import (
     "fmt"
 
 
-    "github.com/Goscord/goscord"
-    "github.com/Goscord/goscord/discord"
+    "github.com/Goscord/goscord/goscord"
+    "github.com/Goscord/goscord/goscord/discord"
     "github.com/Goscord/goscord/goscord/gateway"
     "github.com/Goscord/goscord/goscord/gateway/event"
 )

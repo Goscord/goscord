@@ -34,24 +34,22 @@ Discord API functions and to set callback functions for Discord events.
 package main
 
 import (
-    "fmt"
-
-
-    "github.com/Goscord/goscord/goscord"
-    "github.com/Goscord/goscord/goscord/discord"
-    "github.com/Goscord/goscord/goscord/gateway"
-    "github.com/Goscord/goscord/goscord/gateway/event"
+	"fmt"
+	"github.com/Goscord/goscord/goscord"
+	"github.com/Goscord/goscord/goscord/discord"
+	"github.com/Goscord/goscord/goscord/gateway"
+	"github.com/Goscord/goscord/goscord/gateway/event"
 )
 
 var client *gateway.Session
 
 func main() {
-    fmt.Println("Starting...")
+	fmt.Println("Starting...")
 
-    client := goscord.New(&gateway.Options{
-        Token:   "token",
-        Intents: gateway.IntentGuildMessages,
-    })
+	client := goscord.New(&gateway.Options{
+		Token:   "token",
+		Intents: gateway.IntentGuildMessages,
+	})
 
 	client.On(event.EventReady, func() {
 		fmt.Println("Logged in as " + client.Me().Tag())
@@ -63,11 +61,11 @@ func main() {
 		}
 	})
 
+	client.Login()
 
-    client.Login()
-
-    select {}
+	select {}
 }
+
 ```
 
 See [documentation](https://goscord.dev/documentation) for more detailed information.

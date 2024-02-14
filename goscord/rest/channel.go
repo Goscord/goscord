@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Goscord/goscord/goscord/discord"
-	"github.com/Goscord/goscord/goscord/discord/embed"
 	"github.com/bytedance/sonic"
 	"io"
 	"mime/multipart"
@@ -36,6 +35,22 @@ func (ch *ChannelHandler) GetChannel(channelId string) (*discord.Channel, error)
 	}
 
 	return channel, nil
+}
+
+// GetMessages gets messages from a channel
+func (ch *ChannelHandler) GetMessages(channelId string, limit int) ([]*discord.Message, error) {
+	data, err := ch.rest.Request(fmt.Sprintf(EndpointGetChannelMessages, channelId), "GET", nil, "application/json")
+	if err != nil {
+		return nil, err
+	}
+
+	var messages []*discord.Message
+	err = sonic.Unmarshal(data, &messages)
+	if err != nil {
+		return nil, err
+	}
+
+	return messages, nil
 }
 
 // GetMessage gets a message from a channel

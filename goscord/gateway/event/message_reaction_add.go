@@ -1,9 +1,9 @@
 package event
 
 import (
-	"github.com/bytedance/sonic"
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/Goscord/goscord/goscord/rest"
+	"github.com/bytedance/sonic"
 )
 
 type MessageReactionAdd struct {

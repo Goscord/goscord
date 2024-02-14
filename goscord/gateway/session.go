@@ -144,7 +144,7 @@ func (s *Session) registerHandlers() {
 		event.EventVoiceStateUpdate:  &VoiceStateUpdateHandler{},
 		event.EventVoiceServerUpdate: &VoiceServerUpdateHandler{},
 
-		event.EventMessageReactionAdd:    &MessageReactionHandler{},
+		event.EventMessageReactionAdd: &MessageReactionHandler{},
 	}
 }
 

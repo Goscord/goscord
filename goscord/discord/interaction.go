@@ -2,7 +2,7 @@ package discord
 
 import (
 	"encoding/json"
-		"github.com/bytedance/sonic"
+	"github.com/bytedance/sonic"
 )
 
 type ApplicationCommandType int

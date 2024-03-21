@@ -53,16 +53,15 @@ func main() {
         Intents: gateway.IntentGuildMessages,
     })
 
-	client.On(event.EventReady, func() {
-		fmt.Println("Logged in as " + client.Me().Tag())
-	})
+    client.On(event.EventReady, func() {
+        fmt.Println("Logged in as " + client.Me().Tag())
+    })
 
-	client.On(event.EventMessageCreate, func(msg *discord.Message) {
-		if msg.Content == "ping" {
-			client.Channel.SendMessage(msg.ChannelId, "Pong ! 🏓")
-		}
-	})
-
+    client.On(event.EventMessageCreate, func(msg *discord.Message) {
+        if msg.Content == "ping" {
+            client.Channel.SendMessage(msg.ChannelId, "Pong ! 🏓")
+        }
+    })
 
     client.Login()
 

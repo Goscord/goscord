@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/Goscord/goscord/goscord/discord"
 	"github.com/bytedance/sonic"
 )
@@ -199,7 +200,15 @@ func formatInteractionResponse(content any) (*bytes.Buffer, error) {
 	b := new(bytes.Buffer)
 
 	res := &discord.InteractionResponse{}
-	res.Type = discord.InteractionCallbackTypeChannelWithSource
+
+	switch content.(type) {
+	case *discord.InteractionCallbackAutocomplete:
+		res.Type = discord.InteractionCallbackTypeApplicationCommandAutocompleteResult
+	case *discord.InteractionCallbackModal:
+		res.Type = discord.InteractionCallbackTypeModal
+	default:
+		res.Type = discord.InteractionCallbackTypeChannelWithSource
+	}
 
 	switch ccontent := content.(type) {
 	case string:
@@ -224,8 +233,6 @@ func formatInteractionResponse(content any) (*bytes.Buffer, error) {
 
 	case *discord.InteractionCallbackMessage, *discord.InteractionCallbackAutocomplete, *discord.InteractionCallbackModal:
 		res.Data = ccontent
-
-		// cast types
 
 		jsonb, err := json.Marshal(res)
 		if err != nil {

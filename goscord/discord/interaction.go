@@ -351,6 +351,44 @@ func (d *ModalSubmitData) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+func (m ModalSubmitData) Component(customId string) MessageComponent {
+	for _, c := range m.Components {
+		switch cc := c.(type) {
+		case *ActionRows:
+			for _, ac := range cc.Components {
+				switch ac.(type) {
+				case *TextInput:
+					if ac.(*TextInput).CustomId == customId {
+						return ac
+					}
+				case *Button:
+					if ac.(*Button).CustomId == customId {
+						return ac
+					}
+				case *SelectMenu:
+					if ac.(*SelectMenu).CustomId == customId {
+						return ac
+					}
+				}
+			}
+		case *TextInput:
+			if c.(*TextInput).CustomId == customId {
+				return c
+			}
+		case *Button:
+			if c.(*Button).CustomId == customId {
+				return c
+			}
+		case *SelectMenu:
+			if c.(*SelectMenu).CustomId == customId {
+				return c
+			}
+		}
+	}
+
+	return nil
+}
+
 type ResolvedData struct {
 	Users       []*User        `json:"users,omitempty"`
 	Members     []*GuildMember `json:"members,omitempty"`

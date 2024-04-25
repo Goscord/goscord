@@ -323,11 +323,9 @@ func (ModalSubmitData) Type() InteractionType {
 }
 
 func (d *ModalSubmitData) UnmarshalJSON(data []byte) error {
-	type modalSubmitData ModalSubmitData
-
 	var v struct {
-		modalSubmitData
-		Components []unmarshalableMessageComponent `json:"components"`
+		CustomId   string          `json:"custom_id"`
+		Components json.RawMessage `json:"components"`
 	}
 
 	err := sonic.Unmarshal(data, &v)
@@ -335,15 +333,22 @@ func (d *ModalSubmitData) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	*d = ModalSubmitData(v.modalSubmitData)
+	d.CustomId = v.CustomId
 
-	d.Components = make([]MessageComponent, len(v.Components))
+	var tmp []unmarshalableMessageComponent
 
-	for i, v := range v.Components {
+	err = sonic.Unmarshal(v.Components, &tmp)
+	if err != nil {
+		return err
+	}
+
+	d.Components = make([]MessageComponent, len(tmp))
+
+	for i, v := range tmp {
 		d.Components[i] = v.MessageComponent
 	}
 
-	return err
+	return nil
 }
 
 type ResolvedData struct {

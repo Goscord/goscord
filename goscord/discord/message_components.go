@@ -3,6 +3,7 @@ package discord
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/bytedance/sonic"
 )
 
@@ -54,18 +55,14 @@ func (u *unmarshalableMessageComponent) UnmarshalJSON(data []byte) error {
 	switch v.Type {
 	case ComponentTypeActionRow:
 		u.MessageComponent = &ActionRows{}
-
 	case ComponentTypeButton:
 		u.MessageComponent = &Button{}
-
 	case ComponentTypeSelectMenu:
 		u.MessageComponent = &SelectMenu{}
-
 	case ComponentTypeTextInput:
 		u.MessageComponent = &TextInput{}
-
 	default:
-		return fmt.Errorf("unknown component type: %d", v.Type)
+		return fmt.Errorf("unknown component type %d", v.Type)
 	}
 
 	return sonic.Unmarshal(data, u.MessageComponent)
@@ -88,23 +85,23 @@ func (r ActionRows) MarshalJSON() ([]byte, error) {
 	})
 }
 
-func (r ActionRows) UnmarshalJSON(data []byte) error {
+func (r *ActionRows) UnmarshalJSON(data []byte) error {
 	var v struct {
 		Components []unmarshalableMessageComponent `json:"components"`
 	}
 
 	err := sonic.Unmarshal(data, &v)
+
 	if err != nil {
 		return err
 	}
 
 	r.Components = make([]MessageComponent, len(v.Components))
-
-	for i, v := range v.Components {
-		r.Components[i] = v.MessageComponent
+	for i, c := range v.Components {
+		r.Components[i] = c.MessageComponent
 	}
 
-	return err
+	return nil
 }
 
 type Button struct {
